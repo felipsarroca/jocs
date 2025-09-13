@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Joc del Penjat</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <h1>Joc del Penjat</h1>
+        <p class="subtitle">Introdueix la paraula en secret i… a jugar!</p>
+      </header>
+
+      <section class="panel setup" id="setupPanel">
+        <div class="field secret-field">
+          <label for="secretInput">Paraula secreta</label>
+          <div class="secret-wrap">
+            <input id="secretInput" type="password" placeholder="Escriu la paraula…" autocomplete="off" />
+            <button id="toggleSecret" class="btn icon" aria-label="Mostra/oculta">👁️</button>
+          </div>
+          <small class="hint">Accepta lletres i espais. Accents permesos.</small>
+        </div>
+        <div class="actions">
+          <button id="startBtn" class="btn primary" aria-label="Inicia la partida">Inicia</button>
+          <button id="demoBtn" class="btn ghost" title="Prova ràpida" aria-label="Prova amb paraula de mostra">Prova ràpida</button>
+        </div>
+      </section>
+
+      <section class="panel game hidden" id="gamePanel">
+        <div class="top-bar">
+          <div id="statusMsg" class="status">Endevina la paraula!</div>
+          <div class="spacer"></div>
+          <button id="resetBtn" class="btn ghost small">Reinicia</button>
+        </div>
+
+        <div class="game-grid">
+          <div class="canvas-wrap">
+            <canvas id="hangmanCanvas" width="360" height="320" aria-label="Dibuix del penjat"></canvas>
+          </div>
+
+          <div class="play-wrap">
+            <div id="wordSlots" class="word-slots" aria-live="polite"></div>
+
+            <div class="guess-row">
+              <label for="letterInput" class="sr-only">Introdueix una lletra</label>
+              <input id="letterInput" class="letter-input" maxlength="1" placeholder="A" autocomplete="off" />
+              <button id="guessBtn" class="btn accent">Prova</button>
+            </div>
+
+            <div class="keyboard" id="keyboard"></div>
+
+            <div class="wrong-box">
+              <div class="wrong-title">Lletres errònies</div>
+              <div id="wrongLetters" class="wrong-letters"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Overlays -->
+      <div id="winOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+        <div class="overlay-card win">
+          <h2 id="winTitle">Enhorabona! 🎉</h2>
+          <p class="overlay-msg">Has encertat la paraula: <span id="winWord" class="word-highlight"></span></p>
+          <div id="confetti" class="confetti"></div>
+          <button id="playAgainWin" class="btn primary big">Torna a jugar</button>
+        </div>
+      </div>
+
+      <div id="loseOverlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loseTitle">
+        <div class="overlay-card lose">
+          <h2 id="loseTitle">Oh! Has perdut 😢</h2>
+          <p class="overlay-msg">La paraula era: <span id="loseWord" class="word-highlight"></span></p>
+          <canvas id="loseCanvas" width="360" height="320" aria-label="Penjat final"></canvas>
+          <button id="playAgainLose" class="btn accent big">Torna a jugar</button>
+        </div>
+      </div>
+
+      <footer class="footer" aria-label="Peu d'aplicació">
+        <div class="credit">Aplicació creada per Felip Sarroca amb l'assistència de la IA</div>
+        <div class="license">
+          <a class="license-badge-link" href="https://creativecommons.org/licenses/by-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">
+            <img class="license-badge" src="assets/cc-by-sa-4.0.svg" alt="Llicència Creative Commons BY-SA 4.0" />
+          </a>
+          <span class="license-text">Aquesta obra està sota llicència <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></span>
+        </div>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+  </html>
