@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slither Link - Estètica Aurora</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f0f2f5; 
+      --main-text-color: #333;
+      --container-bg: rgba(255, 255, 255, 0.75);
+      --container-border: rgba(255, 255, 255, 0.5);
+      --shadow-color: rgba(100, 100, 100, 0.1);
+      
+      --primary-color: #007BFF; 
+      --primary-hover: #0056b3; 
+      --check-color: #28a745; 
+      --check-hover: #218838;
+      --hint-color: #6f42c1; 
+      --hint-hover: #5a32a3;
+      --clear-color: #ffc107; 
+      --clear-hover: #e0a800;
+      --instructions-color: #17a2b8;
+      --instructions-hover: #138496;
+      
+      --difficulty-select-color: #20c997;
+      
+      --play-again-grad-start: #17a2b8;
+      --play-again-grad-end: #20c997;
+      
+      --text-on-primary: #ffffff;
+      --disabled-color: #bdbdbd;
+
+      --grid-line-color: rgba(0, 123, 255, 0.2);
+      --dot-color: #aaa;
+      --number-color: #333;
+      
+      --player-line-color: var(--primary-color);
+      --player-x-color: #dc3545; 
+      
+      --solution-correct-color: var(--check-color);
+      --solution-error-color: #dc3545; 
+      --solution-line-color: #20c997;
+    }
+
+    html {
+      height: 100%;
+    }
+    
+    body {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--main-text-color);
+      margin: 0;
+      padding: clamp(10px, 4vh, 40px);
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-y: auto;
+      background-color: #f0f2f5;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(253, 100%, 75%, 0.15) 0px, transparent 50%),
+        radial-gradient(at 98% 1%, hsla(220, 100%, 75%, 0.15) 0px, transparent 50%),
+        radial-gradient(at 80% 90%, hsla(330, 100%, 75%, 0.15) 0px, transparent 50%);
+    }
+
+    .main-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(1.5rem, 4vw, 3rem);
+        width: 100%;
+        max-width: 1200px;
+        margin: auto;
+        flex-direction: column;
+    }
+
+    .game-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.5rem, 2vh, 1.5rem);
+    }
+
+    .controls-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 350px;
+        padding: 5px;
+    }
+    
+    h1 {
+      font-weight: 700;
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      margin: 0;
+      background: -webkit-linear-gradient(45deg, #007BFF, #6f42c1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 2px 2px 15px rgba(0,0,0,0.05);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+    
+    #actionButtons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      width: 100%;
+    }
+
+    select, button {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(0.75rem, 2vw, 0.9rem);
+      font-weight: 600;
+      padding: clamp(10px, 2vh, 14px) clamp(15px, 3vw, 20px);
+      border: 1px solid transparent;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--text-on-primary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    button:hover:not(:disabled), select:hover {
+      box-shadow: 0 6px 20px var(--shadow-color);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.4);
+    }
+    
+    #newPuzzleButton { background-color: var(--primary-color); }
+    #checkButton { background-color: var(--check-color); }
+    #hintButton { background-color: var(--hint-color); }
+    #clearButton { background-color: var(--clear-color); color: #212529; }
+    #instructionsButton { background-color: var(--instructions-color); }
+
+    button:disabled {
+      background-color: var(--disabled-color); color: #fafafa;
+      cursor: not-allowed; box-shadow: none; transform: none;
+    }
+    
+    select {
+        -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        padding-right: 35px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ffffff'%3E%3Cpath d='M6 9L0 3h12z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        /* MILLORA: Centra el text dins del botó desplegable */
+        text-align: center;
+    }
+    #difficultySelect { background-color: var(--difficulty-select-color); }
+    
+    select option { background-color: #fff; color: var(--main-text-color); }
+
+    #gameContainer {
+      position: relative;
+      width: clamp(280px, 85vw, 65vh); 
+      max-width: 90vw;
+      max-height: 70vh;
+      aspect-ratio: 1 / 1; 
+      padding: 15px; border-radius: 20px;
+      background: var(--container-bg);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--container-border);
+      box-shadow: 0 8px 32px 0 var(--shadow-color);
+    }
+    
+    .spinner-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(240, 242, 245, 0.8); display: flex;
+      justify-content: center; align-items: center; border-radius: 16px;
+      z-index: 10; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s;
+    }
+    .spinner-overlay.show { visibility: visible; opacity: 1; }
+    .spinner {
+      border: 8px solid #e0e0e0; border-top: 8px solid var(--primary-color);
+      border-radius: 50%; width: 60px; height: 60px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    svg#gameSVG { width: 100%; height: 100%; overflow: visible; }
+    .dot { fill: var(--dot-color); }
+    .cell-number {
+      font-weight: 600; text-anchor: middle; dominant-baseline: middle;
+      fill: var(--number-color); user-select: none; transition: fill 0.3s ease;
+    }
+    
+    #message {
+      font-size: clamp(0.8rem, 2.5vh, 1rem);
+      padding: clamp(8px, 2vh, 12px) clamp(15px, 3vw, 20px);
+      margin: 0; border-radius: 30px; font-weight: 600;
+      color: var(--text-on-primary); background: transparent; transition: all 0.3s ease;
+      min-height: 1.5em; display: flex; align-items: center;
+      justify-content: center; text-align: center;
+    }
+    #message.success { background: var(--solution-correct-color); }
+    #message.error { background: var(--solution-error-color); }
+
+    .modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5); z-index: 100;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; visibility: hidden; transition: all 0.3s ease;
+    }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content {
+        padding: 30px; border-radius: 15px; width: 90%; max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(-20px);
+        transition: all 0.3s ease; position: relative;
+        background: rgba(240, 242, 245, 0.7);
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .modal-overlay.show .modal-content { transform: translateY(0); }
+    .modal-content h2 { margin-top: 0; color: var(--primary-color); }
+    .modal-content ul { padding-left: 20px; }
+    .modal-content li { margin-bottom: 10px; }
+    .modal-close {
+        position: absolute; top: 15px; right: 15px; background: none; border: none;
+        font-size: 1.5rem; cursor: pointer; color: #888; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--main-text-color); }
+    
+    .copyright-text {
+        font-size: 0.75rem;
+        color: #999;
+        text-align: center;
+        margin-top: 15px;
+    }
+    
+    .play-again-btn {
+        background: linear-gradient(45deg, var(--play-again-grad-start), var(--play-again-grad-end)) !important;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 4px 15px var(--shadow-color); }
+        50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(23, 162, 184, 0.4); }
+        100% { transform: scale(1); box-shadow: 0 4px 15px var(--shadow-color); }
+    }
+    
+    @media (min-width: 800px) {
+        .main-container {
+            flex-direction: row;
+        }
+    }
+
+  </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="game-panel">
+            <h1>Slither Link</h1>
+            <div id="gameContainer">
+                <div id="spinner" class="spinner-overlay"><div class="spinner"></div></div>
+                <svg id="gameSVG" viewBox="0 0 100 100"></svg>
+            </div>
+            <div id="message"></div>
+        </div>
+        <div class="controls-panel">
+            <div class="control-group">
+                <select id="difficultySelect">
+                    <option value="moltFacil">Molt fàcil</option>
+                    <option value="facil">Fàcil</option>
+                    <option value="normal">Normal</option>
+                    <option value="dificil">Difícil</option>
+                    <option value="moltDificil">Molt difícil</option>
+                </select>
+                <button id="newPuzzleButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3a5 5 0 0 0-5 5h1a4 4 0 0 1 4-4v1a.5.5 0 0 1-1 0V3zM9 13a.5.5 0 0 1 1 0v-1a4 4 0 0 1-4-4H4a5 5 0 0 0 5 5zM12 8a.5.5 0 0 1 0-1h1a5 5 0 0 0-5-5V1a.5.5 0 0 1 1 0v1a4 4 0 0 1 4 4zm-1 5a.5.5 0 0 1 0 1H8a4 4 0 0 1-4-4v-1a.5.5 0 0 1 1 0v1a3 3 0 0 0 3 3z"/></svg>
+                    <span>Nou Puzzle</span>
+                </button>
+            </div>
+            <div id="actionButtons" class="control-group">
+                <button id="checkButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.736 4.264a.5.5 0 0 1 .708.708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L5.5 10.793l6.236-6.529z"/><path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-1.5 0a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/></svg><span>Comprovar</span></button>
+                <button id="hintButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13h-5a.5.5 0 0 1-.46-.302l-.761-1.77a1.99 1.99 0 0 0-.453-.618A5.98 5.98 0 0 1 2 6m3 8.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1-.5-.5"/></svg><span>Pista</span></button>
+                <button id="clearButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/><path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/></svg><span>Netejar</span></button>
+                <button id="instructionsButton"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/></svg><span>Instruccions</span></button>
+            </div>
+             <p class="copyright-text">&copy; 2025 Aplicació creada per Felip Sarroca amb l'assistència de la IA</p>
+        </div>
+    </div>
+
+    <div id="instructionsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="modalCloseButton" class="modal-close">&times;</button>
+            <h2>Com Jugar a Slither Link</h2>
+            <p>L'objectiu és dibuixar una única línia contínua tancada (un bucle) seguint les pistes dels números.</p>
+            <ul>
+                <li>Cada <strong>número</strong> en una casella indica quantes de les seves quatre arestes formen part del bucle.</li>
+                <li>Fes <strong>clic esquerre</strong> en una aresta per dibuixar un segment de línia.</li>
+                <li>Fes <strong>clic dret</strong> per marcar una aresta amb una '✕', indicant que no forma part del bucle.</li>
+            </ul>
+            <h3>Controls</h3>
+            <ul>
+                <li><strong>Comprovar:</strong> Verifica si la teva solució és correcta. Si no ho és, et mostrarà la solució correcta en verd.</li>
+                <li><strong>Pista:</strong> Ressalta els números satisfets en verd i els incorrectes en vermell. A més, marca en vermell les línies que has dibuixat i que no formen part de la solució.</li>
+                <li><strong>Netejar:</strong> Esborra totes les línies i marques que has dibuixat al tauler.</li>
+                <li><strong>Instruccions:</strong> Mostra aquesta finestra d'ajuda.</li>
+            </ul>
+        </div>
+    </div>
+
+  <script>
+    // --- Variables Globals ---
+    let currentPuzzle, playerEdges = {}, edgeElements = {}, numberElements = {};
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    const difficultySettings = {
+      moltFacil: { size: [4, 5] }, facil: { size: [6, 7] },
+      normal: { size: [8, 9] }, dificil: { size: [10, 11] },
+      moltDificil: { size: [12, 13] },
+    };
+    
+    // --- Referències a Elements del DOM ---
+    const newPuzzleBtn = document.getElementById("newPuzzleButton");
+    const checkBtn = document.getElementById("checkButton");
+    const clearBtn = document.getElementById("clearButton");
+    const hintBtn = document.getElementById("hintButton");
+    const instructionsBtn = document.getElementById("instructionsButton");
+    const difficultySelect = document.getElementById("difficultySelect");
+    const instructionsModal = document.getElementById("instructionsModal");
+    const modalCloseBtn = document.getElementById("modalCloseButton");
+
+    // --- LÒGICA DE GENERACIÓ DEL PUZZLE (Sense canvis) ---
+    function randomChoice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function vertexToStr(v) { return v.join(","); }
+    function getNeighbors(v, maxRow, maxCol) {
+      let [r, c] = v; let neighbors = [];
+      if (r > 0) neighbors.push([r - 1, c]); if (r < maxRow) neighbors.push([r + 1, c]);
+      if (c > 0) neighbors.push([r, c - 1]); if (c < maxCol) neighbors.push([r, c + 1]);
+      return neighbors;
+    }
+    function generateSpanningTree(rows, cols) {
+        const nodes = []; for (let r = 0; r <= rows; r++) for (let c = 0; c <= cols; c++) nodes.push([r, c]);
+        const treeNodes = new Set(); const treeGraph = {};
+        const startNode = randomChoice(nodes); treeNodes.add(vertexToStr(startNode)); treeGraph[vertexToStr(startNode)] = [];
+        const notInTree = new Set(nodes.map(vertexToStr)); notInTree.delete(vertexToStr(startNode));
+        while (notInTree.size > 0) {
+            let walkStartNodeStr = Array.from(notInTree)[Math.floor(Math.random() * notInTree.size)];
+            let walk = [walkStartNodeStr.split(",").map(Number)];
+            while (!treeNodes.has(vertexToStr(walk[walk.length - 1]))) {
+                const current = walk[walk.length - 1]; const next = randomChoice(getNeighbors(current, rows, cols));
+                const existingIndex = walk.findIndex(v => vertexToStr(v) === vertexToStr(next));
+                if (existingIndex !== -1) walk = walk.slice(0, existingIndex + 1); else walk.push(next);
+            }
+            for (let i = 0; i < walk.length - 1; i++) {
+                const uStr = vertexToStr(walk[i]); const vStr = vertexToStr(walk[i + 1]);
+                if (!treeGraph[uStr]) treeGraph[uStr] = []; if (!treeGraph[vStr]) treeGraph[vStr] = [];
+                treeGraph[uStr].push(vStr); treeGraph[vStr].push(uStr);
+                treeNodes.add(uStr); notInTree.delete(uStr);
+            }
+        }
+        return treeGraph;
+    }
+    function findPath(treeGraph, start, end) {
+      const startStr = vertexToStr(start), endStr = vertexToStr(end); let queue = [[startStr]]; let visited = new Set([startStr]);
+      while (queue.length > 0) {
+        let path = queue.shift(), last = path[path.length - 1]; if (last === endStr) return path.map(s => s.split(",").map(Number));
+        for (let n of(treeGraph[last] || [])) { if (!visited.has(n)) { visited.add(n); queue.push(path.concat(n)); } }
+      }
+      return null;
+    }
+    function pickExtraEdge(rows, cols, treeGraph) {
+        let allEdges = [];
+        for (let r = 0; r <= rows; r++) for (let c = 0; c <= cols; c++) {
+            if (c < cols) allEdges.push({u: [r, c], v: [r, c + 1]}); if (r < rows) allEdges.push({u: [r, c], v: [r + 1, c]});
+        }
+        const treeEdges = new Set();
+        for (const uStr in treeGraph) for (const vStr of treeGraph[uStr]) { if (uStr < vStr) treeEdges.add(`${uStr}|${vStr}`); }
+        const nonTreeEdges = allEdges.filter(edge => {
+            const uStr = vertexToStr(edge.u), vStr = vertexToStr(edge.v);
+            return uStr < vStr ? !treeEdges.has(`${uStr}|${vStr}`) : !treeEdges.has(`${vStr}|${uStr}`);
+        });
+        return nonTreeEdges.length === 0 ? null : randomChoice(nonTreeEdges);
+    }
+    function convertCycleToEdges(cycle) {
+      let edges = new Set();
+      for (let i = 0; i < cycle.length - 1; i++) {
+        let [r1, c1] = cycle[i], [r2, c2] = cycle[i + 1];
+        if (r1 === r2) edges.add("H-" + r1 + "-" + Math.min(c1, c2)); else edges.add("V-" + Math.min(r1, r2) + "-" + c1);
+      }
+      return edges;
+    }
+    async function generatePuzzle(difficulty) {
+        const settings = difficultySettings[difficulty]; const size = randomChoice(settings.size), rows = size, cols = size;
+        for (let attempt = 0; attempt < 1000; attempt++) {
+            const tree = generateSpanningTree(rows, cols); const extraEdge = pickExtraEdge(rows, cols, tree); if (!extraEdge) continue;
+            const path = findPath(tree, extraEdge.u, extraEdge.v); if (!path) continue;
+            const cycle = path.concat([extraEdge.u]); const solutionEdges = convertCycleToEdges(cycle); if (solutionEdges.size < (rows + cols)) continue;
+            const numbers = []; let zeroCount = 0;
+            for (let r = 0; r < rows; r++) { numbers[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    let count = 0;
+                    if (solutionEdges.has(`H-${r}-${c}`)) count++; if (solutionEdges.has(`H-${r+1}-${c}`)) count++;
+                    if (solutionEdges.has(`V-${r}-${c}`)) count++; if (solutionEdges.has(`V-${r}-${c+1}`)) count++;
+                    numbers[r][c] = count; if (count === 0) zeroCount++;
+                }
+            }
+            if (zeroCount > Math.floor(rows * cols * 0.55)) { continue; }
+            return { rows, cols, numbers, solutionEdges: Array.from(solutionEdges) };
+        }
+        console.error("No s'ha pogut generar un puzzle per a la dificultat:", difficulty); return null;
+    }
+
+    // --- DIBUIX DEL TAULER I INTERACCIÓ ---
+    function loadPuzzle(puzzle) {
+        document.getElementById('spinner').classList.remove('show');
+        if (!puzzle) { 
+            document.getElementById("message").textContent = "Error en generar el puzzle. Torna a intentar-ho.";
+            document.getElementById("message").className = "error";
+            return; 
+        }
+        currentPuzzle = puzzle; playerEdges = {}; edgeElements = {}; numberElements = {};
+        const svg = document.getElementById("gameSVG"); svg.innerHTML = "";
+        const margin = 10;
+        const cellSize = 100 / Math.max(puzzle.rows, puzzle.cols);
+        svg.setAttribute("viewBox", `0 0 ${puzzle.cols * cellSize + 2 * margin} ${puzzle.rows * cellSize + 2 * margin}`);
+        
+        for (let r = 0; r <= puzzle.rows; r++) {
+            const hLine = document.createElementNS(svgNS, "line");
+            hLine.setAttribute("x1", margin); hLine.setAttribute("y1", margin + r * cellSize);
+            hLine.setAttribute("x2", margin + puzzle.cols * cellSize); hLine.setAttribute("y2", margin + r * cellSize);
+            hLine.setAttribute("stroke", "var(--grid-line-color)"); hLine.setAttribute("stroke-width", "1");
+            svg.appendChild(hLine);
+        }
+        for (let c = 0; c <= puzzle.cols; c++) {
+            const vLine = document.createElementNS(svgNS, "line");
+            vLine.setAttribute("x1", margin + c * cellSize); vLine.setAttribute("y1", margin);
+            vLine.setAttribute("x2", margin + c * cellSize); vLine.setAttribute("y2", margin + puzzle.rows * cellSize);
+            vLine.setAttribute("stroke", "var(--grid-line-color)"); vLine.setAttribute("stroke-width", "1");
+            svg.appendChild(vLine);
+        }
+
+        for (let r = 0; r <= puzzle.rows; r++) for (let c = 0; c <= puzzle.cols; c++) {
+            if (r < puzzle.rows && c < puzzle.cols && currentPuzzle.numbers[r][c] !== null) {
+                const text = document.createElementNS(svgNS, "text");
+                text.setAttribute("x", margin + (c + 0.5) * cellSize); text.setAttribute("y", margin + (r + 0.5) * cellSize);
+                text.setAttribute("class", "cell-number"); text.setAttribute("font-size", cellSize * 0.5);
+                text.textContent = currentPuzzle.numbers[r][c];
+                svg.appendChild(text); numberElements[`${r}-${c}`] = text;
+            }
+        }
+        
+        for (let r = 0; r <= puzzle.rows; r++) for (let c = 0; c < puzzle.cols; c++) createEdge("H", r, c, cellSize, margin);
+        for (let r = 0; r < puzzle.rows; r++) for (let c = 0; c <= puzzle.cols; c++) createEdge("V", r, c, cellSize, margin);
+
+        for (let r = 0; r <= puzzle.rows; r++) for (let c = 0; c <= puzzle.cols; c++) {
+            const dot = document.createElementNS(svgNS, "circle");
+            dot.setAttribute("cx", margin + c * cellSize); dot.setAttribute("cy", margin + r * cellSize);
+            dot.setAttribute("r", cellSize * 0.08); dot.setAttribute("class", "dot"); svg.appendChild(dot);
+        }
+        setupForNewGame();
+    }
+    function createEdge(orientation, r, c, cellSize, margin) {
+        const edgeId = `${orientation}-${r}-${c}`; playerEdges[edgeId] = 0;
+        const svg = document.getElementById("gameSVG"), group = document.createElementNS(svgNS, "g");
+        let x1, y1, x2, y2;
+        if (orientation === "H") { x1=margin+c*cellSize; y1=margin+r*cellSize; x2=margin+(c+1)*cellSize; y2=y1; }
+        else { x1=margin+c*cellSize; y1=margin+r*cellSize; x2=x1; y2=margin+(r+1)*cellSize; }
+        
+        const visElement = document.createElementNS(svgNS, "line");
+        visElement.setAttribute("x1", x1); visElement.setAttribute("y1", y1); visElement.setAttribute("x2", x2); visElement.setAttribute("y2", y2);
+        visElement.setAttribute("stroke", "none"); visElement.setAttribute("stroke-width", cellSize * 0.1); visElement.setAttribute("stroke-linecap", "round");
+        
+        const xElement = document.createElementNS(svgNS, "text");
+        xElement.setAttribute("x", (x1+x2)/2); xElement.setAttribute("y", (y1+y2)/2); xElement.textContent = "✕";
+        xElement.setAttribute("font-size", cellSize * 0.3); xElement.setAttribute("text-anchor", "middle");
+        xElement.setAttribute("dominant-baseline", "middle"); xElement.setAttribute("fill", "var(--player-x-color)");
+        xElement.style.display = "none"; xElement.style.pointerEvents = "none";
+        
+        edgeElements[edgeId] = { line: visElement, x: xElement, group };
+
+        const clickArea = document.createElementNS(svgNS, "line");
+        clickArea.setAttribute("x1", x1); clickArea.setAttribute("y1", y1); clickArea.setAttribute("x2", x2); clickArea.setAttribute("y2", y2);
+        clickArea.setAttribute("stroke", "transparent"); clickArea.setAttribute("stroke-width", cellSize * 0.5);
+        clickArea.style.cursor = "pointer";
+        
+        clickArea.addEventListener("click", () => {
+            if (checkBtn.disabled) return;
+            playerEdges[edgeId] = (playerEdges[edgeId] === 1) ? 0 : 1; updateEdgeVisual(edgeId);
+        });
+        clickArea.addEventListener("contextmenu", (e) => {
+            e.preventDefault(); if (checkBtn.disabled) return;
+            playerEdges[edgeId] = (playerEdges[edgeId] === 2) ? 0 : 2; updateEdgeVisual(edgeId);
+        });
+        
+        group.appendChild(visElement); group.appendChild(xElement); group.appendChild(clickArea); svg.appendChild(group);
+    }
+    function updateEdgeVisual(edgeId, tempColor = null) {
+        const state = playerEdges[edgeId], elements = edgeElements[edgeId];
+        elements.line.setAttribute("stroke", tempColor ? tempColor : (state === 1 ? "var(--player-line-color)" : "none"));
+        elements.x.style.display = state === 2 ? "block" : "none";
+    }
+
+    // --- LÒGICA DE JOC I UI ---
+    function checkSolution() {
+        const messageEl = document.getElementById("message");
+        const playerMarkedEdges = new Set(Object.keys(playerEdges).filter(k => playerEdges[k] === 1));
+        const solutionIsCorrect = playerMarkedEdges.size === currentPuzzle.solutionEdges.length && currentPuzzle.solutionEdges.every(edge => playerMarkedEdges.has(edge));
+        
+        messageEl.textContent = solutionIsCorrect ? "Felicitats! Has resolt el puzzle!" : "La solució és incorrecta.";
+        messageEl.className = solutionIsCorrect ? "success" : "error";
+        
+        if (!solutionIsCorrect) {
+            showFinalSolution();
+        }
+        setupForGameOver();
+    }
+    
+    function showFinalSolution() {
+        const solutionSet = new Set(currentPuzzle.solutionEdges);
+        const svg = document.getElementById("gameSVG");
+        const margin = 10;
+        const cellSize = 100 / Math.max(currentPuzzle.rows, currentPuzzle.cols);
+        
+        solutionSet.forEach(edgeId => {
+            const [orientation, rStr, cStr] = edgeId.split('-');
+            const r = parseInt(rStr), c = parseInt(cStr);
+            let x1, y1, x2, y2;
+            if (orientation === 'H') {
+                x1 = margin + c * cellSize; y1 = margin + r * cellSize; x2 = margin + (c + 1) * cellSize; y2 = y1;
+            } else {
+                x1 = margin + c * cellSize; y1 = margin + r * cellSize; x2 = x1; y2 = margin + (r + 1) * cellSize;
+            }
+            const solLine = document.createElementNS(svgNS, "line");
+            solLine.setAttribute("x1", x1); solLine.setAttribute("y1", y1); solLine.setAttribute("x2", x2); solLine.setAttribute("y2", y2);
+            solLine.setAttribute("stroke", "var(--solution-line-color)");
+            solLine.setAttribute("stroke-width", cellSize * 0.05);
+            solLine.setAttribute("stroke-linecap", "round");
+            solLine.style.pointerEvents = "none";
+            svg.appendChild(solLine);
+        });
+    }
+
+    function showHint() {
+        if (checkBtn.disabled) return;
+        hintBtn.disabled = true;
+        const solutionSet = new Set(currentPuzzle.solutionEdges);
+        const tempChanges = [];
+
+        for (const edgeId in playerEdges) {
+            if (playerEdges[edgeId] === 1 && !solutionSet.has(edgeId)) {
+                updateEdgeVisual(edgeId, 'var(--solution-error-color)');
+                tempChanges.push(() => updateEdgeVisual(edgeId));
+            }
+        }
+        
+        for (let r = 0; r < currentPuzzle.rows; r++) {
+            for (let c = 0; c < currentPuzzle.cols; c++) {
+                const num = currentPuzzle.numbers[r][c]; if (num === null) continue;
+                let playerLineCount = 0;
+                if (playerEdges[`H-${r}-${c}`] === 1) playerLineCount++; if (playerEdges[`H-${r+1}-${c}`] === 1) playerLineCount++;
+                if (playerEdges[`V-${r}-${c}`] === 1) playerLineCount++; if (playerEdges[`V-${r}-${c+1}`] === 1) playerLineCount++;
+                
+                const numberEl = numberElements[`${r}-${c}`];
+                if (numberEl) {
+                    const originalFill = numberEl.style.fill || 'var(--number-color)';
+                    const isCorrect = playerLineCount === num;
+                    numberEl.style.fill = isCorrect ? 'var(--solution-correct-color)' : 'var(--solution-error-color)';
+                    tempChanges.push(() => numberEl.style.fill = originalFill);
+                }
+            }
+        }
+        
+        setTimeout(() => {
+            tempChanges.forEach(revert => revert());
+            hintBtn.disabled = false;
+        }, 2500);
+    }
+    
+    function clearPuzzle() {
+        for (let edgeId in playerEdges) { playerEdges[edgeId] = 0; updateEdgeVisual(edgeId); }
+        document.getElementById("message").textContent = ""; document.getElementById("message").className = "";
+    }
+    
+    async function loadNextPuzzle() {
+        document.getElementById('spinner').classList.add('show');
+        Object.values(document.querySelectorAll('.controls-panel button, .controls-panel select')).forEach(el => el.disabled = true);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const difficulty = document.getElementById("difficultySelect").value;
+        const puzzle = await generatePuzzle(difficulty);
+        loadPuzzle(puzzle);
+    }
+    
+    function setupForNewGame() {
+        document.getElementById("message").textContent = ""; document.getElementById("message").className = "";
+        Object.values(document.querySelectorAll('.controls-panel button, .controls-panel select')).forEach(el => el.disabled = false);
+        newPuzzleBtn.querySelector("span").textContent = "Nou Puzzle";
+        newPuzzleBtn.classList.remove('play-again-btn');
+    }
+    
+    function setupForGameOver() {
+        checkBtn.disabled = true; clearBtn.disabled = true; hintBtn.disabled = true;
+        newPuzzleBtn.querySelector("span").textContent = "Jugar de nou";
+        newPuzzleBtn.classList.add('play-again-btn');
+    }
+    
+    // --- GESTIÓ D'ESDEVENIMENTS ---
+    checkBtn.addEventListener("click", checkSolution);
+    clearBtn.addEventListener("click", clearPuzzle);
+    hintBtn.addEventListener("click", showHint);
+    newPuzzleBtn.addEventListener("click", loadNextPuzzle);
+    difficultySelect.addEventListener("change", loadNextPuzzle);
+    
+    instructionsBtn.addEventListener('click', () => instructionsModal.classList.add('show'));
+    modalCloseBtn.addEventListener('click', () => instructionsModal.classList.remove('show'));
+    instructionsModal.addEventListener('click', (e) => {
+        if (e.target === instructionsModal) { instructionsModal.classList.remove('show'); }
+    });
+    
+    window.onload = loadNextPuzzle;
+  </script>
+</body>
+</html>
