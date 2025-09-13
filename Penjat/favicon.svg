@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Favicon joc del penjat">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <!-- Tons blau pastel -->
+      <stop offset="0" stop-color="#bae6fd"/>
+      <stop offset="1" stop-color="#93c5fd"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="12" fill="url(#bg)"/>
+  <!-- Forca -->
+  <g stroke="#0b1220" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.92">
+    <path d="M10 54H54"/>           <!-- base -->
+    <path d="M18 54V12"/>           <!-- pal vertical -->
+    <path d="M18 12H42"/>           <!-- biga -->
+    <path d="M42 12V20"/>           <!-- corda -->
+    <!-- Figura penjada (estil minimalista) -->
+    <circle cx="42" cy="26" r="6" fill="#0b1220"/>  <!-- cap -->
+    <path d="M42 32V44"/>           <!-- tronc -->
+    <path d="M42 36L36 40"/>        <!-- braç esquerre -->
+    <path d="M42 36L48 40"/>        <!-- braç dret -->
+    <path d="M42 44L37 52"/>        <!-- cama esquerra -->
+    <path d="M42 44L47 52"/>        <!-- cama dreta -->
+  </g>
+</svg>
