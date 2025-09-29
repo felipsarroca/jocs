@@ -753,12 +753,11 @@
       );
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const rootElement = document.getElementById('root');
-      if (!rootElement) return;
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
       const root = ReactDOM.createRoot(rootElement);
       root.render(<MathGame2048 />);
-    });
+    }
   </script>
 </body>
 </html>
