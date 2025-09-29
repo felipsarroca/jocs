@@ -1,0 +1,50 @@
+🎮 Aplicació 2048 personalitzada amb comptador de temps
+🧩 Mecànica del joc
+* Tauler principal: quadrícula de 4x4 (com el 2048 original).
+* Moviments: amb les fletxes del teclat (↑ ↓ → ←) o amb gestos “swipe” si es juga des del mòbil.
+* Combinació de caselles:
+   * En lloc de fusionar només potències de 2, les caselles poden mostrar operacions matemàtiques senzilles (ex.: 3×4, 12, 6+6).
+   * Quan dues caselles resolen la mateixa operació, es fusionen i donen lloc a una nova casella amb més “nivell”.
+* Objectiu: arribar a una casella final (p. ex. 2048 o un altre límit que decideixis).
+⏱️ Comptador de temps
+* Mode clàssic: es mostra el temps total jugat (en minuts i segons).
+* Mode contrarellotge: disposes de 3 o 5 minuts per aconseguir la puntuació més alta.
+* Estètica: un rellotge digital visible a la part superior, amb números grans i de color viu.
+* Opcional: quan s’està a punt d’acabar el temps, el comptador parpelleja en vermell.
+🏆 Marcador i puntuació
+* Punts visibles en tot moment.
+* Es pot afegir un bonus per rapidesa: si combines caselles en menys de 3 segons, sumes punts extra.
+* Taula de rècords (top 5) amb el nom de l’alumne.
+🎨 Estètica i disseny visual
+1. Colors vius i diferenciats:
+   * Cada casella té un color diferent segons el nivell (gradació de grocs → taronges → vermells → liles → verds → blaus).
+   * El contrast ha de ser alt perquè sigui fàcil de distingir.
+   * Opció de tema fosc/clar.
+2. Animacions suaus:
+   * Quan dues caselles es fusionen, una petita expansió i contracció amb efecte “pop”.
+   * Quan apareix una casella nova, que entri amb una animació de fade-in.
+3. Tipografia gran i clara:
+   * Els números i operacions han de ser visibles fins i tot en mòbil.
+   * Recomanable una font rodona i moderna (p. ex. Poppins o Nunito).
+4. Estètica general:
+   * Fons degradat en tons suaus (p. ex. blau cel → blau marí).
+   * Les caselles tenen ombres suaus i vores arrodonides (estil material design).
+   * Botons grans i amb icones clares (🔄 reiniciar, 🏆 rècords, 🎨 tema).
+📱 Jugabilitat i accessibilitat
+* Responsive: el tauler s’adapta a mòbil, tauleta o ordinador.
+* Controls tàctils: swipe amb el dit per moure les caselles.
+* Sons i efectes opcionals:
+   * Un “clic” suau al moure.
+   * Un so brillant quan es fusionen caselles.
+   * Un so especial quan s’arriba a la casella final.
+* Opcions per l’alumne:
+   * Reiniciar partida.
+   * Seleccionar mode (clàssic / contrarellotge).
+   * Veure instruccions ràpides abans de jugar.
+💡 Extres que enganxen
+* Missatges motivadors cada cop que millores:
+   * “Fantàstic!”
+   * “Brillant!”
+   * “Campió de les combinacions!”
+* Fites intermitges: quan arribes a caselles com 128, 512 o 1024, es mostra una animació especial.
+* Compartir puntuació: opcionalment, es podria permetre descarregar una captura o compartir el rècord amb companys.
