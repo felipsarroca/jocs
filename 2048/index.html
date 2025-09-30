@@ -24,14 +24,12 @@
     :root {
       color-scheme: light;
     }
-
     body {
       margin: 0;
       font-family: 'Poppins', 'Segoe UI', sans-serif;
       min-height: 100vh;
       background: #1d1e2c;
     }
-
     @keyframes pop {
       0% {
         transform: scale(0);
@@ -43,7 +41,6 @@
         transform: scale(1);
       }
     }
-
     @keyframes fade-in {
       from {
         opacity: 0;
@@ -54,7 +51,6 @@
         transform: translateY(0);
       }
     }
-
     .animate-fade-in {
       animation: fade-in 0.5s ease-out;
     }
@@ -62,18 +58,14 @@
 </head>
 <body class="font-sans antialiased">
   <div id="root"></div>
-
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <script type="text/babel" data-presets="env,react">
     const { useState, useEffect, useCallback, useRef } = React;
-
     const GRID_SIZE = 4;
     const INITIAL_COUNTDOWN = 180;
     const RECORDS_STORAGE_KEY = 'math-game-2048-records';
-
     const TILE_COLORS = {
       2: 'from-yellow-300 to-yellow-400',
       4: 'from-yellow-400 to-orange-400',
@@ -87,7 +79,6 @@
       1024: 'from-cyan-500 to-teal-500',
       2048: 'from-teal-500 to-emerald-600'
     };
-
     const MOTIVATIONAL_MESSAGES = [
       'Fantàstic! 🎉',
       'Brillant! ✨',
@@ -96,30 +87,24 @@
       'Espectacular! 💎',
       'Imparable! 💥'
     ];
-
     const MILESTONE_MESSAGES = {
       128: 'Vas per bon camí! 🔥',
       256: 'Meitat del camí! ⚡',
       512: 'Espectacular! 🌟',
       1024: 'Quasi allà! 🧠'
     };
-
     const MODE_LABELS = {
       classic: '⌛ Clàssic',
       countdown: '⚡ Contrarellotge'
     };
-
     const SCORE_POSITIONS = ['🥇', '🥈', '🥉'];
-
     const formatTime = (seconds) => {
       const safeSeconds = Math.max(0, Math.floor(seconds));
       const mins = Math.floor(safeSeconds / 60);
       const secs = safeSeconds % 60;
       return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
-
     const createEmptyGrid = () => Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
-
     const canMoveOnBoard = (board) => {
       for (let i = 0; i < GRID_SIZE; i += 1) {
         for (let j = 0; j < GRID_SIZE; j += 1) {
@@ -130,7 +115,6 @@
       }
       return false;
     };
-
     const IconBase = ({ children, className = 'w-6 h-6' }) => (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -145,7 +129,6 @@
         {children}
       </svg>
     );
-
     const IconRefreshCw = ({ className }) => (
       <IconBase className={className}>
         <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
@@ -154,7 +137,6 @@
         <path d="M8 16H3v5" />
       </IconBase>
     );
-
     const IconTrophy = ({ className }) => (
       <IconBase className={className}>
         <path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978" />
@@ -165,7 +147,6 @@
         <path d="M6 9H4.5a1 1 0 0 1 0-5H6" />
       </IconBase>
     );
-
     const IconPalette = ({ className }) => (
       <IconBase className={className}>
         <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
@@ -175,20 +156,17 @@
         <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
       </IconBase>
     );
-
     const IconClock = ({ className }) => (
       <IconBase className={className}>
         <path d="M12 6v6l4 2" />
         <circle cx="12" cy="12" r="10" />
       </IconBase>
     );
-
     const IconZap = ({ className }) => (
       <IconBase className={className}>
         <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
       </IconBase>
     );
-
     function MathGame2048() {
       const [grid, setGrid] = useState([]);
       const [score, setScore] = useState(0);
@@ -205,10 +183,8 @@
       const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN);
       const [showInstructions, setShowInstructions] = useState(false);
       const [playerName, setPlayerName] = useState('');
-
       const messageTimeoutRef = useRef(null);
       const nameInputRef = useRef(null);
-
       const addRandomTile = useCallback((board) => {
         const emptyCells = [];
         for (let i = 0; i < GRID_SIZE; i += 1) {
@@ -220,7 +196,6 @@
         const { i, j } = emptyCells[Math.floor(Math.random() * emptyCells.length)];
         board[i][j] = Math.random() < 0.9 ? 2 : 4;
       }, []);
-
       const resetMessage = useCallback(() => {
         if (messageTimeoutRef.current) {
           clearTimeout(messageTimeoutRef.current);
@@ -228,7 +203,6 @@
         }
         setMessage('');
       }, []);
-
       const showTemporaryMessage = useCallback((text, duration = 2000) => {
         if (!text) return;
         if (messageTimeoutRef.current) {
@@ -240,7 +214,6 @@
           messageTimeoutRef.current = null;
         }, duration);
       }, []);
-
       const initializeGrid = useCallback(() => {
         const freshGrid = createEmptyGrid();
         addRandomTile(freshGrid);
@@ -256,25 +229,21 @@
         setTouchStart(null);
         resetMessage();
       }, [addRandomTile, resetMessage]);
-
       const showMilestone = useCallback((value) => {
         const text = MILESTONE_MESSAGES[value];
         if (text) {
           showTemporaryMessage(text, 3000);
         }
       }, [showTemporaryMessage]);
-
       const move = useCallback((direction) => {
         if (gameMode === 'menu' || showRecords || showInstructions) return;
         if (gameOver || won || grid.length === 0) return;
-
         let newGrid = grid.map((row) => [...row]);
         let moved = false;
         let currentScore = score;
         const now = Date.now();
         const timeDiff = (now - lastMoveTime) / 1000;
         let bonusPoints = 0;
-
         const moveLeft = (board) => {
           for (let i = 0; i < GRID_SIZE; i += 1) {
             let row = board[i].filter((value) => value !== 0);
@@ -294,7 +263,6 @@
             board[i] = row;
           }
         };
-
         const rotate = (board) => {
           const rotated = createEmptyGrid();
           for (let i = 0; i < GRID_SIZE; i += 1) {
@@ -304,7 +272,6 @@
           }
           return rotated;
         };
-
         if (direction === 'left') {
           moveLeft(newGrid);
         } else if (direction === 'right') {
@@ -320,7 +287,6 @@
           moveLeft(newGrid);
           newGrid = rotate(rotate(rotate(newGrid)));
         }
-
         if (moved) {
           addRandomTile(newGrid);
           setGrid(newGrid);
@@ -336,13 +302,11 @@
           }
         }
       }, [addRandomTile, gameMode, gameOver, grid, lastMoveTime, score, showInstructions, showMilestone, showRecords, showTemporaryMessage, won]);
-
       useEffect(() => {
         if (gameMode !== 'classic' || gameOver || won) return;
         const timer = setInterval(() => setTime((current) => current + 1), 1000);
         return () => clearInterval(timer);
       }, [gameMode, gameOver, won]);
-
       useEffect(() => {
         if (gameMode !== 'countdown' || gameOver || won || countdown <= 0) return;
         const timer = setInterval(() => {
@@ -357,13 +321,11 @@
         }, 1000);
         return () => clearInterval(timer);
       }, [countdown, gameMode, gameOver, won]);
-
       useEffect(() => {
         if (gameMode === 'menu') {
           setTouchStart(null);
         }
       }, [gameMode]);
-
       useEffect(() => {
         if (!gameOver && !won) return;
         const timeout = setTimeout(() => {
@@ -371,7 +333,6 @@
         }, 150);
         return () => clearTimeout(timeout);
       }, [gameOver, won]);
-
       useEffect(() => {
         const stored = localStorage.getItem(RECORDS_STORAGE_KEY);
         if (!stored) return;
@@ -384,7 +345,6 @@
           console.error('No s\'han pogut carregar els rècords', error);
         }
       }, []);
-
       useEffect(() => {
         if (!records) return;
         try {
@@ -393,13 +353,11 @@
           console.error('No s\'han pogut desar els rècords', error);
         }
       }, [records]);
-
       useEffect(() => () => {
         if (messageTimeoutRef.current) {
           clearTimeout(messageTimeoutRef.current);
         }
       }, []);
-
       useEffect(() => {
         const handleKeyDown = (event) => {
           if (gameMode === 'menu' || showRecords || showInstructions) return;
@@ -418,7 +376,6 @@
         window.addEventListener('keydown', handleKeyDown, { passive: false });
         return () => window.removeEventListener('keydown', handleKeyDown);
       }, [gameMode, move, showInstructions, showRecords]);
-
       const handleTouchStart = useCallback((event) => {
         if (gameMode === 'menu' || showRecords || showInstructions) return;
         setTouchStart({
@@ -426,14 +383,12 @@
           y: event.touches[0].clientY
         });
       }, [gameMode, showInstructions, showRecords]);
-
       const handleTouchEnd = useCallback((event) => {
         if (!touchStart) return;
         if (gameMode === 'menu' || showRecords || showInstructions) return;
         const deltaX = event.changedTouches[0].clientX - touchStart.x;
         const deltaY = event.changedTouches[0].clientY - touchStart.y;
         const minSwipe = 50;
-
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
           if (Math.abs(deltaX) > minSwipe) {
             move(deltaX > 0 ? 'right' : 'left');
@@ -443,14 +398,12 @@
         }
         setTouchStart(null);
       }, [gameMode, move, showInstructions, showRecords, touchStart]);
-
       const startGame = useCallback((mode) => {
         setGameMode(mode);
         setShowRecords(false);
         setShowInstructions(false);
         initializeGrid();
       }, [initializeGrid]);
-
       const saveRecord = useCallback((name) => {
         const trimmed = name.trim();
         if (!trimmed) return false;
@@ -469,24 +422,20 @@
         setRecords(updated);
         return true;
       }, [countdown, gameMode, records, score, time]);
-
       const handleReturnToMenu = useCallback(() => {
         setGameMode('menu');
         setShowRecords(false);
         setShowInstructions(false);
         resetMessage();
       }, [resetMessage]);
-
       const handleSaveAndExit = useCallback(() => {
         if (saveRecord(playerName)) {
           handleReturnToMenu();
         }
       }, [handleReturnToMenu, playerName, saveRecord]);
-
       const activeGradient = darkMode
         ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900'
         : 'bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400';
-
       return (
         <div className={`min-h-screen flex flex-col transition-colors duration-500 ${activeGradient}`}>
           <div className="container mx-auto px-3 py-4 max-w-xl md:max-w-2xl flex-1 w-full">
@@ -498,7 +447,6 @@
                 Combina i arriba al 2048!
               </p>
             </div>
-
             {gameMode === 'menu' && !showRecords && !showInstructions && (
               <div className="space-y-3 animate-fade-in">
                 <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl` }>
@@ -541,7 +489,6 @@
                 </div>
               </div>
             )}
-
             {showInstructions && (
               <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl animate-fade-in`}>
                 <h2 className={`text-xl md:text-2xl font-bold text-center mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
@@ -567,7 +514,6 @@
                 </button>
               </div>
             )}
-
             {showRecords && (
               <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl animate-fade-in`}>
                 <h2 className={`text-xl md:text-2xl font-bold text-center mb-4 ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center justify-center gap-3`}>
@@ -619,7 +565,6 @@
                 </button>
               </div>
             )}
-
             {gameMode !== 'menu' && !showRecords && !showInstructions && (
               <>
                 <div className="space-y-4">
@@ -671,7 +616,6 @@
                       </button>
                     </div>
                   </div>
-
                   <div
                     className={`${darkMode ? 'bg-gray-700/50' : 'bg-white/50'} backdrop-blur-sm p-2.5 md:p-3.5 rounded-3xl shadow-2xl`}
                     onTouchStart={handleTouchStart}
@@ -697,7 +641,6 @@
                       )}
                     </div>
                   </div>
-
                   {(gameOver || won) && (
                     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in px-4">
                       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-5 md:p-6 max-w-md w-full text-center shadow-2xl space-y-4`}>
@@ -743,86 +686,12 @@
                     </div>
                   )}
                 </div>
-
                 {message && (
                   <div className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-3 rounded-2xl text-base md:text-lg font-bold animate-bounce shadow-lg">
                     {message}
                   </div>
                 )}
               </>
-            )}
-
-                <div
-                  className={`${darkMode ? 'bg-gray-700/50' : 'bg-white/50'} backdrop-blur-sm p-2.5 md:p-3.5 rounded-3xl shadow-2xl`}
-                  onTouchStart={handleTouchStart}
-                  onTouchEnd={handleTouchEnd}
-                >
-                  <div className="grid grid-cols-4 gap-2 md:gap-3">
-                    {grid.map((row, i) =>
-                      row.map((cell, j) => (
-                        <div
-                          key={`${i}-${j}`}
-                          className={`aspect-square rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold transition-all duration-300 shadow-lg ${
-                            cell === 0
-                              ? darkMode
-                                ? 'bg-gray-600/30'
-                                : 'bg-gray-200/50'
-                              : `bg-gradient-to-br ${TILE_COLORS[cell] || 'from-emerald-600 to-teal-600'} text-white transform hover:scale-105`
-                          }`}
-                          style={{ animation: cell !== 0 ? 'pop 0.3s ease-out' : 'none' }}
-                        >
-                          {cell !== 0 && cell}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {(gameOver || won) && (
-                  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in px-4">
-                    <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-5 md:p-6 max-w-md w-full text-center shadow-2xl space-y-4`}>
-                      <div className="text-5xl md:text-6xl">{won ? '🏆' : '💥'}</div>
-                      <h2 className={`text-3xl md:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                        {won ? 'Has guanyat!' : 'Partida acabada'}
-                      </h2>
-                      <p className={`text-xl md:text-2xl ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                        Puntuació final: <span className="font-bold text-orange-500">{score}</span>
-                      </p>
-                      <input
-                        ref={nameInputRef}
-                        type="text"
-                        placeholder="El teu nom"
-                        maxLength={15}
-                        value={playerName}
-                        onChange={(event) => setPlayerName(event.target.value)}
-                        onKeyDown={(event) => {
-                          if (event.key === 'Enter') {
-                            event.preventDefault();
-                            handleSaveAndExit();
-                          }
-                        }}
-                        className={`w-full ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'} px-3.5 py-2.5 rounded-xl text-center text-lg font-semibold outline-none focus:ring-2 focus:ring-purple-400`}
-                      />
-                      <div className="space-y-3">
-                        <button
-                          type="button"
-                          onClick={handleSaveAndExit}
-                          className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2.5 px-4.5 rounded-xl text-base md:text-lg font-bold hover:scale-105 transition-all"
-                        >
-                          💾 Guardar i tornar
-                        </button>
-                        <button
-                          type="button"
-                          onClick={initializeGrid}
-                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2.5 px-4.5 rounded-xl text-base md:text-lg font-bold hover:scale-105 transition-all"
-                        >
-                          🔁 Jugar de nou
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
             )}
           </div>
           <footer className="px-4 pb-4 text-center text-white/85 space-y-1">
@@ -836,7 +705,6 @@
         </div>
       );
     }
-
     const rootElement = document.getElementById('root');
     if (rootElement) {
       const root = ReactDOM.createRoot(rootElement);
