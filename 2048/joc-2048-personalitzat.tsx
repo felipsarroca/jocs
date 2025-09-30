@@ -1,28 +1,10 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Trophy, Palette, Clock, Zap } from 'lucide-react';
-
-type GameMode = 'menu' | 'classic' | 'countdown';
-
-type Grid = number[][];
-
-type SwipeStart = {
-  x: number;
-  y: number;
-};
-
-type RecordEntry = {
-  name: string;
-  score: number;
-  time: number;
-  mode: GameMode;
-  savedAt: number;
-};
+const { useState, useEffect, useCallback, useRef } = React;
 
 const GRID_SIZE = 4;
 const INITIAL_COUNTDOWN = 180;
 const RECORDS_STORAGE_KEY = 'math-game-2048-records';
 
-const TILE_COLORS: Record<number, string> = {
+const TILE_COLORS = {
   2: 'from-yellow-300 to-yellow-400',
   4: 'from-yellow-400 to-orange-400',
   8: 'from-orange-400 to-orange-500',
@@ -45,14 +27,14 @@ const MOTIVATIONAL_MESSAGES = [
   'Imparable! 💥'
 ];
 
-const MILESTONE_MESSAGES: Record<number, string> = {
+const MILESTONE_MESSAGES = {
   128: 'Vas per bon camí! 🔥',
   256: 'Meitat del camí! ⚡',
   512: 'Espectacular! 🌟',
   1024: 'Quasi allà! 🧠'
 };
 
-const MODE_LABELS: Record<GameMode, string> = {
+const MODE_LABELS = {
   menu: 'Menú',
   classic: '⌛ Clàssic',
   countdown: '⚡ Contrarellotge'
@@ -60,16 +42,16 @@ const MODE_LABELS: Record<GameMode, string> = {
 
 const SCORE_POSITIONS = ['🥇', '🥈', '🥉'];
 
-const formatTime = (seconds: number): string => {
+const formatTime = (seconds) => {
   const safeSeconds = Math.max(0, Math.floor(seconds));
   const mins = Math.floor(safeSeconds / 60);
   const secs = safeSeconds % 60;
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const createEmptyGrid = (): Grid => Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
+const createEmptyGrid = () => Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
 
-const canMoveOnBoard = (board: Grid): boolean => {
+const canMoveOnBoard = (board) => {
   for (let i = 0; i < GRID_SIZE; i += 1) {
     for (let j = 0; j < GRID_SIZE; j += 1) {
       if (board[i][j] === 0) return true;
@@ -80,28 +62,86 @@ const canMoveOnBoard = (board: Grid): boolean => {
   return false;
 };
 
-const MathGame2048: React.FC = () => {
-  const [grid, setGrid] = useState<Grid>([]);
-  const [score, setScore] = useState<number>(0);
-  const [time, setTime] = useState<number>(0);
-  const [gameMode, setGameMode] = useState<GameMode>('menu');
-  const [darkMode, setDarkMode] = useState<boolean>(false);
-  const [gameOver, setGameOver] = useState<boolean>(false);
-  const [won, setWon] = useState<boolean>(false);
-  const [records, setRecords] = useState<RecordEntry[]>([]);
-  const [showRecords, setShowRecords] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>('');
-  const [lastMoveTime, setLastMoveTime] = useState<number>(() => Date.now());
-  const [touchStart, setTouchStart] = useState<SwipeStart | null>(null);
-  const [countdown, setCountdown] = useState<number>(INITIAL_COUNTDOWN);
-  const [showInstructions, setShowInstructions] = useState<boolean>(false);
-  const [playerName, setPlayerName] = useState<string>('');
+const IconBase = ({ children, className = 'w-6 h-6' }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      {children}
+    </svg>
+);
 
-  const messageTimeoutRef = useRef<number | null>(null);
-  const nameInputRef = useRef<HTMLInputElement | null>(null);
+const IconRefreshCw = ({ className }) => (
+    <IconBase className={className}>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </IconBase>
+);
 
-  const addRandomTile = useCallback((board: Grid) => {
-    const emptyCells: Array<{ i: number; j: number }> = [];
+const IconTrophy = ({ className }) => (
+    <IconBase className={className}>
+      <path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978" />
+      <path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978" />
+      <path d="M18 9h1.5a1 1 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" />
+      <path d="M6 9H4.5a1 1 0 0 1 0-5H6" />
+    </IconBase>
+);
+
+const IconPalette = ({ className }) => (
+    <IconBase className={className}>
+      <path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" />
+      <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
+      <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r="0.5" fill="currentColor" />
+      <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
+    </IconBase>
+);
+
+const IconClock = ({ className }) => (
+    <IconBase className={className}>
+      <path d="M12 6v6l4 2" />
+      <circle cx="12" cy="12" r="10" />
+    </IconBase>
+);
+
+const IconZap = ({ className }) => (
+    <IconBase className={className}>
+      <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
+    </IconBase>
+);
+
+const MathGame2048 = () => {
+  const [grid, setGrid] = useState([]);
+  const [score, setScore] = useState(0);
+  const [time, setTime] = useState(0);
+  const [gameMode, setGameMode] = useState('menu');
+  const [darkMode, setDarkMode] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [won, setWon] = useState(false);
+  const [records, setRecords] = useState([]);
+  const [showRecords, setShowRecords] = useState(false);
+  const [message, setMessage] = useState('');
+  const [lastMoveTime, setLastMoveTime] = useState(() => Date.now());
+  const [touchStart, setTouchStart] = useState(null);
+  const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN);
+  const [showInstructions, setShowInstructions] = useState(false);
+  const [playerName, setPlayerName] = useState('');
+
+  const messageTimeoutRef = useRef(null);
+  const nameInputRef = useRef(null);
+
+  const addRandomTile = useCallback((board) => {
+    const emptyCells = [];
     for (let i = 0; i < GRID_SIZE; i += 1) {
       for (let j = 0; j < GRID_SIZE; j += 1) {
         if (board[i][j] === 0) emptyCells.push({ i, j });
@@ -120,7 +160,7 @@ const MathGame2048: React.FC = () => {
     setMessage('');
   }, []);
 
-  const showTemporaryMessage = useCallback((text: string, duration = 2000) => {
+  const showTemporaryMessage = useCallback((text, duration = 2000) => {
     if (!text) return;
     if (messageTimeoutRef.current) {
       clearTimeout(messageTimeoutRef.current);
@@ -149,7 +189,7 @@ const MathGame2048: React.FC = () => {
   }, [addRandomTile, resetMessage]);
 
   const showMilestone = useCallback(
-    (value: number) => {
+    (value) => {
       const text = MILESTONE_MESSAGES[value];
       if (text) {
         showTemporaryMessage(text, 3000);
@@ -159,7 +199,7 @@ const MathGame2048: React.FC = () => {
   );
 
   const move = useCallback(
-    (direction: 'left' | 'right' | 'up' | 'down') => {
+    (direction) => {
       if (gameMode === 'menu' || showRecords || showInstructions) return;
       if (gameOver || won || grid.length === 0) return;
 
@@ -170,7 +210,7 @@ const MathGame2048: React.FC = () => {
       const timeDiff = (now - lastMoveTime) / 1000;
       let bonusPoints = 0;
 
-      const moveLeft = (board: Grid) => {
+      const moveLeft = (board) => {
         for (let i = 0; i < GRID_SIZE; i += 1) {
           let row = board[i].filter((value) => value !== 0);
           for (let j = 0; j < row.length - 1; j += 1) {
@@ -190,7 +230,7 @@ const MathGame2048: React.FC = () => {
         }
       };
 
-      const rotate = (board: Grid): Grid => {
+      const rotate = (board) => {
         const rotated = createEmptyGrid();
         for (let i = 0; i < GRID_SIZE; i += 1) {
           for (let j = 0; j < GRID_SIZE; j += 1) {
@@ -274,7 +314,7 @@ const MathGame2048: React.FC = () => {
     try {
       const stored = window.localStorage.getItem(RECORDS_STORAGE_KEY);
       if (!stored) return;
-      const parsed: RecordEntry[] = JSON.parse(stored);
+      const parsed = JSON.parse(stored);
       if (Array.isArray(parsed)) {
         setRecords(parsed);
       }
@@ -302,9 +342,9 @@ const MathGame2048: React.FC = () => {
   );
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = (event) => {
       if (gameMode === 'menu' || showRecords || showInstructions) return;
-      const keyMap: Record<string, 'left' | 'right' | 'up' | 'down'> = {
+      const keyMap = {
         ArrowLeft: 'left',
         ArrowRight: 'right',
         ArrowUp: 'up',
@@ -321,7 +361,7 @@ const MathGame2048: React.FC = () => {
   }, [gameMode, move, showInstructions, showRecords]);
 
   const handleTouchStart = useCallback(
-    (event: React.TouchEvent<HTMLDivElement>) => {
+    (event) => {
       if (gameMode === 'menu' || showRecords || showInstructions) return;
       setTouchStart({
         x: event.touches[0].clientX,
@@ -332,7 +372,7 @@ const MathGame2048: React.FC = () => {
   );
 
   const handleTouchEnd = useCallback(
-    (event: React.TouchEvent<HTMLDivElement>) => {
+    (event) => {
       if (!touchStart) return;
       if (gameMode === 'menu' || showRecords || showInstructions) return;
       const deltaX = event.changedTouches[0].clientX - touchStart.x;
@@ -352,7 +392,7 @@ const MathGame2048: React.FC = () => {
   );
 
   const startGame = useCallback(
-    (mode: GameMode) => {
+    (mode) => {
       setGameMode(mode);
       setShowRecords(false);
       setShowInstructions(false);
@@ -362,11 +402,11 @@ const MathGame2048: React.FC = () => {
   );
 
   const saveRecord = useCallback(
-    (name: string): boolean => {
+    (name) => {
       const trimmed = name.trim();
       if (!trimmed) return false;
       const elapsed = gameMode === 'classic' ? time : INITIAL_COUNTDOWN - countdown;
-      const newRecord: RecordEntry = {
+      const newRecord = {
         name: trimmed,
         score,
         time: Math.max(0, elapsed),
@@ -426,7 +466,7 @@ const MathGame2048: React.FC = () => {
                   onClick={() => startGame('classic')}
                   className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
                 >
-                  <Clock className="w-8 h-8" />
+                  <IconClock className="w-8 h-8" />
                   Mode clàssic
                 </button>
                 <button
@@ -434,7 +474,7 @@ const MathGame2048: React.FC = () => {
                   onClick={() => startGame('countdown')}
                   className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
                 >
-                  <Zap className="w-8 h-8" />
+                  <IconZap className="w-8 h-8" />
                   Contrarellotge (3 min)
                 </button>
                 <button
@@ -449,7 +489,7 @@ const MathGame2048: React.FC = () => {
                   onClick={() => setShowRecords(true)}
                   className={`w-full ${darkMode ? 'bg-green-600' : 'bg-green-500'} text-white py-4 px-8 rounded-2xl text-lg font-bold hover:scale-105 transform transition-all flex items-center justify-center gap-2`}
                 >
-                  <Trophy className="w-6 h-6" />
+                  <IconTrophy className="w-6 h-6" />
                   Rècords
                 </button>
               </div>
@@ -486,7 +526,7 @@ const MathGame2048: React.FC = () => {
         {showRecords && (
           <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl animate-fade-in`}>
             <h2 className={`text-3xl font-bold text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center justify-center gap-3`}>
-              <Trophy className="w-10 h-10 text-yellow-400" />
+              <IconTrophy className="w-10 h-10 text-yellow-400" />
               Millors puntuacions
             </h2>
             {records.length === 0 ? (
@@ -573,7 +613,7 @@ const MathGame2048: React.FC = () => {
                   onClick={initializeGrid}
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transition-all flex items-center justify-center gap-2"
                 >
-                  <RefreshCw className="w-5 h-5" />
+                  <IconRefreshCw className="w-5 h-5" />
                   Reiniciar
                 </button>
                 <button
@@ -581,7 +621,7 @@ const MathGame2048: React.FC = () => {
                   onClick={() => setDarkMode((value) => !value)}
                   className={`${darkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-3 px-4 rounded-xl font-semibold transition-all`}
                 >
-                  <Palette className="w-5 h-5" />
+                  <IconPalette className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -665,8 +705,14 @@ const MathGame2048: React.FC = () => {
           </div>
         )}
       </div>
+       <footer className="px-4 pb-4 text-center text-white/85 space-y-1">
+        <p className="text-xs md:text-sm">Aplicació creada per Felip Sarroca amb l'assistència de la IA</p>
+        <div className="flex items-center justify-center gap-2 text-[10px] md:text-xs text-white/80">
+          <span>Obra sota llicència</span>
+          <img src="./CC_BY-NC-SA.svg" alt="Icona llicència CC-BY-NC-SA" className="h-5 w-auto" />
+          <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">CC-BY-NC-SA 4.0</a>
+        </div>
+      </footer>
     </div>
   );
 };
-
-export default MathGame2048;
