@@ -120,6 +120,14 @@ const IconZap = ({ className }) => (
     </IconBase>
 );
 
+const IconLayout = ({ className }) => (
+  <IconBase className={className}>
+    <rect x="3" y="4" width="8" height="16" rx="2" />
+    <rect x="13" y="4" width="8" height="7" rx="2" />
+    <rect x="13" y="13" width="8" height="7" rx="2" />
+  </IconBase>
+);
+
 const MathGame2048 = () => {
   const [grid, setGrid] = useState([]);
   const [score, setScore] = useState(0);
@@ -136,9 +144,19 @@ const MathGame2048 = () => {
   const [countdown, setCountdown] = useState(INITIAL_COUNTDOWN);
   const [showInstructions, setShowInstructions] = useState(false);
   const [playerName, setPlayerName] = useState('');
+  const [layoutMode, setLayoutMode] = useState('auto');
+  const [isLandscape, setIsLandscape] = useState(() => window.innerWidth > window.innerHeight);
 
   const messageTimeoutRef = useRef(null);
   const nameInputRef = useRef(null);
+
+  const cycleLayoutMode = useCallback(() => {
+    setLayoutMode((current) => {
+      if (current === 'auto') return 'portrait';
+      if (current === 'portrait') return 'landscape';
+      return 'auto';
+    });
+  }, []);
 
   const addRandomTile = useCallback((board) => {
     const emptyCells = [];
@@ -273,6 +291,19 @@ const MathGame2048 = () => {
     },
     [addRandomTile, gameMode, gameOver, grid, lastMoveTime, score, showInstructions, showMilestone, showRecords, showTemporaryMessage, won]
   );
+
+  useEffect(() => {
+    const updateOrientation = () => {
+      setIsLandscape(window.innerWidth > window.innerHeight);
+    };
+    updateOrientation();
+    window.addEventListener('resize', updateOrientation);
+    window.addEventListener('orientationchange', updateOrientation);
+    return () => {
+      window.removeEventListener('resize', updateOrientation);
+      window.removeEventListener('orientationchange', updateOrientation);
+    };
+  }, []);
 
   useEffect(() => {
     if (gameMode !== 'classic' || gameOver || won) return;
@@ -442,9 +473,12 @@ const MathGame2048 = () => {
     ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-indigo-900'
     : 'bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400';
 
+  const showLandscape = (layoutMode === 'auto' && isLandscape) || layoutMode === 'landscape';
+  const showPortrait = (layoutMode === 'auto' && !isLandscape) || layoutMode === 'portrait';
+
   return (
     <div className={`min-h-screen transition-colors duration-500 ${activeGradient}`}>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2 text-white drop-shadow-lg animate-pulse">
             ✨ 2048 Matemàtic
@@ -455,7 +489,7 @@ const MathGame2048 = () => {
         </div>
 
         {gameMode === 'menu' && !showRecords && !showInstructions && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-6 animate-fade-in max-w-2xl mx-auto">
             <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl`}>
               <h2 className={`text-3xl font-bold text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                 Tria el mode de joc
@@ -498,7 +532,7 @@ const MathGame2048 = () => {
         )}
 
         {showInstructions && (
-          <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl animate-fade-in`}>
+          <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl animate-fade-in max-w-2xl mx-auto`}>
             <h2 className={`text-3xl font-bold text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
               Com jugar
             </h2>
@@ -524,7 +558,7 @@ const MathGame2048 = () => {
         )}
 
         {showRecords && (
-          <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl animate-fade-in`}>
+          <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-8 shadow-2xl animate-fade-in max-w-2xl mx-auto`}>
             <h2 className={`text-3xl font-bold text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center justify-center gap-3`}>
               <IconTrophy className="w-10 h-10 text-yellow-400" />
               Millors puntuacions
@@ -576,87 +610,110 @@ const MathGame2048 = () => {
         )}
 
         {gameMode !== 'menu' && !showRecords && !showInstructions && (
-          <div className="space-y-6">
-            <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-2xl p-6 shadow-xl`}>
-              <div className="flex justify-between items-center mb-4 gap-4">
-                <div className={`${darkMode ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-yellow-400 to-orange-400'} text-white px-6 py-3 rounded-xl text-center shadow-lg`}>
-                  <p className="text-sm font-semibold uppercase tracking-wide">Puntuació</p>
-                  <p className="text-3xl font-bold">{score}</p>
+          <div>
+            {/* Vista d'escriptori (Horitzontal) */}
+            {showLandscape && (
+              <div className="flex items-start gap-4">
+                <div className="w-48 shrink-0 space-y-4">
+                  <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-2xl p-3 shadow-xl`}>
+                    <div className={`${darkMode ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-yellow-400 to-orange-400'} text-white px-3 py-1.5 rounded-xl text-center shadow-lg mb-3`}>
+                      <p className="text-xs font-semibold uppercase tracking-wide">Puntuació</p>
+                      <p className="text-2xl font-bold">{score}</p>
+                    </div>
+                    <div className={`text-center px-3 py-1.5 rounded-xl shadow-lg ${(gameMode === 'countdown' && countdown < 30) ? 'bg-red-500 text-white animate-pulse' : darkMode ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-gradient-to-r from-blue-400 to-purple-400 text-white'}`}>
+                      <p className="text-xs font-semibold uppercase tracking-wide">{gameMode === 'classic' ? 'Temps' : 'Temps restant'}</p>
+                      <p className="text-2xl font-bold">{formatTime(gameMode === 'classic' ? time : countdown)}</p>
+                    </div>
+                  </div>
                 </div>
-                <div
-                  className={`text-center px-6 py-3 rounded-xl shadow-lg ${
-                    gameMode === 'countdown' && countdown < 30
-                      ? 'bg-red-500 text-white animate-pulse'
-                      : darkMode
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                      : 'bg-gradient-to-r from-blue-400 to-purple-400 text-white'
-                  }`}
-                >
-                  <p className="text-sm font-semibold uppercase tracking-wide">
-                    {gameMode === 'classic' ? 'Temps' : 'Temps restant'}
-                  </p>
-                  <p className="text-3xl font-bold">
-                    {formatTime(gameMode === 'classic' ? time : countdown)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={handleReturnToMenu}
-                  className={`flex-1 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2`}
-                >
-                  ⬅️ Menú
-                </button>
-                <button
-                  type="button"
-                  onClick={initializeGrid}
-                  className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transition-all flex items-center justify-center gap-2"
-                >
-                  <IconRefreshCw className="w-5 h-5" />
-                  Reiniciar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDarkMode((value) => !value)}
-                  className={`${darkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-3 px-4 rounded-xl font-semibold transition-all`}
-                >
-                  <IconPalette className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
 
-            {message && (
-              <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-4 rounded-2xl text-xl font-bold animate-bounce shadow-lg">
-                {message}
+                <div className="flex-1">
+                  <div
+                    className={`${darkMode ? 'bg-gray-700/50' : 'bg-white/50'} backdrop-blur-sm p-3 rounded-3xl shadow-2xl`}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                  >
+                    <div className="grid grid-cols-4 gap-2">
+                      {grid.map((row, i) =>
+                        row.map((cell, j) => (
+                          <div
+                            key={`${i}-${j}`}
+                            className={`aspect-square rounded-xl flex items-center justify-center text-3xl font-bold transition-all duration-300 shadow-lg ${(cell === 0) ? (darkMode ? 'bg-gray-600/30' : 'bg-gray-200/50') : `bg-gradient-to-br ${TILE_COLORS[cell] || 'from-emerald-600 to-teal-600'} text-white transform hover:scale-105`}`}
+                            style={{ animation: cell !== 0 ? 'pop 0.3s ease-out' : 'none' }}
+                          >
+                            {cell !== 0 && cell}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                  {message && (
+                    <div className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-3 rounded-2xl text-base font-bold animate-bounce shadow-lg">
+                      {message}
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-48 shrink-0 space-y-2">
+                    <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-2xl p-3 shadow-xl flex flex-col gap-2`}>
+                        <button type="button" onClick={handleReturnToMenu} className={`w-full ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-2 rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-2`}>Menú</button>
+                        <button type="button" onClick={initializeGrid} className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-2 rounded-xl font-semibold hover:scale-105 transition-all text-sm flex items-center justify-center gap-2"><IconRefreshCw className="w-4 h-4"/>Reinicia</button>
+                        <button type="button" onClick={() => setDarkMode(v => !v)} className={`w-full ${darkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white py-2 px-3 rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-2`}><IconPalette className="w-4 h-4"/>Tema</button>
+                        <button type="button" onClick={cycleLayoutMode} className={`w-full ${darkMode ? 'bg-purple-600 hover:bg-purple-500' : 'bg-purple-500 hover:bg-purple-600'} text-white py-2 px-3 rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-2`}><IconLayout className="w-4 h-4"/>Vista: {layoutMode === 'auto' ? 'Auto' : layoutMode === 'portrait' ? 'Vert.' : 'Horitz.'}</button>
+                    </div>
+                </div>
               </div>
             )}
 
-            <div
-              className={`${darkMode ? 'bg-gray-700/50' : 'bg-white/50'} backdrop-blur-sm p-4 rounded-3xl shadow-2xl`}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
-            >
-              <div className="grid grid-cols-4 gap-3">
-                {grid.map((row, i) =>
-                  row.map((cell, j) => (
-                    <div
-                      key={`${i}-${j}`}
-                      className={`aspect-square rounded-2xl flex items-center justify-center text-3xl font-bold transition-all duration-300 shadow-lg ${
-                        cell === 0
-                          ? darkMode
-                            ? 'bg-gray-600/30'
-                            : 'bg-gray-200/50'
-                          : `bg-gradient-to-br ${TILE_COLORS[cell] || 'from-emerald-600 to-teal-600'} text-white transform hover:scale-105`
-                      }`}
-                      style={{ animation: cell !== 0 ? 'pop 0.3s ease-out' : 'none' }}
-                    >
-                      {cell !== 0 && cell}
+            {/* Vista de mòbil (Vertical) */}
+            {showPortrait && (
+              <div className="space-y-6 max-w-2xl mx-auto">
+                <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-2xl p-6 shadow-xl`}>
+                  <div className="flex justify-between items-center mb-4 gap-4">
+                    <div className={`${darkMode ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-yellow-400 to-orange-400'} text-white px-6 py-3 rounded-xl text-center shadow-lg`}>
+                      <p className="text-sm font-semibold uppercase tracking-wide">Puntuació</p>
+                      <p className="text-3xl font-bold">{score}</p>
                     </div>
-                  ))
+                    <div className={`text-center px-6 py-3 rounded-xl shadow-lg ${(gameMode === 'countdown' && countdown < 30) ? 'bg-red-500 text-white animate-pulse' : darkMode ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-gradient-to-r from-blue-400 to-purple-400 text-white'}`}>
+                      <p className="text-sm font-semibold uppercase tracking-wide">{gameMode === 'classic' ? 'Temps' : 'Temps restant'}</p>
+                      <p className="text-3xl font-bold">{formatTime(gameMode === 'classic' ? time : countdown)}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                     <button type="button" onClick={handleReturnToMenu} className={`flex-1 ${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} py-3 rounded-xl font-semibold transition-all flex items-center justify-center gap-2`}>Menú</button>
+                     <button type="button" onClick={initializeGrid} className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transition-all flex items-center justify-center gap-2"><IconRefreshCw className="w-5 h-5" />Reiniciar</button>
+                     <button type="button" onClick={() => setDarkMode((value) => !value)} className={`${darkMode ? 'bg-yellow-500 hover:bg-yellow-400' : 'bg-indigo-600 hover:bg-indigo-700'} text-white p-3 rounded-xl font-semibold transition-all`}><IconPalette className="w-5 h-5" /></button>
+                     <button type="button" onClick={cycleLayoutMode} className={`${darkMode ? 'bg-purple-600 hover:bg-purple-500' : 'bg-purple-500 hover:bg-purple-600'} text-white p-3 rounded-xl font-semibold transition-all`}><IconLayout className="w-5 h-5" /></button>
+                  </div>
+                </div>
+
+                {message && (
+                  <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-4 rounded-2xl text-xl font-bold animate-bounce shadow-lg">
+                    {message}
+                  </div>
                 )}
+
+                <div
+                  className={`${darkMode ? 'bg-gray-700/50' : 'bg-white/50'} backdrop-blur-sm p-4 rounded-3xl shadow-2xl`}
+                  onTouchStart={handleTouchStart}
+                  onTouchEnd={handleTouchEnd}
+                >
+                  <div className="grid grid-cols-4 gap-3">
+                    {grid.map((row, i) =>
+                      row.map((cell, j) => (
+                        <div
+                          key={`${i}-${j}`}
+                          className={`aspect-square rounded-2xl flex items-center justify-center text-3xl font-bold transition-all duration-300 shadow-lg ${(cell === 0) ? (darkMode ? 'bg-gray-600/30' : 'bg-gray-200/50') : `bg-gradient-to-br ${TILE_COLORS[cell] || 'from-emerald-600 to-teal-600'} text-white transform hover:scale-105`}`}
+                          style={{ animation: cell !== 0 ? 'pop 0.3s ease-out' : 'none' }}
+                        >
+                          {cell !== 0 && cell}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {(gameOver || won) && (
               <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in px-4">
