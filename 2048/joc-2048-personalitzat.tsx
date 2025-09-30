@@ -494,40 +494,39 @@ const MathGame2048 = () => {
               <h2 className={`text-3xl font-bold text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                 Tria el mode de joc
               </h2>
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={() => startGame('classic')}
-                  className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
-                >
-                  <IconClock className="w-8 h-8" />
-                  Mode clàssic
-                </button>
-                <button
-                  type="button"
-                  onClick={() => startGame('countdown')}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
-                >
-                  <IconZap className="w-8 h-8" />
-                  Contrarellotge (3 min)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowInstructions(true)}
-                  className={`w-full ${darkMode ? 'bg-purple-600' : 'bg-purple-500'} text-white py-4 px-8 rounded-2xl text-lg font-bold hover:scale-105 transform transition-all`}
-                >
-                  📘 Instruccions
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowRecords(true)}
-                  className={`w-full ${darkMode ? 'bg-green-600' : 'bg-green-500'} text-white py-4 px-8 rounded-2xl text-lg font-bold hover:scale-105 transform transition-all flex items-center justify-center gap-2`}
-                >
-                  <IconTrophy className="w-6 h-6" />
-                  Rècords
-                </button>
-              </div>
-            </div>
+                    <div className="space-y-4 px-6">
+                      <button
+                        type="button"
+                        onClick={() => startGame('classic')}
+                        className="w-full bg-gradient-to-r from-blue-400 to-cyan-400 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
+                      >
+                        <IconClock className="w-8 h-8" />
+                        Mode clàssic
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startGame('countdown')}
+                        className="w-full bg-gradient-to-r from-orange-400 to-red-400 text-white py-6 px-8 rounded-2xl text-xl font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
+                      >
+                        <IconZap className="w-8 h-8" />
+                        Contrarellotge (3 min)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowInstructions(true)}
+                        className={`w-full ${darkMode ? 'bg-purple-500' : 'bg-purple-400'} text-white py-4 px-8 rounded-2xl text-lg font-bold hover:scale-105 transform transition-all`}
+                      >
+                        📘 Instruccions
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowRecords(true)}
+                        className={`w-full ${darkMode ? 'bg-green-500' : 'bg-green-400'} text-white py-4 px-8 rounded-2xl text-lg font-bold hover:scale-105 transform transition-all flex items-center justify-center gap-2`}
+                      >
+                        <IconTrophy className="w-6 h-6" />
+                        Rècords
+                      </button>
+                    </div>            </div>
           </div>
         )}
 
