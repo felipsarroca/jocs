@@ -478,7 +478,7 @@ const MathGame2048 = () => {
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${activeGradient}`}>
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="container mx-auto px-4 py-8 max-w-5xl pb-24">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold mb-2 text-white drop-shadow-lg animate-pulse">
             ✨ 2048 Matemàtic
@@ -762,7 +762,7 @@ const MathGame2048 = () => {
           </div>
         )}
       </div>
-       <footer className="px-4 pb-4 text-center text-white/85 space-y-1">
+       <footer className="fixed bottom-0 left-0 right-0 px-4 py-2 text-center text-white/85 space-y-1 bg-gray-900/50 backdrop-blur-sm">
         <p className="text-xs md:text-sm">Aplicació creada per Felip Sarroca amb l'assistència de la IA</p>
         <div className="flex items-center justify-center gap-2 text-[10px] md:text-xs text-white/80">
           <span>Obra sota llicència</span>
