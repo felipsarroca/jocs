@@ -80,24 +80,24 @@
       2048: 'from-teal-500 to-emerald-600'
     };
     const MOTIVATIONAL_MESSAGES = [
-      'Fantàstic! 🎉',
-      'Brillant! ✨',
-      'Campió de les combinacions! 🏆',
-      'Increïble! 🚀',
-      'Espectacular! 💎',
-      'Imparable! 💥'
+      'Fantàstic! ??',
+      'Brillant! ?',
+      'Campió de les combinacions! ??',
+      'Increïble! ??',
+      'Espectacular! ??',
+      'Imparable! ??'
     ];
     const MILESTONE_MESSAGES = {
-      128: 'Vas per bon camí! 🔥',
-      256: 'Meitat del camí! ⚡',
-      512: 'Espectacular! 🌟',
-      1024: 'Quasi allà! 🧠'
+      128: 'Vas per bon camí! ??',
+      256: 'Meitat del camí! ?',
+      512: 'Espectacular! ??',
+      1024: 'Quasi allà! ??'
     };
     const MODE_LABELS = {
-      classic: '⌛ Clàssic',
-      countdown: '⚡ Contrarellotge'
+      classic: '? Clàssic',
+      countdown: '? Contrarellotge'
     };
-    const SCORE_POSITIONS = ['🥇', '🥈', '🥉'];
+    const SCORE_POSITIONS = ['??', '??', '??'];
     const formatTime = (seconds) => {
       const safeSeconds = Math.max(0, Math.floor(seconds));
       const mins = Math.floor(safeSeconds / 60);
@@ -440,8 +440,8 @@
         <div className={`min-h-screen flex flex-col transition-colors duration-500 ${activeGradient}`}>
           <div className="container mx-auto px-3 py-4 max-w-xl md:max-w-2xl flex-1 w-full">
             <div className="text-center mb-4">
-              <h1 className={`text-2xl md:text-3xl font-bold mb-2 text-white drop-shadow-lg animate-pulse`}>
-                ✨ 2048 Matemàtic
+              <h1 className={`text-2xl md:text-xl font-bold mb-2 text-white drop-shadow-lg animate-pulse`}>
+                ? 2048 Matemàtic
               </h1>
               <p className={`text-sm md:text-base ${darkMode ? 'text-purple-200' : 'text-white'} font-semibold`}>
                 Combina i arriba al 2048!
@@ -449,40 +449,40 @@
             </div>
             {gameMode === 'menu' && !showRecords && !showInstructions && (
               <div className="space-y-3 animate-fade-in">
-                <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl` }>
-                  <h2 className={`text-xl md:text-2xl font-bold text-center mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-3xl p-4 md:p-5 shadow-2xl` }>
+                  <h2 className={`text-lg md:text-xl font-bold text-center mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                     Tria el mode de joc
                   </h2>
                   <div className="space-y-4">
                     <button
                       type="button"
                       onClick={() => startGame('classic')}
-                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 md:py-4 px-5 rounded-2xl text-base md:text-lg font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-2.5 md:py-3 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-2.5"
                     >
-                      <IconClock className="w-7 h-7 md:w-8 md:h-8" />
+                      <IconClock className="w-6 h-6 md:w-7 md:h-7" />
                       Mode clàssic
                     </button>
                     <button
                       type="button"
                       onClick={() => startGame('countdown')}
-                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 md:py-4 px-5 rounded-2xl text-base md:text-lg font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-3"
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-2.5 md:py-3 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all shadow-lg hover:shadow-2xl flex items-center justify-center gap-2.5"
                     >
-                      <IconZap className="w-7 h-7 md:w-8 md:h-8" />
+                      <IconZap className="w-6 h-6 md:w-7 md:h-7" />
                       Contrarellotge (3 min)
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowInstructions(true)}
-                      className={`w-full ${darkMode ? 'bg-purple-600' : 'bg-purple-500'} text-white py-2.5 px-5 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all`}
+                      className={`w-full ${darkMode ? 'bg-purple-600' : 'bg-purple-500'} text-white py-2 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all`}
                     >
-                      📘 Instruccions
+                      ?? Instruccions
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowRecords(true)}
-                      className={`w-full ${darkMode ? 'bg-green-600' : 'bg-green-500'} text-white py-2.5 px-5 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all flex items-center justify-center gap-2`}
+                      className={`w-full ${darkMode ? 'bg-green-600' : 'bg-green-500'} text-white py-2 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all flex items-center justify-center gap-2`}
                     >
-                      <IconTrophy className="w-5 h-5 md:w-6 md:h-6" />
+                      <IconTrophy className="w-4 h-4 md:w-5 md:h-5" />
                       Rècords
                     </button>
                   </div>
@@ -490,53 +490,53 @@
               </div>
             )}
             {showInstructions && (
-              <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl animate-fade-in`}>
-                <h2 className={`text-xl md:text-2xl font-bold text-center mb-4 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+              <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-4 md:p-5 shadow-2xl animate-fade-in`}>
+                <h2 className={`text-lg md:text-xl font-bold text-center mb-3 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                   Com jugar
                 </h2>
-                <div className={`space-y-3 text-base md:text-lg ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                  <p>🎯 <strong>Objectiu:</strong> Combina nombres fins arribar a 2048.</p>
-                  <p>🕹️ <strong>Controls:</strong> Utilitza les fletxes del teclat o llisca el dit al mòbil.</p>
-                  <p>➕ <strong>Combinacions:</strong> Quan dues caselles iguals es toquen, es fusionen.</p>
-                  <p>⚡ <strong>Bonus:</strong> Combina en menys de 3 segons per sumar punts extra.</p>
-                  <p>🎮 <strong>Modes:</strong></p>
+                <div className={`space-y-3 text-sm md:text-base ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                  <p>?? <strong>Objectiu:</strong> Combina nombres fins arribar a 2048.</p>
+                  <p>??? <strong>Controls:</strong> Utilitza les fletxes del teclat o llisca el dit al mòbil.</p>
+                  <p>? <strong>Combinacions:</strong> Quan dues caselles iguals es toquen, es fusionen.</p>
+                  <p>? <strong>Bonus:</strong> Combina en menys de 3 segons per sumar punts extra.</p>
+                  <p>?? <strong>Modes:</strong></p>
                   <ul className="ml-6 space-y-2 list-disc">
-                    <li>⌛ Clàssic: juga sense límit de temps.</li>
-                    <li>⚡ Contrarellotge: 3 minuts per fer el màxim de punts.</li>
+                    <li>? Clàssic: juga sense límit de temps.</li>
+                    <li>? Contrarellotge: 3 minuts per fer el màxim de punts.</li>
                   </ul>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowInstructions(false)}
-                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2.5 px-5 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all"
+                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all"
                 >
                   Tornar
                 </button>
               </div>
             )}
             {showRecords && (
-              <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-5 md:p-6 shadow-2xl animate-fade-in`}>
-                <h2 className={`text-xl md:text-2xl font-bold text-center mb-4 ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center justify-center gap-3`}>
-                  <IconTrophy className="w-8 h-8 md:w-10 md:h-10 text-yellow-400" />
+              <div className={`${darkMode ? 'bg-gray-800/95' : 'bg-white/95'} backdrop-blur-lg rounded-3xl p-4 md:p-5 shadow-2xl animate-fade-in`}>
+                <h2 className={`text-lg md:text-xl font-bold text-center mb-3 ${darkMode ? 'text-white' : 'text-gray-800'} flex items-center justify-center gap-3`}>
+                  <IconTrophy className="w-7 h-7 md:w-9 md:h-9 text-yellow-400" />
                   Millors puntuacions
                 </h2>
                 {records.length === 0 ? (
-                  <p className={`text-center text-xl ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    Encara no hi ha rècords. Sigues el primer! 🎯
+                  <p className={`text-center text-base md:text-lg ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Encara no hi ha rècords. Sigues el primer! ??
                   </p>
                 ) : (
                   <div className="space-y-2 md:space-y-2.5">
                     {records.map((record, index) => (
                       <div
                         key={`${record.name}-${record.savedAt}`}
-                        className={`${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-yellow-100 to-orange-100'} p-4 rounded-xl flex justify-between items-center`}
+                        className={`${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-yellow-100 to-orange-100'} p-3 rounded-xl flex justify-between items-center`}
                       >
                         <div className="flex items-center gap-2 md:gap-3">
-                          <span className="text-3xl font-bold">
+                          <span className="text-xl font-bold">
                             {SCORE_POSITIONS[index] ?? `${index + 1}.`}
                           </span>
                           <div>
-                            <p className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                            <p className={`font-bold text-base ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                               {record.name || 'Jugador'}
                             </p>
                             <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -545,7 +545,7 @@
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className={`text-2xl font-bold ${darkMode ? 'text-yellow-400' : 'text-orange-600'}`}>
+                          <p className={`text-xl font-bold ${darkMode ? 'text-yellow-400' : 'text-orange-600'}`}>
                             {record.score}
                           </p>
                           <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -559,7 +559,7 @@
                 <button
                   type="button"
                   onClick={() => setShowRecords(false)}
-                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2.5 px-5 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all"
+                  className="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-2xl text-sm md:text-base font-bold hover:scale-105 transform transition-all"
                 >
                   Tornar
                 </button>
@@ -572,7 +572,7 @@
                     <div className="flex justify-between items-center mb-4 gap-4">
                       <div className={`${darkMode ? 'bg-gradient-to-r from-yellow-600 to-orange-600' : 'bg-gradient-to-r from-yellow-400 to-orange-400'} text-white px-3.5 py-2 md:px-4.5 md:py-2 rounded-xl text-center shadow-lg`}>
                         <p className="text-sm font-semibold uppercase tracking-wide">Puntuació</p>
-                        <p className="text-xl md:text-2xl font-bold">{score}</p>
+                        <p className="text-lg md:text-xl font-bold">{score}</p>
                       </div>
                       <div
                         className={`text-center px-3.5 py-2 md:px-4.5 md:py-2 rounded-xl shadow-lg ${
@@ -586,7 +586,7 @@
                         <p className="text-sm font-semibold uppercase tracking-wide">
                           {gameMode === 'classic' ? 'Temps' : 'Temps restant'}
                         </p>
-                        <p className="text-xl md:text-2xl font-bold">
+                        <p className="text-lg md:text-xl font-bold">
                           {formatTime(gameMode === 'classic' ? time : countdown)}
                         </p>
                       </div>
@@ -643,12 +643,12 @@
                   </div>
                   {(gameOver || won) && (
                     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in px-4">
-                      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-5 md:p-6 max-w-md w-full text-center shadow-2xl space-y-4`}>
-                        <div className="text-5xl md:text-6xl">{won ? '🏆' : '💥'}</div>
-                        <h2 className={`text-3xl md:text-4xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-3xl p-4 md:p-5 max-w-md w-full text-center shadow-2xl space-y-3.5`}>
+                        <div className="text-4xl md:text-5xl">{won ? '??' : '??'}</div>
+                        <h2 className={`text-2xl md:text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                           {won ? 'Has guanyat!' : 'Partida acabada'}
                         </h2>
-                        <p className={`text-xl md:text-2xl ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                        <p className={`text-lg md:text-xl ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           Puntuació final: <span className="font-bold text-orange-500">{score}</span>
                         </p>
                         <input
@@ -664,22 +664,22 @@
                               handleSaveAndExit();
                             }
                           }}
-                          className={`w-full ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'} px-3.5 py-2.5 rounded-xl text-center text-lg font-semibold outline-none focus:ring-2 focus:ring-purple-400`}
+                          className={`w-full ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-100'} px-3 py-2 rounded-xl text-center text-base font-semibold outline-none focus:ring-2 focus:ring-purple-400`}
                         />
                         <div className="space-y-3">
                           <button
                             type="button"
                             onClick={handleSaveAndExit}
-                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2.5 px-4.5 rounded-xl text-base md:text-lg font-bold hover:scale-105 transition-all"
+                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-2 px-4 rounded-xl text-sm md:text-base font-bold hover:scale-105 transition-all"
                           >
-                            💾 Guardar i tornar
+                            ?? Guardar i tornar
                           </button>
                           <button
                             type="button"
                             onClick={initializeGrid}
-                            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2.5 px-4.5 rounded-xl text-base md:text-lg font-bold hover:scale-105 transition-all"
+                            className="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-4 rounded-xl text-sm md:text-base font-bold hover:scale-105 transition-all"
                           >
-                            🔁 Jugar de nou
+                            ?? Jugar de nou
                           </button>
                         </div>
                       </div>
@@ -687,7 +687,7 @@
                   )}
                 </div>
                 {message && (
-                  <div className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-3 rounded-2xl text-base md:text-lg font-bold animate-bounce shadow-lg">
+                  <div className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-3 rounded-2xl text-sm md:text-base font-bold animate-bounce shadow-lg">
                     {message}
                   </div>
                 )}
@@ -713,3 +713,11 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
