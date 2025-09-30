@@ -54,7 +54,7 @@
     .animate-fade-in {
       animation: fade-in 0.5s ease-out;
     }
-  </style>\n    @media (orientation: landscape) { .portrait-only { display: none !important; } }\n    @media (orientation: portrait) { .landscape-only { display: none !important; } }\n
+  </style>
 </head>
 <body class="font-sans antialiased">
   <div id="root"></div>
@@ -598,7 +598,7 @@
                 </button>
               </div>
             )}
-            {gameMode !== 'menu' && !showRecords && !showInstructions && (
+            
             {gameMode !== 'menu' && !showRecords && !showInstructions && ((layoutMode === 'auto' ? isLandscape : layoutMode === 'landscape')) && (
               <div className="landscape-only" style={{ display: layoutMode === 'portrait' ? 'none' : undefined }}>
                 <div className="flex items-start gap-3 md:gap-4">
@@ -645,7 +645,6 @@
                     {message && (
                       <div className="mt-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-center py-3 rounded-2xl text-sm md:text-base font-bold animate-bounce shadow-lg">{message}</div>
                     )}
-                  </div>
                   <div className="w-40 shrink-0">
                     <div className={`${darkMode ? 'bg-gray-800/90' : 'bg-white/90'} backdrop-blur-lg rounded-2xl p-3 shadow-xl flex flex-col gap-2`}>
                       <button type="button" onClick={handleReturnToMenu} className={`${darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'} px-3 py-1.5 rounded-xl font-semibold transition-all text-sm`}>Menú</button>
@@ -812,6 +811,9 @@
   </script>
 </body>
 </html>
+
+
+
 
 
 
