@@ -7,6 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
+    body {
+      overflow: hidden;
+    }
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -82,7 +85,7 @@
                 clearInterval(timerRef.current);
                 playSound('end');
                 setGameState('finished');
-                setTimeout(() => setShowSuggestions(true), 3000);
+                setTimeout(() => setShowSuggestions(true), 5000);
                 return 0;
               }
               if (prev === 11) {
