@@ -8,11 +8,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding-bottom: 60px; /* Espai per al peu de pàgina */
+      overflow: hidden;
     }
     @keyframes fadeIn {
       from {
@@ -32,11 +28,6 @@
 </head>
 <body>
   <div id="root"></div>
-
-  <footer class="fixed bottom-0 left-0 right-0 bg-gray-800 text-white text-xs text-center p-3 z-50">
-    <p>Aplicació creada per Felip Sarroca amb l'assistència de la IA.</p>
-    <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer" class="underline hover:text-yellow-400">CC BY-NC-SA 4.0</a>.</p>
-  </footer>
 
   <script type="text/babel" data-type="module">
     import React, { useState, useEffect, useRef } from 'https://esm.sh/react@18.2.0';
@@ -177,7 +168,7 @@
       const suggestions = showSuggestions ? getSuggestions() : null;
 
       return (
-        <div className={`transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 text-gray-800'}`}>
+        <div className={`min-h-screen flex flex-col transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 text-gray-800'}`}>
           {/* Capçalera */}
           <header className={`${darkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm'} shadow-lg p-4`}>
             <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -194,7 +185,7 @@
           </header>
 
           {/* Zona Central */}
-          <main className="max-w-7xl mx-auto px-4 py-8">
+          <main className="flex-grow max-w-7xl mx-auto px-4 py-8 w-full">
             {/* Lletra i Temporitzador */}
             <div className="text-center mb-12">
               {gameState === 'initial' && (
@@ -314,6 +305,10 @@
               </div>
             )}
           </main>
+          <footer className={`text-center p-4 text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            <p>Aplicació creada per Felip Sarroca amb l'assistència de la IA.</p>
+            <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer" className="underline hover:text-yellow-500">CC BY-NC-SA 4.0</a>.</p>
+          </footer>
         </div>
       );
     }
