@@ -12,14 +12,18 @@
       "Ariadna",
       "Arnau"
     ],
-    "País/Ciutat": [
-      "Alacant",
-      "Almeria",
-      "Amsterdam",
+    "País": [
+      "Afganistan",
+      "Albània",
+      "Algèria",
+      "Alemanya",
       "Andorra",
-      "Ankara",
-      "Atenes",
-      "Avinyó"
+      "Angola",
+      "Aràbia Saudita",
+      "Argentina",
+      "Armènia",
+      "Austràlia",
+      "Àustria"
     ],
     "Animal": [
       "abella",
@@ -70,15 +74,24 @@
       "Bruna",
       "Bruno"
     ],
-    "País/Ciutat": [
-      "Barcelona",
-      "Bilbao",
-      "Berlín",
-      "Bogotà",
-      "Boston",
-      "Brussel·les",
-      "Budapest",
-      "Burgos"
+    "País": [
+      "Bahamas",
+      "Bahrain",
+      "Bangla Desh",
+      "Barbados",
+      "Bèlgica",
+      "Belize",
+      "Benín",
+      "Bhutan",
+      "Bielorússia",
+      "Bolívia",
+      "Bòsnia",
+      "Botswana",
+      "Brasil",
+      "Brunei",
+      "Bulgària",
+      "Burkina Faso",
+      "Burundi"
     ],
     "Animal": [
       "balena",
@@ -122,14 +135,19 @@
       "Clàudia",
       "Cristina"
     ],
-    "País/Ciutat": [
-      "Cadis",
-      "Canàries",
-      "Canberra",
-      "Càller",
-      "Cartagena",
-      "Castelló",
-      "Ciutat"
+    "País": [
+      "Cambodja",
+      "Camerun",
+      "Canadà",
+      "Cap Verd",
+      "Colòmbia",
+      "Comores",
+      "Congo",
+      "Costa d’Ivori",
+      "Costa Rica",
+      "Croàcia",
+      "Cuba",
+      "Xipre"
     ],
     "Animal": [
       "cabra",
@@ -173,728 +191,6 @@
       "coral"
     ]
   },
-  "D": {
-    "Nom": [
-      "Daniel",
-      "David",
-      "Dídac",
-      "Dolors",
-      "Diana",
-      "Domènec"
-    ],
-    "País/Ciutat": [
-      "Dakar",
-      "Damasc",
-      "Dijon",
-      "Dubai",
-      "Dublín"
-    ],
-    "Animal": [
-      "daina",
-      "dofí",
-      "dingo",
-      "dragó"
-    ],
-    "Menjar": [
-      "dàtil",
-      "dorada"
-    ],
-    "Objecte": [
-      "dau",
-      "didal",
-      "disc",
-      "drap",
-      "dron",
-      "diccionari",
-      "tornavís"
-    ],
-    "Color": [
-      "daurat"
-    ]
-  },
-  "E": {
-    "Nom": [
-      "Eloi",
-      "Emma",
-      "Ester",
-      "Elena",
-      "Ernest",
-      "Edgar",
-      "Eulàlia",
-      "Eva"
-    ],
-    "País/Ciutat": [
-      "Eivissa",
-      "Edimburg",
-      "Elx",
-      "Estocolm",
-      "Caire",
-      "Equador"
-    ],
-    "Animal": [
-      "elefant",
-      "eriçó",
-      "èmú",
-      "escarabat",
-      "esquirol",
-      "escorpí"
-    ],
-    "Menjar": [
-      "espagueti",
-      "empanada",
-      "ensaimada",
-      "entrecot",
-      "escudella",
-      "escalivada"
-    ],
-    "Objecte": [
-      "escombra",
-      "estoig",
-      "escala",
-      "estufa",
-      "espasa",
-      "estel",
-      "endoll"
-    ],
-    "Color": [
-      "escarlata",
-      "maragda"
-    ]
-  },
-  "F": {
-    "Nom": [
-      "Ferran",
-      "Fèlix",
-      "Felip",
-      "Francesc",
-      "Fiona",
-      "Florentina"
-    ],
-    "País/Ciutat": [
-      "França",
-      "Florència",
-      "Frankfurt",
-      "Faro"
-    ],
-    "Animal": [
-      "falcó",
-      "fardatxo",
-      "flamenc",
-      "foca",
-      "formiga",
-      "fraret"
-    ],
-    "Menjar": [
-      "fava",
-      "formatge",
-      "fideu",
-      "filet",
-      "flam"
-    ],
-    "Objecte": [
-      "forquilla",
-      "flauta",
-      "florera",
-      "forn",
-      "fusible"
-    ],
-    "Color": [
-      "fúcsia"
-    ]
-  },
-  "G": {
-    "Nom": [
-      "Gemma",
-      "Guillem",
-      "Gerard",
-      "Glòria",
-      "Gisela",
-      "Gina"
-    ],
-    "País/Ciutat": [
-      "Girona",
-      "Granada",
-      "Gijón",
-      "Gènova",
-      "Glasgow"
-    ],
-    "Animal": [
-      "gall",
-      "gallina",
-      "gat",
-      "gavina",
-      "goril·la",
-      "gos",
-      "guineu",
-      "girafa"
-    ],
-    "Menjar": [
-      "galeta",
-      "gamba",
-      "gaspatxo",
-      "gelat",
-      "guacamole"
-    ],
-    "Objecte": [
-      "goma",
-      "grapadora",
-      "guix",
-      "guitarra",
-      "ganivet",
-      "gerro",
-      "globus"
-    ],
-    "Color": [
-      "groc",
-      "gris",
-      "grana"
-    ]
-  },
-  "H": {
-    "Nom": [
-      "Helena",
-      "Hèctor",
-      "Hugo"
-    ],
-    "País/Ciutat": [
-      "Huelva",
-      "Hèlsinki",
-      "Havana",
-      "Hamburg",
-      "Hongria"
-    ],
-    "Animal": [
-      "hiena",
-      "hipopòtam",
-      "hamster"
-    ],
-    "Menjar": [
-      "hamburguesa",
-      "hummus"
-    ],
-    "Objecte": [
-      "hamaca",
-      "harmònica",
-      "horari"
-    ],
-    "Color": [
-      "havana"
-    ]
-  },
-  "I": {
-    "Nom": [
-      "Irene",
-      "Ignasi",
-      "Iu",
-      "Íngrid",
-      "Isabel",
-      "Iker"
-    ],
-    "País/Ciutat": [
-      "Itàlia",
-      "Islamabad",
-      "Istanbul",
-      "Irlanda",
-      "Islàndia"
-    ],
-    "Animal": [
-      "iguana",
-      "isard",
-      "ibis"
-    ],
-    "Menjar": [
-      "iogurt",
-      "infusió"
-    ],
-    "Objecte": [
-      "imant",
-      "impressora",
-      "interruptor"
-    ],
-    "Color": [
-      "índigo",
-      "ivori"
-    ]
-  },
-  "J": {
-    "Nom": [
-      "Jordi",
-      "Joan",
-      "Júlia",
-      "Jaume",
-      "Jana",
-      "Judit",
-      "Josep",
-      "Jan"
-    ],
-    "País/Ciutat": [
-      "Jaén",
-      "Jerusalem",
-      "Johannesburg",
-      "Jakarta"
-    ],
-    "Animal": [
-      "jaguar",
-      "jerbu",
-      "jabalí"
-    ],
-    "Menjar": [
-      "jamó",
-      "julivert"
-    ],
-    "Objecte": [
-      "joc",
-      "joystick",
-      "jaqueta",
-      "joguina",
-      "joia"
-    ],
-    "Color": [
-      "jade"
-    ]
-  },
-  "L": {
-    "Nom": [
-      "Laia",
-      "Laura",
-      "Lluc",
-      "Lluís",
-      "Lorena",
-      "Lídia"
-    ],
-    "País/Ciutat": [
-      "Lleida",
-      "Lisboa",
-      "Londres",
-      "Luxemburg",
-      "Lima",
-      "Lió"
-    ],
-    "Animal": [
-      "lleó",
-      "lleopard",
-      "llop",
-      "llúdria",
-      "llamàntol",
-      "lèmur",
-      "lluç"
-    ],
-    "Menjar": [
-      "llentia",
-      "lluç",
-      "llagostí",
-      "llet",
-      "llimona",
-      "lasanya"
-    ],
-    "Objecte": [
-      "llapis",
-      "llibre",
-      "llum",
-      "llit",
-      "llanterna",
-      "llauna"
-    ],
-    "Color": [
-      "lila",
-      "llimona"
-    ]
-  },
-  "M": {
-    "Nom": [
-      "Marta",
-      "Miquel",
-      "Marc",
-      "Mireia",
-      "Maria",
-      "Marina",
-      "Montserrat"
-    ],
-    "País/Ciutat": [
-      "Madrid",
-      "Marsella",
-      "Milà",
-      "Mont-real",
-      "Moscou",
-      "Munic"
-    ],
-    "Animal": [
-      "mico",
-      "musaranya",
-      "morsa",
-      "mosquit",
-      "mula"
-    ],
-    "Menjar": [
-      "macarró",
-      "magdalena",
-      "mongeta",
-      "maduixa",
-      "meló",
-      "mel"
-    ],
-    "Objecte": [
-      "martell",
-      "motxilla",
-      "mòbil",
-      "mirall",
-      "microones",
-      "maleta"
-    ],
-    "Color": [
-      "magenta",
-      "marró",
-      "malva"
-    ]
-  },
-  "N": {
-    "Nom": [
-      "Núria",
-      "Neus",
-      "Nil",
-      "Nadia",
-      "Nestor",
-      "Noa"
-    ],
-    "País/Ciutat": [
-      "Nàpols",
-      "Niça",
-      "Nairobi",
-      "Nova York",
-      "Nova Delhi"
-    ],
-    "Animal": [
-      "nyandú",
-      "narval",
-      "nutria"
-    ],
-    "Menjar": [
-      "neula",
-      "nabius",
-      "nap"
-    ],
-    "Objecte": [
-      "navalla",
-      "nansa",
-      "nino"
-    ],
-    "Color": [
-      "negre",
-      "nacre"
-    ]
-  },
-  "O": {
-    "Nom": [
-      "Oriol",
-      "Òscar",
-      "Olga",
-      "Ona",
-      "Olívia",
-      "Ovidi",
-      "Octavi",
-      "Omar"
-    ],
-    "País/Ciutat": [
-      "Olot",
-      "Osca",
-      "Oslo",
-      "Oxford",
-      "Odessa",
-      "Oporto"
-    ],
-    "Animal": [
-      "os",
-      "orca",
-      "oreneta",
-      "ocell",
-      "ocelot",
-      "ornitorinc"
-    ],
-    "Menjar": [
-      "ou",
-      "oli",
-      "orenga",
-      "oliva",
-      "orxata",
-      "ostra"
-    ],
-    "Objecte": [
-      "ordinador",
-      "olla",
-      "obridor",
-      "ornament"
-    ],
-    "Color": [
-      "ocre",
-      "or",
-      "oliva"
-    ]
-  },
-  "P": {
-    "Nom": [
-      "Pau",
-      "Pol",
-      "Pere",
-      "Paula",
-      "Pilar",
-      "Patrícia"
-    ],
-    "País/Ciutat": [
-      "París",
-      "Pamplona",
-      "Praga",
-      "Pisa",
-      "Porto",
-      "Palma",
-      "Pequín"
-    ],
-    "Animal": [
-      "porc",
-      "pingüí",
-      "pantera",
-      "pardal",
-      "pop",
-      "panda",
-      "puma"
-    ],
-    "Menjar": [
-      "pa",
-      "poma",
-      "pera",
-      "peix",
-      "pollastre",
-      "pizza",
-      "pèsol",
-      "pernil"
-    ],
-    "Objecte": [
-      "pilota",
-      "paperera",
-      "pinzell",
-      "placa",
-      "paraigua",
-      "pissarra",
-      "projector"
-    ],
-    "Color": [
-      "porpra",
-      "platejat",
-      "pistatxo"
-    ]
-  },
-  "R": {
-    "Nom": [
-      "Roger",
-      "Rosa",
-      "Raquel",
-      "Raimon",
-      "Rita",
-      "Roc",
-      "Rut",
-      "Ricard"
-    ],
-    "País/Ciutat": [
-      "Reus",
-      "Roma",
-      "Riga",
-      "Rabat",
-      "Rotterdam",
-      "Riyad"
-    ],
-    "Animal": [
-      "ruc",
-      "rata",
-      "ratpenat",
-      "rinoceront"
-    ],
-    "Menjar": [
-      "ravioli",
-      "remolatxa",
-      "risotto"
-    ],
-    "Objecte": [
-      "ràdio",
-      "ratolí",
-      "regle",
-      "rellotge",
-      "raspall",
-      "robot"
-    ],
-    "Color": [
-      "rosa",
-      "vermell",
-      "robí"
-    ]
-  },
-  "S": {
-    "Nom": [
-      "Sergi",
-      "Sílvia",
-      "Sara",
-      "Sonia",
-      "Salvador",
-      "Samuel",
-      "Sandra"
-    ],
-    "País/Ciutat": [
-      "Saragossa",
-      "Sevilla",
-      "Santander",
-      "Singapur",
-      "Sydney",
-      "Seül"
-    ],
-    "Animal": [
-      "salamandra",
-      "serp",
-      "sargantana",
-      "suricata",
-      "senglar"
-    ],
-    "Menjar": [
-      "sopa",
-      "salmó",
-      "sardina",
-      "sèpia",
-      "sushi",
-      "sandvitx"
-    ],
-    "Objecte": [
-      "sabata",
-      "sac",
-      "sofà",
-      "serra",
-      "segell",
-      "sabre"
-    ],
-    "Color": [
-      "safrà",
-      "salmó",
-      "sèpia"
-    ]
-  },
-  "T": {
-    "Nom": [
-      "Toni",
-      "Teresa",
-      "Tània",
-      "Teo",
-      "Tomàs",
-      "Tatiana"
-    ],
-    "País/Ciutat": [
-      "Tarragona",
-      "Terrassa",
-      "Toledo",
-      "Torí",
-      "Tunis",
-      "Tòquio",
-      "Toronto"
-    ],
-    "Animal": [
-      "tortuga",
-      "tigre",
-      "tapir",
-      "talp",
-      "tucà",
-      "truita",
-      "tauró"
-    ],
-    "Menjar": [
-      "torró",
-      "tomàquet",
-      "tonyina",
-      "tempura",
-      "tiramisú"
-    ],
-    "Objecte": [
-      "taula",
-      "tisora",
-      "tassa",
-      "teclat",
-      "televisor",
-      "termòmetre",
-      "torradora"
-    ],
-    "Color": [
-      "taronja",
-      "turquesa",
-      "terracota"
-    ]
-  },
-  "U": {
-    "Nom": [
-      "Úrsula",
-      "Uri",
-      "Ugo"
-    ],
-    "País/Ciutat": [
-      "Uruguai",
-      "Ucraïna",
-      "Uppsala",
-      "Utrecht"
-    ],
-    "Animal": [
-      "uapití"
-    ],
-    "Menjar": [
-      "udon",
-      "uva"
-    ],
-    "Objecte": [
-      "ullera",
-      "urna",
-      "uniforme",
-      "usb"
-    ],
-    "Color": [
-      "ultramar"
-    ]
-  },
-  "V": {
-    "Nom": [
-      "Víctor",
-      "Victòria",
-      "Vanessa",
-      "Vera",
-      "Verònica",
-      "Valentí"
-    ],
-    "País/Ciutat": [
-      "València",
-      "Viena",
-      "Valladolid",
-      "Vancouver",
-      "Venècia",
-      "Verona",
-      "Vitòria"
-    ],
-    "Animal": [
-      "vaca",
-      "varà",
-      "vespa",
-      "vedell",
-      "voltor"
-    ],
-    "Menjar": [
-      "vedella",
-      "vainilla",
-      "verdures",
-      "vinagre"
-    ],
-    "Objecte": [
-      "vaixell",
-      "vas",
-      "ventilador",
-      "violí",
-      "vitrina"
-    ],
-    "Color": [
-      "verd",
-      "violeta",
-      "vi"
-    ]
-  },
   "X": {
     "Nom": [
       "Xavier",
@@ -902,10 +198,9 @@
       "Xesc",
       "Ximena"
     ],
-    "País/Ciutat": [
-      "Xàtiva",
-      "Xangai",
-      "Xiamen"
+    "País": [
+      "Xile",
+      "Xina"
     ],
     "Animal": [
       "xai",
@@ -933,31 +228,5 @@
       "xampany",
       "xocolata"
     ]
-  },
-  "Z": {
-    "Nom": [
-      "Zoe",
-      "Zulema"
-    ],
-    "País/Ciutat": [
-      "Zagreb",
-      "Zamora",
-      "Zuric",
-      "Zaragoza"
-    ],
-    "Animal": [
-      "zebra",
-      "zebú"
-    ],
-    "Menjar": [
-      "zucchini",
-      "zarangollo",
-      "zabaione"
-    ],
-    "Objecte": [
-      "zepelí",
-      "zip"
-    ],
-    "Color": []
   }
 }
