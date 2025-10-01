@@ -184,46 +184,23 @@
       };
 
       const buildSuggestions = () => {
-        if (!wordRepository || !currentLetter || !wordRepository[currentLetter]) return null;
+        if (!wordRepository || !currentLetter || !wordRepository[currentLetter]) {
+          return null;
+        }
 
-        const result = {};
+        const suggestions = {};
         const letterData = wordRepository[currentLetter];
-        const normalizedLetter = currentLetter
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .toUpperCase();
 
         for (const category of CATEGORIES) {
-          const rawWords = Array.isArray(letterData[category.jsonKey]) ? letterData[category.jsonKey] : [];
-          const sanitizedWords = rawWords
-            .map(word => (typeof word === 'string' ? word.trim() : ''))
-            .filter(Boolean);
-          const filtered = sanitizedWords.filter(word => {
-            const normalizedWord = word
-              .normalize('NFD')
-              .replace(/[\u0300-\u036f]/g, '')
-              .toUpperCase();
-            return normalizedWord.startsWith(normalizedLetter);
-          });
-          const pool = filtered.length > 0 ? filtered : sanitizedWords;
-          const deduped = Array.from(new Set(pool));
-          const shuffled = [...deduped];
-          for (let i = shuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-          }
-          result[category.id] = shuffled.slice(0, 3);
+            const words = letterData[category.jsonKey] || [];
+            const shuffled = [...words].sort(() => 0.5 - Math.random());
+            suggestions[category.id] = shuffled.slice(0, 3);
         }
-        return result;
+        return suggestions;
       };
       
       const revealSuggestions = () => {
-        const generated = buildSuggestions();
-        if (generated) {
-          setSuggestions(generated);
-        } else {
-          setSuggestions({});
-        }
+        setSuggestions(buildSuggestions());
       };
 
       return (
