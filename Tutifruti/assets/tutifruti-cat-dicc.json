@@ -191,6 +191,749 @@
       "coral"
     ]
   },
+  "D": {
+    "Nom": [
+      "Daniel",
+      "David",
+      "Dídac",
+      "Dolors",
+      "Diana",
+      "Domènec"
+    ],
+    "País": [
+      "Dinamarca",
+      "Djibouti",
+      "Dominica",
+      "República Dominicana"
+    ],
+    "Animal": [
+      "daina",
+      "dofí",
+      "dingo",
+      "dragó"
+    ],
+    "Menjar": [
+      "dàtil",
+      "dorada"
+    ],
+    "Objecte": [
+      "dau",
+      "didal",
+      "disc",
+      "drap",
+      "dron",
+      "diccionari",
+      "tornavís"
+    ],
+    "Color": [
+      "daurat"
+    ]
+  },
+  "E": {
+    "Nom": [
+      "Eloi",
+      "Emma",
+      "Ester",
+      "Elena",
+      "Ernest",
+      "Edgar",
+      "Eulàlia",
+      "Eva"
+    ],
+    "País": [
+      "Equador",
+      "Egipte",
+      "El Salvador",
+      "Eritrea",
+      "Eslovàquia",
+      "Eslovènia",
+      "Espanya",
+      "Estats Units",
+      "Estònia",
+      "Etiòpia"
+    ],
+    "Animal": [
+      "elefant",
+      "eriçó",
+      "èmú",
+      "escarabat",
+      "esquirol",
+      "escorpí"
+    ],
+    "Menjar": [
+      "espagueti",
+      "empanada",
+      "ensaimada",
+      "entrecot",
+      "escudella",
+      "escalivada"
+    ],
+    "Objecte": [
+      "escombra",
+      "estoig",
+      "escala",
+      "estufa",
+      "espasa",
+      "estel",
+      "endoll"
+    ],
+    "Color": [
+      "escarlata",
+      "maragda"
+    ]
+  },
+  "F": {
+    "Nom": [
+      "Ferran",
+      "Fèlix",
+      "Felip",
+      "Francesc",
+      "Fiona",
+      "Florentina"
+    ],
+    "País": [
+      "Fiji",
+      "Filipines",
+      "Finlàndia",
+      "França"
+    ],
+    "Animal": [
+      "falcó",
+      "fardatxo",
+      "flamenc",
+      "foca",
+      "formiga",
+      "fraret"
+    ],
+    "Menjar": [
+      "fava",
+      "formatge",
+      "fideu",
+      "filet",
+      "flam"
+    ],
+    "Objecte": [
+      "forquilla",
+      "flauta",
+      "florera",
+      "forn",
+      "fusible"
+    ],
+    "Color": [
+      "fúcsia"
+    ]
+  },
+  "G": {
+    "Nom": [
+      "Gemma",
+      "Guillem",
+      "Gerard",
+      "Glòria",
+      "Gisela",
+      "Gina"
+    ],
+    "País": [
+      "Gabon",
+      "Gàmbia",
+      "Geòrgia",
+      "Ghana",
+      "Grècia",
+      "Grenada",
+      "Guatemala",
+      "Guinea",
+      "Guinea Bissau",
+      "Guinea Equatorial",
+      "Guyana"
+    ],
+    "Animal": [
+      "gall",
+      "gallina",
+      "gat",
+      "gavina",
+      "goril·la",
+      "gos",
+      "guineu",
+      "girafa"
+    ],
+    "Menjar": [
+      "galeta",
+      "gamba",
+      "gaspatxo",
+      "gelat",
+      "guacamole"
+    ],
+    "Objecte": [
+      "goma",
+      "grapadora",
+      "guix",
+      "guitarra",
+      "ganivet",
+      "gerro",
+      "globus"
+    ],
+    "Color": [
+      "groc",
+      "gris",
+      "grana"
+    ]
+  },
+  "H": {
+    "Nom": [
+      "Helena",
+      "Hèctor",
+      "Hugo"
+    ],
+    "País": [
+      "Haití",
+      "Hondures",
+      "Hongria"
+    ],
+    "Animal": [
+      "hiena",
+      "hipopòtam",
+      "hamster"
+    ],
+    "Menjar": [
+      "hamburguesa",
+      "hummus"
+    ],
+    "Objecte": [
+      "hamaca",
+      "harmònica",
+      "horari"
+    ],
+    "Color": [
+      "havana"
+    ]
+  },
+  "I": {
+    "Nom": [
+      "Irene",
+      "Ignasi",
+      "Iu",
+      "Íngrid",
+      "Isabel",
+      "Iker"
+    ],
+    "País": [
+      "Islàndia",
+      "Índia",
+      "Indonèsia",
+      "Iran",
+      "Iraq",
+      "Irlanda",
+      "Israel",
+      "Itàlia"
+    ],
+    "Animal": [
+      "iguana",
+      "isard",
+      "ibis"
+    ],
+    "Menjar": [
+      "iogurt",
+      "infusió"
+    ],
+    "Objecte": [
+      "imant",
+      "impressora",
+      "interruptor"
+    ],
+    "Color": [
+      "índigo",
+      "ivori"
+    ]
+  },
+  "J": {
+    "Nom": [
+      "Jordi",
+      "Joan",
+      "Júlia",
+      "Jaume",
+      "Jana",
+      "Judit",
+      "Josep",
+      "Jan"
+    ],
+    "País": [
+      "Jamaica",
+      "Japó",
+      "Jordània"
+    ],
+    "Animal": [
+      "jaguar",
+      "jerbu",
+      "jabalí"
+    ],
+    "Menjar": [
+      "julivert"
+    ],
+    "Objecte": [
+      "joc",
+      "jaqueta",
+      "joguina",
+      "joia"
+    ],
+    "Color": [
+      "jade"
+    ]
+  },
+  "L": {
+    "Nom": [
+      "Laia",
+      "Laura",
+      "Lluc",
+      "Lluís",
+      "Lorena",
+      "Lídia"
+    ],
+    "País": [
+      "Laos",
+      "Letònia",
+      "Líban",
+      "Lesotho",
+      "Libèria",
+      "Líbia",
+      "Liechtenstein",
+      "Lituània",
+      "Luxemburg"
+    ],
+    "Animal": [
+      "lleó",
+      "lleopard",
+      "llop",
+      "llúdria",
+      "llamàntol",
+      "lèmur",
+      "lluç"
+    ],
+    "Menjar": [
+      "llentia",
+      "lluç",
+      "llagostí",
+      "llet",
+      "llimona",
+      "lasanya"
+    ],
+    "Objecte": [
+      "llapis",
+      "llibre",
+      "llum",
+      "llit",
+      "llanterna",
+      "llauna"
+    ],
+    "Color": [
+      "lila",
+      "llimona"
+    ]
+  },
+  "M": {
+    "Nom": [
+      "Marta",
+      "Miquel",
+      "Marc",
+      "Mireia",
+      "Maria",
+      "Marina",
+      "Montserrat"
+    ],
+    "País": [
+      "Madagascar",
+      "Malawi",
+      "Malàisia",
+      "Maldives",
+      "Mali",
+      "Malta",
+      "Marroc",
+      "Maurici",
+      "Mauritània",
+      "Mèxic",
+      "Micronèsia",
+      "Moldàvia",
+      "Mònaco",
+      "Mongòlia",
+      "Montenegro",
+      "Moçambic",
+      "Myanmar"
+    ],
+    "Animal": [
+      "mico",
+      "musaranya",
+      "morsa",
+      "mosquit",
+      "mula"
+    ],
+    "Menjar": [
+      "macarró",
+      "magdalena",
+      "mongeta",
+      "maduixa",
+      "meló",
+      "mel"
+    ],
+    "Objecte": [
+      "martell",
+      "motxilla",
+      "mòbil",
+      "mirall",
+      "microones",
+      "maleta"
+    ],
+    "Color": [
+      "magenta",
+      "marró",
+      "malva"
+    ]
+  },
+  "N": {
+    "Nom": [
+      "Núria",
+      "Neus",
+      "Nil",
+      "Nadia",
+      "Nestor",
+      "Noa"
+    ],
+    "País": [
+      "Namíbia",
+      "Nauru",
+      "Nepal",
+      "Nicaragua",
+      "Níger",
+      "Nigèria",
+      "Noruega",
+      "Nova Zelanda"
+    ],
+    "Animal": [
+      "nyandú",
+      "narval",
+      "nutria"
+    ],
+    "Menjar": [
+      "neula",
+      "nabius",
+      "nap"
+    ],
+    "Objecte": [
+      "navalla",
+      "nansa",
+      "nino"
+    ],
+    "Color": [
+      "negre",
+      "nacre"
+    ]
+  },
+  "O": {
+    "Nom": [
+      "Oriol",
+      "Òscar",
+      "Olga",
+      "Ona",
+      "Olívia",
+      "Ovidi",
+      "Octavi",
+      "Omar"
+    ],
+    "País": [
+      "Oman"
+    ],
+    "Animal": [
+      "os",
+      "orca",
+      "oreneta",
+      "ocell",
+      "ocelot",
+      "ornitorinc"
+    ],
+    "Menjar": [
+      "ou",
+      "oli",
+      "orenga",
+      "oliva",
+      "orxata",
+      "ostra"
+    ],
+    "Objecte": [
+      "ordinador",
+      "olla",
+      "obridor",
+      "ornament"
+    ],
+    "Color": [
+      "ocre",
+      "or",
+      "oliva"
+    ]
+  },
+  "P": {
+    "Nom": [
+      "Pau",
+      "Pol",
+      "Pere",
+      "Paula",
+      "Pilar",
+      "Patrícia"
+    ],
+    "País": [
+      "Pakistan",
+      "Palau",
+      "Panamà",
+      "Papua Nova Guinea",
+      "Paraguai",
+      "Perú",
+      "Polònia",
+      "Portugal"
+    ],
+    "Animal": [
+      "porc",
+      "pingüí",
+      "pantera",
+      "pardal",
+      "pop",
+      "panda",
+      "puma"
+    ],
+    "Menjar": [
+      "pa",
+      "poma",
+      "pera",
+      "peix",
+      "pollastre",
+      "pizza",
+      "pèsol",
+      "pernil"
+    ],
+    "Objecte": [
+      "pilota",
+      "paperera",
+      "pinzell",
+      "placa",
+      "paraigua",
+      "pissarra",
+      "projector"
+    ],
+    "Color": [
+      "porpra",
+      "platejat",
+      "pistatxo"
+    ]
+  },
+  "R": {
+    "Nom": [
+      "Roger",
+      "Rosa",
+      "Raquel",
+      "Raimon",
+      "Rita",
+      "Roc",
+      "Rut",
+      "Ricard"
+    ],
+    "País": [
+      "Romania",
+      "Rússia",
+      "Ruanda"
+    ],
+    "Animal": [
+      "ruc",
+      "rata",
+      "ratpenat",
+      "rinoceront"
+    ],
+    "Menjar": [
+      "ravioli",
+      "remolatxa",
+      "risotto"
+    ],
+    "Objecte": [
+      "ràdio",
+      "ratolí",
+      "regle",
+      "rellotge",
+      "raspall",
+      "robot"
+    ],
+    "Color": [
+      "rosa",
+      "vermell",
+      "robí"
+    ]
+  },
+  "S": {
+    "Nom": [
+      "Sergi",
+      "Sílvia",
+      "Sara",
+      "Sonia",
+      "Salvador",
+      "Samuel",
+      "Sandra"
+    ],
+    "País": [
+      "Samoa",
+      "San Marino",
+      "São Tomé i Príncipe",
+      "Senegal",
+      "Sèrbia",
+      "Seychelles",
+      "Sierra Leone",
+      "Singapur",
+      "Síria",
+      "Somàlia",
+      "Sudan",
+      "Sudan del Sud",
+      "Surinam",
+      "Suècia",
+      "Suïssa"
+    ],
+    "Animal": [
+      "salamandra",
+      "serp",
+      "sargantana",
+      "suricata",
+      "senglar"
+    ],
+    "Menjar": [
+      "sopa",
+      "salmó",
+      "sardina",
+      "sèpia"
+    ],
+    "Objecte": [
+      "sabata",
+      "sac",
+      "sofà",
+      "serra",
+      "segell",
+      "sabre"
+    ],
+    "Color": [
+      "safrà",
+      "salmó",
+      "sèpia"
+    ]
+  },
+  "T": {
+    "Nom": [
+      "Toni",
+      "Teresa",
+      "Tània",
+      "Teo",
+      "Tomàs",
+      "Tatiana"
+    ],
+    "País": [
+      "Tadjikistan",
+      "Tanzània",
+      "Tailàndia",
+      "Timor Oriental",
+      "Togo",
+      "Tonga",
+      "Trinitat i Tobago",
+      "Tunísia",
+      "Turquia",
+      "Turkmenistan"
+    ],
+    "Animal": [
+      "tortuga",
+      "tigre",
+      "tapir",
+      "talp",
+      "tucà",
+      "truita",
+      "tauró"
+    ],
+    "Menjar": [
+      "torró",
+      "tomàquet",
+      "tonyina"
+    ],
+    "Objecte": [
+      "taula",
+      "tisora",
+      "tassa",
+      "teclat",
+      "televisor",
+      "termòmetre",
+      "torradora"
+    ],
+    "Color": [
+      "taronja",
+      "turquesa",
+      "terracota"
+    ]
+  },
+  "U": {
+    "Nom": [
+      "Úrsula",
+      "Uri",
+      "Ugo"
+    ],
+    "País": [
+      "Uganda",
+      "Ucraïna",
+      "Uruguai",
+      "Uzbekistan"
+    ],
+    "Animal": [
+      "uapití"
+    ],
+    "Menjar": [
+      "udon",
+      "uva"
+    ],
+    "Objecte": [
+      "ullera",
+      "urna",
+      "uniforme",
+      "usb"
+    ],
+    "Color": [
+      "ultramar"
+    ]
+  },
+  "V": {
+    "Nom": [
+      "Víctor",
+      "Victòria",
+      "Vanessa",
+      "Vera",
+      "Verònica",
+      "Valentí"
+    ],
+    "País": [
+      "Vanuatu",
+      "Veneçuela",
+      "Vietnam"
+    ],
+    "Animal": [
+      "vaca",
+      "varà",
+      "vespa",
+      "vedell",
+      "voltor"
+    ],
+    "Menjar": [
+      "vedella",
+      "vainilla",
+      "verdures",
+      "vinagre"
+    ],
+    "Objecte": [
+      "vaixell",
+      "vas",
+      "ventilador",
+      "violí",
+      "vitrina"
+    ],
+    "Color": [
+      "verd",
+      "violeta",
+      "vi"
+    ]
+  },
   "X": {
     "Nom": [
       "Xavier",
