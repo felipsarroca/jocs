@@ -1,0 +1,1324 @@
+{
+  "A": {
+    "Nom": [
+      "Abel",
+      "Adrià",
+      "Aina",
+      "Alba",
+      "Albert",
+      "Alícia",
+      "Anna",
+      "Ares",
+      "Ariadna",
+      "Arnau"
+    ],
+    "País/Ciutat": [
+      "Abu Dhabi",
+      "Alacant",
+      "Almeria",
+      "Amposta",
+      "Amsterdam",
+      "Andorra",
+      "Ankara",
+      "Arbúcies",
+      "Aràbia Saudita",
+      "Asunció",
+      "Atenes"
+    ],
+    "Animal": [
+      "abella",
+      "agutí",
+      "albatros",
+      "anaconda",
+      "anguila",
+      "antílop",
+      "armadillo",
+      "ase",
+      "axolot",
+      "àguila"
+    ],
+    "Menjar": [
+      "abricoc",
+      "aiguadolç (postres)",
+      "albergínia",
+      "allioli",
+      "alvocat",
+      "amanida",
+      "ametlles",
+      "anxoves",
+      "api",
+      "arròs"
+    ],
+    "Objecte": [
+      "agenda",
+      "agulla",
+      "alfombreta (estora)",
+      "ampolla",
+      "ampolla d'aigua",
+      "anell",
+      "armari",
+      "aspiradora",
+      "auriculars",
+      "avió"
+    ],
+    "Color": [
+      "aiguamarina",
+      "blanc",
+      "avori",
+      "àmbar"
+    ]
+  },
+  "B": {
+    "Nom": [
+      "Benedicta",
+      "Bernat",
+      "Berta",
+      "Biel",
+      "Blanca",
+      "Bonaventura",
+      "Borja",
+      "Bruna",
+      "Bruno",
+      "Bàrbara"
+    ],
+    "País/Ciutat": [
+      "Badajoz",
+      "Bangkok",
+      "Barcelona",
+      "Basilea",
+      "Berlín",
+      "Bilbao",
+      "Bogotà",
+      "Boston",
+      "Brussel·les",
+      "Brístol",
+      "Budapest",
+      "Burgos"
+    ],
+    "Animal": [
+      "babuí",
+      "balena",
+      "ballarina marina",
+      "barracuda",
+      "bernacle",
+      "bernat pescaire",
+      "bessó (peix bessó)",
+      "beç",
+      "bison",
+      "buitre"
+    ],
+    "Menjar": [
+      "bacallà",
+      "barretes de cereals",
+      "bescuit",
+      "braç de gitano",
+      "brou",
+      "brownie",
+      "bròcoli",
+      "bunyols",
+      "butifarra",
+      "béicon (bacó)"
+    ],
+    "Objecte": [
+      "balança",
+      "banyera",
+      "bastó",
+      "batedora",
+      "bicicleta",
+      "boca (boquilla)",
+      "bola",
+      "bombeta",
+      "bossa",
+      "botó"
+    ],
+    "Color": [
+      "beix",
+      "blanc",
+      "blau",
+      "bordó (bordeus)",
+      "bronze",
+      "burdeus"
+    ]
+  },
+  "C": {
+    "Nom": [
+      "Carla",
+      "Carles",
+      "Carme",
+      "Caterina",
+      "Cesc",
+      "Cinto",
+      "Clara",
+      "Clàudia",
+      "Constantí",
+      "Cristina"
+    ],
+    "País/Ciutat": [
+      "Cadis",
+      "Canberra",
+      "Cartagena",
+      "Casablanca",
+      "Castelló",
+      "Ciutadella",
+      "Ciutat de Mèxic",
+      "Ciutat del Vaticà",
+      "Copenhaguen",
+      "Càceres",
+      "Càller",
+      "Còrdova"
+    ],
+    "Animal": [
+      "ca",
+      "cabra",
+      "caiman",
+      "camell",
+      "cargol",
+      "cavall",
+      "cavallet de mar",
+      "coala",
+      "corb",
+      "cotorra",
+      "cranc",
+      "cuc",
+      "cérvol",
+      "còndor"
+    ],
+    "Menjar": [
+      "calamars",
+      "calçots",
+      "canelons",
+      "carbassa",
+      "carn",
+      "carxofa",
+      "cigrons",
+      "cireres",
+      "coca",
+      "coliflor",
+      "crema catalana",
+      "croquetes",
+      "cuscús"
+    ],
+    "Objecte": [
+      "cadira",
+      "cafetera",
+      "caixa",
+      "calendari",
+      "carregador",
+      "cartera",
+      "casc",
+      "cassola",
+      "clauer",
+      "coixí",
+      "compàs",
+      "càmera"
+    ],
+    "Color": [
+      "caqui",
+      "carbassa",
+      "carmesí",
+      "carmí",
+      "castany",
+      "celest",
+      "cian",
+      "cirera",
+      "coral",
+      "crema"
+    ]
+  },
+  "D": {
+    "Nom": [
+      "Damià",
+      "Daniela",
+      "David",
+      "Denis",
+      "Desirée",
+      "Diana",
+      "Diego",
+      "Dolors",
+      "Duna",
+      "Dídac"
+    ],
+    "País/Ciutat": [
+      "Dacca",
+      "Dakar",
+      "Damasc",
+      "Dijon",
+      "Donosti",
+      "Dortmund",
+      "Dubai",
+      "Dublín"
+    ],
+    "Animal": [
+      "daina",
+      "damisel·la (peix)",
+      "delphinus",
+      "dingo",
+      "dofí",
+      "drac barbut",
+      "dragó"
+    ],
+    "Menjar": [
+      "delícies de pollastre",
+      "detox (suc)",
+      "donut (dònut)",
+      "dorada",
+      "dumplings",
+      "dàtils"
+    ],
+    "Objecte": [
+      "dau",
+      "despertador",
+      "destornillador (tornavís)",
+      "detector de fum",
+      "diccionari",
+      "didal",
+      "disc",
+      "drap",
+      "dron"
+    ],
+    "Color": [
+      "daurat",
+      "de coure (coure)",
+      "de xocolata (xocolata)",
+      "desert (sorra)"
+    ]
+  },
+  "E": {
+    "Nom": [
+      "Edgar",
+      "Efraim",
+      "Elena",
+      "Eloi",
+      "Eloisa",
+      "Emma",
+      "Ernest",
+      "Ester",
+      "Eulàlia",
+      "Eva"
+    ],
+    "País/Ciutat": [
+      "Edimburg",
+      "Eivissa",
+      "El Caire",
+      "El Salvador",
+      "Elx",
+      "Equador",
+      "Erfurt",
+      "Esbjerg",
+      "Estocolm"
+    ],
+    "Animal": [
+      "elefant",
+      "eriçó",
+      "escarabat",
+      "escorpí",
+      "esquirol",
+      "estrella de mar",
+      "èmú"
+    ],
+    "Menjar": [
+      "empanada",
+      "ensaimada",
+      "ensalada russa",
+      "entrecot",
+      "escalivada",
+      "escudella",
+      "espaguetis",
+      "estofat"
+    ],
+    "Objecte": [
+      "endoll",
+      "enganxina",
+      "escala",
+      "escombra",
+      "escàner",
+      "espasa",
+      "estel (cometa)",
+      "estenedor",
+      "estoig",
+      "estufa"
+    ],
+    "Color": [
+      "escarlata"
+    ]
+  },
+  "F": {
+    "Nom": [
+      "Faust",
+      "Felip",
+      "Ferran",
+      "Fiona",
+      "Florentina",
+      "Francesc",
+      "Francina",
+      "Frederic",
+      "Fátima",
+      "Fèlix"
+    ],
+    "País/Ciutat": [
+      "Faro",
+      "Filadèlfia",
+      "Flandes",
+      "Florència",
+      "Frankfurt",
+      "França",
+      "Fuenlabrada",
+      "Fukuoka"
+    ],
+    "Animal": [
+      "falcó",
+      "fardatxo",
+      "fennec",
+      "flamenc",
+      "foca",
+      "formiga",
+      "foça",
+      "fraret"
+    ],
+    "Menjar": [
+      "falàfel",
+      "farina",
+      "faves",
+      "fideus",
+      "filet",
+      "flam",
+      "fondue",
+      "formatge",
+      "frankfurt",
+      "fruita"
+    ],
+    "Objecte": [
+      "faristol",
+      "fil",
+      "flauta",
+      "florera",
+      "forn",
+      "forquilla",
+      "fregidora",
+      "fulla de paper",
+      "funda",
+      "fusible"
+    ],
+    "Color": [
+      "ferruginós",
+      "rosa",
+      "fúcsia"
+    ]
+  },
+  "G": {
+    "Nom": [
+      "Gael",
+      "Gemma",
+      "Gerard",
+      "Germà",
+      "Gina",
+      "Gisela",
+      "Glòria",
+      "Grau",
+      "Guido",
+      "Guillem"
+    ],
+    "País/Ciutat": [
+      "Gandia",
+      "Gaza",
+      "Gijón",
+      "Girona",
+      "Glasgow",
+      "Goiânia",
+      "Granada",
+      "Guadalajara",
+      "Guatemala",
+      "Gènova"
+    ],
+    "Animal": [
+      "garsa",
+      "gat",
+      "gat mesquer",
+      "gató",
+      "gavina",
+      "girafa",
+      "golondrina (oreneta)",
+      "goril·la",
+      "gos",
+      "gossos d'aigua",
+      "guineu"
+    ],
+    "Menjar": [
+      "galetes",
+      "gambes",
+      "garrofa",
+      "gaspatxo",
+      "gelat",
+      "gingebre",
+      "gofre",
+      "grana de capellà",
+      "guacamole",
+      "gírgoles"
+    ],
+    "Objecte": [
+      "galleda",
+      "ganivet",
+      "ganxo",
+      "gerro",
+      "globus",
+      "goma",
+      "grapadora",
+      "guant",
+      "guitarra",
+      "guix"
+    ],
+    "Color": [
+      "grana",
+      "granat (vi)",
+      "gris",
+      "groc"
+    ]
+  },
+  "H": {
+    "Nom": [
+      "Helena",
+      "Henar",
+      "Hernan",
+      "Heura",
+      "Hilaria",
+      "Hilda",
+      "Honorat",
+      "Hugo",
+      "Humbert",
+      "Hèctor"
+    ],
+    "País/Ciutat": [
+      "Hamburg",
+      "Hampstead",
+      "Havana",
+      "Hobart",
+      "Hong Kong",
+      "Huelva",
+      "Hèlsinki"
+    ],
+    "Animal": [
+      "halcó (falcó)",
+      "hamster (hàmster)",
+      "hiena",
+      "hipopòtam",
+      "huró (fura)"
+    ],
+    "Menjar": [
+      "hamburguesa",
+      "hamsa (peix)",
+      "hash browns",
+      "herbes provençals",
+      "horxata",
+      "hot-dog",
+      "hummus"
+    ],
+    "Objecte": [
+      "haixet (aixeta)",
+      "hamaca",
+      "harmònica",
+      "helmet (casc)",
+      "higròmetre",
+      "horari",
+      "hèlix"
+    ],
+    "Color": [
+      "havana",
+      "heliotrop (lila)"
+    ]
+  },
+  "I": {
+    "Nom": [
+      "Ignasi",
+      "Iker",
+      "Il·la",
+      "Imanol",
+      "Imma",
+      "Irene",
+      "Isabel",
+      "Isona",
+      "Iu",
+      "Íngrid"
+    ],
+    "País/Ciutat": [
+      "Illes Fèroe",
+      "Illes Maldives",
+      "Indianapolis",
+      "Innsbruck",
+      "Irlanda",
+      "Islamabad",
+      "Islàndia",
+      "Istanbul",
+      "Itàlia"
+    ],
+    "Animal": [
+      "iac (yak)",
+      "ibis",
+      "iguana",
+      "impala",
+      "indri",
+      "isard"
+    ],
+    "Menjar": [
+      "icetea (te fred)",
+      "indiana (salsa)",
+      "infusió",
+      "iogurt",
+      "iuca"
+    ],
+    "Objecte": [
+      "imant",
+      "imatge",
+      "impresora (impressora)",
+      "incens",
+      "inhalador",
+      "interruptor",
+      "isard de peluix (nino)"
+    ],
+    "Color": [
+      "ivori",
+      "índigo"
+    ]
+  },
+  "J": {
+    "Nom": [
+      "Jacint",
+      "Jan",
+      "Jana",
+      "Jaume",
+      "Joan",
+      "Jofre",
+      "Jordi",
+      "Josep",
+      "Judit",
+      "Júlia"
+    ],
+    "País/Ciutat": [
+      "Jaipur",
+      "Jakarta",
+      "Jaén",
+      "Jerez",
+      "Jerusalén",
+      "Johannesburg",
+      "Jujuy"
+    ],
+    "Animal": [
+      "jabalí (porc senglar)",
+      "jabirú",
+      "jaguar",
+      "jaçana",
+      "jerbu"
+    ],
+    "Menjar": [
+      "jamó (pernil)",
+      "jasmin arròs (arròs de gessamí)",
+      "jatjar (iogurt)",
+      "julivert",
+      "jícama"
+    ],
+    "Objecte": [
+      "jaqueta",
+      "jardineres",
+      "jarra (gerra)",
+      "javelina (llança)",
+      "joc",
+      "joguina",
+      "joia",
+      "joystick"
+    ],
+    "Color": [
+      "jade"
+    ]
+  },
+  "L": {
+    "Nom": [
+      "Laia",
+      "Laura",
+      "Leo",
+      "Lluc",
+      "Lluís",
+      "Lola",
+      "Lorena",
+      "Lurdes",
+      "Lídia"
+    ],
+    "País/Ciutat": [
+      "Lahore",
+      "Leipzig",
+      "Lima",
+      "Lisboa",
+      "Lió",
+      "Lleida",
+      "Logronyo",
+      "Londres",
+      "Lugo",
+      "Luxemburg",
+      "Lviv"
+    ],
+    "Animal": [
+      "llagosta",
+      "llamàntol",
+      "lleopard",
+      "lleó",
+      "llop",
+      "llorenç (peix sant pere)",
+      "lluç",
+      "lluç de riu",
+      "llúdria",
+      "lèmur"
+    ],
+    "Menjar": [
+      "lasanya",
+      "linguine",
+      "lionesa (salsa)",
+      "llagostí",
+      "llenties",
+      "llepolies",
+      "llet",
+      "llimona",
+      "llom",
+      "lluç"
+    ],
+    "Objecte": [
+      "llanterna",
+      "llapis",
+      "llauna",
+      "llaç",
+      "llevallits",
+      "llibre",
+      "llibreta",
+      "llit",
+      "llopet (peluix)",
+      "llum"
+    ],
+    "Color": [
+      "lapislàtzuli",
+      "lavanda",
+      "lila",
+      "llimona"
+    ]
+  },
+  "M": {
+    "Nom": [
+      "Marc",
+      "Maria",
+      "Marina",
+      "Marta",
+      "Maurici",
+      "Melania",
+      "Meritxell",
+      "Miquel",
+      "Mireia",
+      "Montserrat"
+    ],
+    "País/Ciutat": [
+      "Madrid",
+      "Manresa",
+      "Marsella",
+      "Milà",
+      "Molins de Rei",
+      "Monaco",
+      "Mont-real",
+      "Montpeller",
+      "Moscou",
+      "Munic",
+      "Màlaga",
+      "Múrcia"
+    ],
+    "Animal": [
+      "mandril",
+      "mapatxe (ratolí rentador)",
+      "marta",
+      "mico",
+      "moixó",
+      "morena",
+      "morsa",
+      "mosquit",
+      "mula",
+      "musaranya"
+    ],
+    "Menjar": [
+      "macarrons",
+      "maduixes",
+      "magdalenes",
+      "marmelada (melmelada)",
+      "mel",
+      "meló",
+      "mill",
+      "mochi",
+      "mongetes",
+      "mozzarella"
+    ],
+    "Objecte": [
+      "maleta",
+      "mapa",
+      "martell",
+      "metro (regle)",
+      "microones",
+      "micròfon",
+      "mirall",
+      "motlle",
+      "motxilla",
+      "mòbil"
+    ],
+    "Color": [
+      "magenta",
+      "malva",
+      "maragda",
+      "marró",
+      "groc",
+      "mostassa"
+    ]
+  },
+  "N": {
+    "Nom": [
+      "Nadia",
+      "Naia",
+      "Nel",
+      "Nestor",
+      "Neus",
+      "Nil",
+      "Noa",
+      "Norbert",
+      "Noèlia",
+      "Núria"
+    ],
+    "País/Ciutat": [
+      "Nador",
+      "Nairobi",
+      "Newcastle",
+      "Niça",
+      "Nova Delhi",
+      "Nova York",
+      "Nuremberg",
+      "Nàpols"
+    ],
+    "Animal": [
+      "nandu",
+      "narval",
+      "niu",
+      "nutria",
+      "nyac (genet)",
+      "nyandú"
+    ],
+    "Menjar": [
+      "nabius",
+      "nachos",
+      "nap",
+      "nems",
+      "neules",
+      "noodles",
+      "norcilla (botifarra negra)"
+    ],
+    "Objecte": [
+      "nansa",
+      "nas (postís)",
+      "navalla",
+      "neó",
+      "nino",
+      "nivell",
+      "notebook (portàtil)",
+      "nus (cordill)"
+    ],
+    "Color": [
+      "nacre",
+      "negre",
+      "verd"
+    ]
+  },
+  "O": {
+    "Nom": [
+      "Octavi",
+      "Oksana",
+      "Oleguer",
+      "Olga",
+      "Olívia",
+      "Omar",
+      "Ona",
+      "Oriol",
+      "Ovidi",
+      "Òscar"
+    ],
+    "País/Ciutat": [
+      "Odessa",
+      "Olot",
+      "Omaha",
+      "Oman",
+      "Oporto",
+      "Orense",
+      "Oruro",
+      "Osca",
+      "Oslo",
+      "Oxford"
+    ],
+    "Animal": [
+      "ocell jardiner",
+      "ocelot",
+      "orca",
+      "oreneta",
+      "ornitorinc",
+      "os",
+      "ossos rentadors (mapatxe)"
+    ],
+    "Menjar": [
+      "okonomiyaki",
+      "oli",
+      "olives",
+      "omeslette (truita)",
+      "orenga",
+      "orxata",
+      "ostres",
+      "ous"
+    ],
+    "Objecte": [
+      "obridor d'ampolles",
+      "ocell de paper (origami)",
+      "olla",
+      "ordinador",
+      "organitzador",
+      "ornament"
+    ],
+    "Color": [
+      "ocre",
+      "oliva",
+      "or",
+      "blanc"
+    ]
+  },
+  "P": {
+    "Nom": [
+      "Patrícia",
+      "Pau",
+      "Paula",
+      "Paulette",
+      "Pep",
+      "Pere",
+      "Pilar",
+      "Pol",
+      "Ponc",
+      "Prudenci"
+    ],
+    "País/Ciutat": [
+      "Palma",
+      "Pamplona",
+      "París",
+      "Pekín",
+      "Pequín",
+      "Perpinyà",
+      "Philadelphia",
+      "Pisa",
+      "Porto",
+      "Poznań",
+      "Praga",
+      "Puebla"
+    ],
+    "Animal": [
+      "panda",
+      "pantera",
+      "pardal",
+      "pelicà",
+      "periquito (periquito)",
+      "pingüí",
+      "poltre",
+      "pop",
+      "porc",
+      "puma"
+    ],
+    "Menjar": [
+      "pa",
+      "paella",
+      "panna cotta",
+      "pastanaga",
+      "peix",
+      "pera",
+      "pernil",
+      "pistatxo",
+      "pizza",
+      "pollastre",
+      "poma",
+      "pèsols"
+    ],
+    "Objecte": [
+      "paperera",
+      "paraigua",
+      "perxa",
+      "pilota",
+      "pinces",
+      "pintura",
+      "pinzell",
+      "pissarra",
+      "placa",
+      "projector"
+    ],
+    "Color": [
+      "perla",
+      "pistatxo",
+      "platejat",
+      "porpra",
+      "pressec (préssec)"
+    ]
+  },
+  "R": {
+    "Nom": [
+      "Rafel",
+      "Raimon",
+      "Raquel",
+      "Ricard",
+      "Rita",
+      "Roc",
+      "Roger",
+      "Rosa",
+      "Rut",
+      "Ruth"
+    ],
+    "País/Ciutat": [
+      "Rabat",
+      "Rennes",
+      "Reus",
+      "Riga",
+      "Riyad",
+      "Roma",
+      "Rosario",
+      "Rotterdam",
+      "Rovaniemi"
+    ],
+    "Animal": [
+      "ragó (ratolí)",
+      "rapinyaire",
+      "rata",
+      "ratpenat",
+      "rinoceront",
+      "robalo (llobarro)",
+      "ruc",
+      "rèptil"
+    ],
+    "Menjar": [
+      "ramen",
+      "rap",
+      "ratatouille (ratatol·la)",
+      "raviolis",
+      "remolatxa",
+      "rissotto (risotto)",
+      "rosbif",
+      "rosquilles"
+    ],
+    "Objecte": [
+      "raspadora",
+      "raspall",
+      "ratolí",
+      "regle",
+      "rellotge",
+      "reproductor",
+      "robot",
+      "rotulador",
+      "ràdio"
+    ],
+    "Color": [
+      "robí",
+      "vermell",
+      "rosa",
+      "groc"
+    ]
+  },
+  "S": {
+    "Nom": [
+      "Salvador",
+      "Samuel",
+      "Sandra",
+      "Sara",
+      "Sebastià",
+      "Sergi",
+      "Sira",
+      "Sofía",
+      "Sonia",
+      "Sílvia"
+    ],
+    "País/Ciutat": [
+      "Sabadell",
+      "Salamanca",
+      "Sant Sebastià",
+      "Santander",
+      "Saragossa",
+      "Sevilla",
+      "Seül",
+      "Singapur",
+      "Sofia",
+      "Sydney"
+    ],
+    "Animal": [
+      "saboga",
+      "salamandra",
+      "sarg",
+      "sargantana",
+      "sargantana turquesa",
+      "segall (gavina)",
+      "senglar",
+      "serp",
+      "suricata"
+    ],
+    "Menjar": [
+      "salmó",
+      "sandvitx",
+      "sardines",
+      "soba",
+      "socarrat",
+      "sopes",
+      "suc",
+      "suc de taronja",
+      "sushi",
+      "sèpia"
+    ],
+    "Objecte": [
+      "sabata",
+      "sabre",
+      "sabó",
+      "sac",
+      "segell",
+      "seringua (xeringa)",
+      "serra",
+      "sofà",
+      "sostre fals (plafó)",
+      "suro"
+    ],
+    "Color": [
+      "safrà",
+      "salmó",
+      "siena",
+      "sorra",
+      "sèpia"
+    ]
+  },
+  "T": {
+    "Nom": [
+      "Tatiana",
+      "Teia",
+      "Teo",
+      "Teresa",
+      "Thiago",
+      "Tomàs",
+      "Toni",
+      "Trini",
+      "Tura",
+      "Tània"
+    ],
+    "País/Ciutat": [
+      "Tallinn",
+      "Tarragona",
+      "Tbilissi",
+      "Terrassa",
+      "Tijuana",
+      "Toledo",
+      "Tolosa",
+      "Toronto",
+      "Torí",
+      "Tunis",
+      "Tòquio"
+    ],
+    "Animal": [
+      "talp",
+      "tapir",
+      "taràntula",
+      "tiburó (tauró)",
+      "tigre",
+      "tortuga",
+      "truita",
+      "tucà",
+      "tètard (capgròs)"
+    ],
+    "Menjar": [
+      "tahina",
+      "tapioca",
+      "tatin (tarte tatin)",
+      "tempura",
+      "tiramisú",
+      "tomaquet (tomàquet)",
+      "tonyina",
+      "torró",
+      "tortilla (truita)",
+      "tàrtar"
+    ],
+    "Objecte": [
+      "targeta",
+      "tassa",
+      "taula",
+      "teclat",
+      "televisor",
+      "termòmetre",
+      "timpà (tambor)",
+      "tisores",
+      "torradora",
+      "tub"
+    ],
+    "Color": [
+      "taronja",
+      "terracota",
+      "teula",
+      "groc",
+      "turquesa"
+    ]
+  },
+  "U": {
+    "Nom": [
+      "Udina",
+      "Ugo",
+      "Ulisses",
+      "Umbert",
+      "Umut",
+      "Uri",
+      "Uriah",
+      "Uxia",
+      "Úrsula"
+    ],
+    "País/Ciutat": [
+      "Uagadugu",
+      "Ucraïna",
+      "Ulaanbaatar",
+      "Uppsala",
+      "Uruguai",
+      "Utrecht",
+      "Uzbekistan"
+    ],
+    "Animal": [
+      "uallaró (gall fer)",
+      "uapití",
+      "urpa (au d'urpa)",
+      "urs",
+      "urubu"
+    ],
+    "Menjar": [
+      "udon",
+      "ulleres de xocolata (galetes)",
+      "umeshu (licor)",
+      "uvas (raïm)"
+    ],
+    "Objecte": [
+      "ulleres",
+      "ultraviolí (llamp UV)",
+      "uniforme",
+      "urna",
+      "usb",
+      "utensili"
+    ],
+    "Color": [
+      "ultramar"
+    ]
+  },
+  "V": {
+    "Nom": [
+      "Valentina",
+      "Valentí",
+      "Vanessa",
+      "Vera",
+      "Verònica",
+      "Vicenç",
+      "Victòria",
+      "Virginia",
+      "Vito",
+      "Víctor"
+    ],
+    "País/Ciutat": [
+      "Valladolid",
+      "Vallparadís",
+      "València",
+      "Vancouver",
+      "Vaticà",
+      "Venècia",
+      "Verona",
+      "Viena",
+      "Vilnius",
+      "Vitòria"
+    ],
+    "Animal": [
+      "vaca",
+      "varà",
+      "vedell",
+      "vell marí",
+      "vespa",
+      "visó",
+      "voltor",
+      "vèrvol (cérvol jove)"
+    ],
+    "Menjar": [
+      "vainilla",
+      "vedella",
+      "vellut (sopa)",
+      "verdures",
+      "vichy (aigua)",
+      "vichyssoise",
+      "vinagre"
+    ],
+    "Objecte": [
+      "vaixell",
+      "vas",
+      "velló (manta)",
+      "ventilador",
+      "vibrador (motoret)",
+      "violí",
+      "vitrina",
+      "voltímetre",
+      "vàlvula"
+    ],
+    "Color": [
+      "verd",
+      "vermell",
+      "vi (vinós)",
+      "violeta"
+    ]
+  },
+  "X": {
+    "Nom": [
+      "Xalina",
+      "Xavier",
+      "Xavierina",
+      "Xesc",
+      "Ximena",
+      "Ximo",
+      "Xisca",
+      "Xènia"
+    ],
+    "País/Ciutat": [
+      "Xangai",
+      "Xerès",
+      "Xiamen",
+      "Xian",
+      "Xochimilco",
+      "Xàtiva"
+    ],
+    "Animal": [
+      "xacal",
+      "xai",
+      "xatrac",
+      "xibec",
+      "xinxilla",
+      "xinès crestat (gall)",
+      "xipmunk (esquirol volador)",
+      "xoriguer",
+      "xot (òliba)"
+    ],
+    "Menjar": [
+      "xampinyons",
+      "xarel·lo (vi)",
+      "xarop",
+      "xató",
+      "xipirons",
+      "xocolata",
+      "xoriço",
+      "xucrut",
+      "xurros"
+    ],
+    "Objecte": [
+      "xandall",
+      "xapa",
+      "xarrupa (palla)",
+      "xassís",
+      "xeringa",
+      "xerox (fotocopiadora)",
+      "xilòfon",
+      "xiulet",
+      "xumet"
+    ],
+    "Color": [
+      "xampany",
+      "xocolata"
+    ]
+  }
+}

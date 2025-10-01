@@ -1,0 +1,311 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Play, Pause, RotateCcw, Moon, Sun } from 'lucide-react';
+
+// Repositori de paraules (fàcilment ampliable)
+const WORD_REPOSITORY = {
+  A: {
+    nom: ['Anna', 'Albert'],
+    lloc: ['Amsterdam', 'Andorra'],
+    animal: ['Ànec', 'Anguila'],
+    menjar: ['Arròs', 'Avellana'],
+    objecte: ['Agulla', 'Ampolla'],
+    color: ['Ataronjat', 'Alabastre']
+  },
+  B: {
+    nom: ['Berta', 'Bernat'],
+    lloc: ['Barcelona', 'Berlín'],
+    animal: ['Balena', 'Búfal'],
+    menjar: ['Banana', 'Bròquil'],
+    objecte: ['Bossa', 'Bicicleta'],
+    color: ['Blau', 'Blanc']
+  },
+  C: {
+    nom: ['Carla', 'Carles'],
+    lloc: ['Catalunya', 'Cuba'],
+    animal: ['Cavall', 'Conill'],
+    menjar: ['Cogombre', 'Cireres'],
+    objecte: ['Cadira', 'Cotxe'],
+    color: ['Carmesí', 'Celest']
+  },
+  // Afegeix més lletres aquí...
+};
+
+const CATEGORIES = [
+  { id: 'nom', name: 'Nom propi', icon: '🧑', color: 'from-pink-400 to-pink-600' },
+  { id: 'lloc', name: 'País o ciutat', icon: '🌍', color: 'from-blue-400 to-blue-600' },
+  { id: 'animal', name: 'Animal', icon: '🐾', color: 'from-green-400 to-green-600' },
+  { id: 'menjar', name: 'Menjar', icon: '🍎', color: 'from-red-400 to-red-600' },
+  { id: 'objecte', name: 'Objecte', icon: '🛠️', color: 'from-purple-400 to-purple-600' },
+  { id: 'color', name: 'Color', icon: '🎨', color: 'from-yellow-400 to-yellow-600' }
+];
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const GAME_TIME = 120; // 2 minuts en segons
+
+export default function TutifrutiGame() {
+  const [darkMode, setDarkMode] = useState(false);
+  const [gameState, setGameState] = useState('initial'); // initial, spinning, playing, paused, finished
+  const [currentLetter, setCurrentLetter] = useState('');
+  const [spinningLetter, setSpinningLetter] = useState('');
+  const [timeLeft, setTimeLeft] = useState(GAME_TIME);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const timerRef = useRef(null);
+  const audioRef = useRef(null);
+
+  // Efecte de slot machine per a la lletra
+  useEffect(() => {
+    if (gameState === 'spinning') {
+      const interval = setInterval(() => {
+        setSpinningLetter(LETTERS[Math.floor(Math.random() * LETTERS.length)]);
+      }, 50);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        const finalLetter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+        setCurrentLetter(finalLetter);
+        setSpinningLetter(finalLetter);
+        playSound('start');
+        setGameState('playing');
+        setTimeLeft(GAME_TIME);
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [gameState]);
+
+  // Temporitzador
+  useEffect(() => {
+    if (gameState === 'playing') {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timerRef.current);
+            playSound('end');
+            setGameState('finished');
+            setTimeout(() => setShowSuggestions(true), 3000);
+            return 0;
+          }
+          if (prev === 11) {
+            playSound('warning');
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [gameState]);
+
+  const playSound = (type) => {
+    const frequencies = { start: 440, pause: 523, end: 330, warning: 880 };
+    const context = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    
+    oscillator.frequency.value = frequencies[type];
+    oscillator.type = 'sine';
+    gainNode.gain.setValueAtTime(0.3, context.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
+    
+    oscillator.start(context.currentTime);
+    oscillator.stop(context.currentTime + 0.2);
+  };
+
+  const startGame = () => {
+    setGameState('spinning');
+    setShowSuggestions(false);
+  };
+
+  const pauseGame = () => {
+    if (gameState === 'playing') {
+      clearInterval(timerRef.current);
+      setGameState('paused');
+      playSound('pause');
+    }
+  };
+
+  const resetGame = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setGameState('initial');
+    setCurrentLetter('');
+    setSpinningLetter('');
+    setTimeLeft(GAME_TIME);
+    setShowSuggestions(false);
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getSuggestions = () => {
+    if (WORD_REPOSITORY[currentLetter]) {
+      return WORD_REPOSITORY[currentLetter];
+    }
+    return null;
+  };
+
+  return (
+    <div className={`min-h-screen transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 text-gray-800'}`}>
+      {/* Capçalera */}
+      <header className={`${darkMode ? 'bg-gray-800' : 'bg-white/80 backdrop-blur-sm'} shadow-lg p-4`}>
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent animate-pulse">
+            🎲 Tutifruti
+          </h1>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`p-3 rounded-full transition-all hover:scale-110 ${darkMode ? 'bg-yellow-400 text-gray-900' : 'bg-gray-800 text-yellow-400'}`}
+          >
+            {darkMode ? <Sun size={24} /> : <Moon size={24} />}
+          </button>
+        </div>
+      </header>
+
+      {/* Zona Central */}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {/* Lletra i Temporitzador */}
+        <div className="text-center mb-12">
+          {gameState === 'initial' && (
+            <button
+              onClick={startGame}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-12 py-6 rounded-2xl text-3xl font-bold shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all flex items-center gap-4 mx-auto"
+            >
+              <Play size={40} />
+              Començar Joc
+            </button>
+          )}
+
+          {(gameState === 'spinning' || gameState === 'playing' || gameState === 'paused' || gameState === 'finished') && (
+            <div className="space-y-6">
+              {/* Lletra */}
+              <div className={`inline-block transition-all duration-500 ${gameState === 'spinning' ? 'scale-90 opacity-70' : 'scale-100'}`}>
+                <div className={`text-9xl md:text-[200px] font-black p-8 rounded-3xl shadow-2xl ${
+                  gameState === 'playing' 
+                    ? 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-500 animate-pulse' 
+                    : darkMode ? 'bg-gray-700' : 'bg-white'
+                }`}>
+                  {gameState === 'spinning' ? spinningLetter : currentLetter}
+                </div>
+              </div>
+
+              {/* Temporitzador */}
+              {(gameState === 'playing' || gameState === 'paused') && (
+                <div className={`text-6xl md:text-7xl font-bold transition-all ${
+                  timeLeft <= 10 ? 'text-red-500 animate-pulse scale-110' : darkMode ? 'text-green-400' : 'text-green-600'
+                }`}>
+                  ⏱️ {formatTime(timeLeft)}
+                </div>
+              )}
+
+              {/* Botons de control */}
+              <div className="flex gap-4 justify-center">
+                {gameState === 'playing' && (
+                  <button
+                    onClick={pauseGame}
+                    className="bg-orange-500 text-white px-8 py-4 rounded-xl text-xl font-bold shadow-lg hover:bg-orange-600 transition-all flex items-center gap-3"
+                  >
+                    <Pause size={28} />
+                    Tutifruti!
+                  </button>
+                )}
+                
+                {(gameState === 'paused' || gameState === 'finished') && (
+                  <button
+                    onClick={resetGame}
+                    className="bg-blue-500 text-white px-8 py-4 rounded-xl text-xl font-bold shadow-lg hover:bg-blue-600 transition-all flex items-center gap-3"
+                  >
+                    <RotateCcw size={28} />
+                    Nova Ronda
+                  </button>
+                )}
+              </div>
+
+              {/* Missatges */}
+              {gameState === 'paused' && (
+                <div className="bg-orange-500 text-white p-6 rounded-2xl text-3xl font-bold shadow-2xl animate-bounce">
+                  🎉 Tutifruti! Atureu-vos d'escriure
+                </div>
+              )}
+
+              {gameState === 'finished' && !showSuggestions && (
+                <div className="bg-red-500 text-white p-6 rounded-2xl text-3xl font-bold shadow-2xl animate-bounce">
+                  ⏰ Temps esgotat! Atureu-vos
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Categories */}
+        {(gameState === 'playing' || gameState === 'paused' || gameState === 'finished') && (
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+            {CATEGORIES.map((cat, idx) => (
+              <div
+                key={cat.id}
+                className={`bg-gradient-to-br ${cat.color} p-6 rounded-2xl shadow-xl transform transition-all hover:scale-105`}
+                style={{ animationDelay: `${idx * 100}ms` }}
+              >
+                <div className="text-5xl mb-2">{cat.icon}</div>
+                <h3 className="text-xl md:text-2xl font-bold text-white">{cat.name}</h3>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Suggeriments */}
+        {showSuggestions && getSuggestions() && (
+          <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl p-8 shadow-2xl`}>
+            <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              💡 Propostes de paraules amb {currentLetter}
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {CATEGORIES.map(cat => (
+                <div key={cat.id} className="space-y-2">
+                  <h4 className="font-bold text-lg flex items-center gap-2">
+                    <span>{cat.icon}</span>
+                    <span>{cat.name}</span>
+                  </h4>
+                  <div className="space-y-1">
+                    {getSuggestions()[cat.id]?.map((word, idx) => (
+                      <div
+                        key={idx}
+                        className={`${darkMode ? 'bg-gray-700' : 'bg-gray-100'} px-4 py-2 rounded-lg text-lg animate-fadeIn`}
+                        style={{ animationDelay: `${idx * 150}ms` }}
+                      >
+                        {word}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out forwards;
+          opacity: 0;
+        }
+      `}</style>
+    </div>
+  );
+}
