@@ -146,8 +146,7 @@
       "Costa d’Ivori",
       "Costa Rica",
       "Croàcia",
-      "Cuba",
-      "Xipre"
+      "Cuba"
     ],
     "Animal": [
       "cabra",
@@ -203,8 +202,7 @@
     "País": [
       "Dinamarca",
       "Djibouti",
-      "Dominica",
-      "República Dominicana"
+      "Dominica"
     ],
     "Animal": [
       "daina",
@@ -222,8 +220,7 @@
       "disc",
       "drap",
       "dron",
-      "diccionari",
-      "tornavís"
+      "diccionari"
     ],
     "Color": [
       "daurat"
@@ -278,8 +275,7 @@
       "endoll"
     ],
     "Color": [
-      "escarlata",
-      "maragda"
+      "escarlata"
     ]
   },
   "F": {
@@ -582,6 +578,7 @@
     ],
     "Color": [
       "magenta",
+      "maragda",
       "marró",
       "malva"
     ]
@@ -732,6 +729,7 @@
       "Ricard"
     ],
     "País": [
+      "República Dominicana",
       "Romania",
       "Rússia",
       "Ruanda"
@@ -757,7 +755,6 @@
     ],
     "Color": [
       "rosa",
-      "vermell",
       "robí"
     ]
   },
@@ -857,6 +854,7 @@
       "teclat",
       "televisor",
       "termòmetre",
+      "tornavís",
       "torradora"
     ],
     "Color": [
@@ -930,6 +928,7 @@
     ],
     "Color": [
       "verd",
+      "vermell",
       "violeta",
       "vi"
     ]
@@ -943,7 +942,8 @@
     ],
     "País": [
       "Xile",
-      "Xina"
+      "Xina",
+      "Xipre"
     ],
     "Animal": [
       "xai",
