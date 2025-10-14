@@ -1,0 +1,62 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #ecf0f1;
+    --card-background: #ffffff;
+    --text-color: #2c3e50;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+    color: var(--primary-color);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* Ensures content respects border-radius */
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px var(--shadow-color);
+}
+
+.card-body {
+    text-align: center;
+}
+
+.card-title {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.card-img-top {
+    width: 64px;
+    height: 64px;
+    margin: 20px auto 0;
+    display: block;
+}
+
+.card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.footer {
+    font-size: 0.9rem;
+}
+
+.license-icon {
+    height: 22px;
+    margin-right: 5px;
+    vertical-align: text-bottom;
+}
