@@ -1,30 +1,89 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const games = [
-        { name: '2048', path: '2048/' },
-        { name: 'Penjat', path: 'Penjat/' },
-        { name: 'SlitherLink', path: 'SlitherLink/' },
-        { name: 'Tutifruti', path: 'Tutifruti/' }
+    const apps = [
+        // Jocs de lletres i paraules
+        { 
+            name: "Joc del Penjat", 
+            path: 'Penjat/', 
+            category: 'Jocs de lletres i paraules', 
+            description: "Endevina la paraula oculta abans que es completi la figura del penjat." 
+        },
+        { 
+            name: "Tutti Frutti", 
+            path: 'Tutifruti/', 
+            category: 'Jocs de lletres i paraules', 
+            description: "Posa a prova el teu vocabulari. Troba paraules de diferents categories que comencin amb la mateixa lletra." 
+        },
+
+        // Jocs de lògica i nombres
+        { 
+            name: "2048", 
+            path: '2048/', 
+            category: 'Jocs de lògica i nombres', 
+            description: "Combina les fitxes numèriques per arribar a la xifra 2048. Un repte d'estratègia." 
+        },
+        { 
+            name: "SlitherLink", 
+            path: 'SlitherLink/', 
+            category: 'Jocs de lògica i nombres', 
+            description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques." 
+        }
     ];
 
-    const gamesGrid = document.getElementById('games-grid');
+    const mainContainer = document.getElementById('apps-container');
+    if (!mainContainer) return;
 
-    if (gamesGrid) {
-        games.forEach(game => {
+    // Agrupa les aplicacions per categoria
+    const appsByCategory = apps.reduce((acc, app) => {
+        if (!acc[app.category]) {
+            acc[app.category] = [];
+        }
+        acc[app.category].push(app);
+        return acc;
+    }, {});
+
+    // Ordena les categories alfabèticament, però posa "Altres" al final
+    const sortedCategories = Object.keys(appsByCategory).sort((a, b) => {
+        if (a === 'Altres') return 1;
+        if (b === 'Altres') return -1;
+        return a.localeCompare(b);
+    });
+
+    // Genera l'HTML per a cada categoria
+    sortedCategories.forEach(category => {
+        const section = document.createElement('section');
+        section.className = 'category-section mb-5';
+
+        const categoryTitle = document.createElement('h2');
+        categoryTitle.className = 'category-title';
+        categoryTitle.textContent = category;
+        section.appendChild(categoryTitle);
+
+        const grid = document.createElement('div');
+        grid.className = 'row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4';
+
+        appsByCategory[category].forEach(app => {
             const col = document.createElement('div');
-            col.className = 'col';
+            col.className = 'col d-flex';
+            
+            // Intenta trobar un favicon, si no, mostra una inicial
+            const faviconSrc = `${app.path}favicon.svg`;
+            const fallbackIcon = `https://via.placeholder.com/64/3498db/ffffff?text=${app.name.charAt(0)}`;
 
-            const cardHTML = `
-                <a href="${game.path}index.html" class="card-link">
+            col.innerHTML = `
+                <a href="${app.path}" class="card-link">
                     <div class="card h-100">
-                        <img src="${game.path}favicon.svg" class="card-img-top" alt="Icona de ${game.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${game.name}</h5>
+                        <img src="${faviconSrc}" class="card-img-top" alt="Icona de ${app.name}" onerror="this.onerror=null;this.src='${fallbackIcon}';">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${app.name}</h5>
+                            <p class="card-text flex-grow-1">${app.description}</p>
                         </div>
                     </div>
                 </a>
             `;
-            col.innerHTML = cardHTML;
-            gamesGrid.appendChild(col);
+            grid.appendChild(col);
         });
-    }
+
+        section.appendChild(grid);
+        mainContainer.appendChild(section);
+    });
 });
