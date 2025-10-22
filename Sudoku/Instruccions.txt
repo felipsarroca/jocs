@@ -1,0 +1,153 @@
+# Proposta de millores per a l’aplicació de Sudoku (versió 9×9, orientada a infants i famílies)
+
+## 1) Generació de puzles (qualitat i unicitat)
+
+* **Unicitat garantida de solució.**
+  Implementar un *solver* backtracking que **compti solucions** (amb tall quan en trobi 2). Integrar-lo al procés de buidat: cada retirada de pista s’accepta només si el puzle continua amb **1 sola solució**.
+* **Buidat controlat i simètric.**
+  Treure pistes per parelles en posicions simètriques i **revalidar** la unicitat. Millora la sensació de “puzle ben fet”.
+* **Semilles (seeds)** i **reproduïbilitat.**
+  Possibilitat d’introduir/mostrar una *seed* per poder **repetir exactament** un puzle o compartir-lo.
+
+## 2) Dificultat real (més enllà de “K buidades”)
+
+* **Classificador de dificultat** basat en tècniques de resolució i la seva seqüència mínima:
+
+  * fàcil: només **naked singles** i **hidden singles**;
+  * mitjà: + **locked candidates** (pointing/claiming), **naked pairs**;
+  * difícil: + **hidden pairs**, **X-Wing** (opcional).
+* **Generació per objectiu de dificultat.**
+  Iterar buidats i recalcular la dificultat fins que el puzle s’ajusti a *fàcil/mitjà/difícil*.
+* **Etiqueta i descripció de dificultat.**
+  Mostrar el nivell i (opcional) **un “rating” numèric** (ex. 1–10) derivat del cost de resolució.
+
+## 3) Estructura tècnica (arxius separats i escalables)
+
+```
+/public
+  /assets
+    cc-by-nc-sa.svg          (icona llicència)
+    app-icon.png             (favicon / PWA)
+  /styles
+    base.css                 (tipus, colors, espaciat, responsive)
+    board.css                (graella i estats de cel·les)
+    mobile.css               (ajustos per pantalles petites)
+  /data
+    presets.json             (ajustos per defecte, paletes, textos)
+    daily.json (opcional)    (ret/seed diari si es vol “repte del dia”)
+  /i18n
+    ca.json / es.json / en.json  (traduccions UI)
+src/
+  app.ts                     (bootstrap, rutes, estat global)
+  generator.ts               (graella completa + buidat controlat)
+  solver.ts                  (validació, comptador de solucions)
+  rater.ts                   (càlcul de dificultat)
+  ui/
+    board.ts                 (pintar graella, events teclat/tàctil)
+    keypad.ts                (teclat numèric mòbil)
+    hud.ts                   (temporitzador, errors, pistes, nivells)
+    footer.ts                (crèdits i llicència)
+  state/
+    storage.ts               (guardat local: progrés, opcions)
+    undo.ts                  (desfer/refés)
+index.html                   (esquelet minimal, carrega JS/CSS)
+service-worker.js            (PWA: offline, “add to home screen”)
+```
+
+## 4) Disseny i UI (colorit, clar i responsiu)
+
+* **Sense “spinner” ni fletxes.**
+  Les caselles seran **divs interactius** o inputs sense *spinner*; el número es **centra** sempre (flexbox) i s’introdueix directament.
+* **Diferenciació clara de pistes vs. entrades de l’usuari.**
+
+  * Pistes (donades): **sombrejat suau** i número en **negre**;
+  * Entrades de l’usuari: fons **més clar**, número en **semi-negre**;
+  * Cel·la activa, fila/columna/caixa ressaltades per **orientació visual**.
+* **Mode mòbil amb “botonera” inferior (1–9).**
+
+  * Barra fixa inferior amb dígits **1–9**;
+  * **Tap per seleccionar cel·la** i després **tap a un número** (ràpid, una mà);
+  * Opcional **arrossegar** número a la cel·la;
+  * Botons addicionals: **Esborra**, **Pista**, **Desfer**, **Refés**.
+* **Anotacions (“pencil marks”).**
+  Activables amb un commutador; escriu/gestiona **candidats** petits dins la cel·la.
+* **Feedback d’errors en temps real (configurable).**
+
+  * Mode “infantil”: marca **conflictes immediats** (mateix número a fila/columna/caixa);
+  * Mode “clàssic”: només avisa en prémer “Comprova”.
+* **Tipografia i paleta colorida però llegible.**
+  Contrast AA, versions **color-blind friendly**, mida adequada en mòbil.
+* **Responsive** total:
+
+  * Graella **quadrada i fluïda**, marges i controls que s’adapten;
+  * *Breakpoints* per compactar HUD i desplaçar la botonera al peu.
+
+## 5) Experiència de joc i accessibilitat
+
+* **Pistes pedagògiques (opcional).**
+  Explicar el *perquè* d’una pista: “Aquesta cel·la només pot ser 7 perquè...”.
+* **Controls de teclat i gestos.**
+  Fletxes per moure’s, números 1–9, **Supr/Backspace** per esborrar, lliscaments suaus en mòbil.
+* **Desfer/Refés il·limitat** i **guardat automàtic** del progrés (LocalStorage).
+* **Temporitzador, comptador d’errors** i **estadístiques** (temps mig, millor marca).
+* **Internacionalització (i18n).**
+  Fitxers `ca.json / es.json / en.json` amb tots els textos UI.
+* **Accessibilitat (A11y).**
+  Focus visibles, rols ARIA per graella i cel·les, lectura d’estats per screen readers.
+
+## 6) Validació i coherència
+
+* **Validació per regles**, no només contra la solució guardada:
+
+  * En mode “infantil”, marcar **repeticions** i impedir valors no vàlids;
+  * En mode “clàssic”, permetre però **avisar al final**.
+* **Comprovació final**: totes les caselles plenes i regles satisfetes ⇒ **puzle resolt**.
+  (La solució interna continua existint per a pistes i per validar unicitat, però l’usuari no queda penalitzat si hagués aparegut una solució alternativa —cosa que el generador ja evitarà.)
+
+## 7) Modes i contingut extra
+
+* **Selector de nivell** (Fàcil / Mitjà / Difícil) abans de generar.
+* **Repte diari** (opcional): una *seed* del dia (guardada a `daily.json`) i rànquing local.
+* **Tutorial interactiu curt** (“Com jugar?”) amb 3 pantalles simples.
+
+## 8) Rendiment i qualitat del codi
+
+* **Tests automàtics** (unitaris) per a:
+
+  * Solver (encontrar solucions correctes);
+  * Comptador d’unicitat (detectar ≥2 solucions);
+  * Rater (dificultat consistent);
+  * Generator (mai sense solució, mai amb multi-solució).
+* **PWA** per jugar **offline** i a pantalla completa en mòbil.
+* **Build** senzill (Vite/ESBuild) i **lazy load** de mòduls UI.
+* **Separació clara** entre lògica (TS) i presentació (CSS), amb *state management* mínim.
+
+## 9) Estil visual i CSS (resum funcional)
+
+* **Grid CSS** per a la graella 9×9 amb **sub-caixes 3×3** delimitades (borders gruixuts).
+* **Classes d’estat**: `.given`, `.user`, `.conflict`, `.active`, `.peer`, `.note`.
+* **Botonera mòbil fixa** (`position: sticky/fixed` al peu), botons grans i espaiats.
+* **Animacions suaus** (focus, inserció número) <150 ms; res que distregui.
+
+## 10) Peu de pàgina (crèdits i llicència)
+
+* Línia 1 (centrada, tipografia discreta):
+  **Aplicació creada per Felip Sarroca amb l’assistència de la IA.**
+* Línia 2 (mida petita, **posició fixa** al peu, opacitat suau):
+  **Obra sota llicència Creative Commons BY-NC-SA 4.0**
+  – amb la **icona CC BY-NC-SA** (`cc-by-nc-sa.svg`) i el text **enllaçat** a la pàgina oficial de la llicència.
+  *(La icona es pot incrustar com a SVG inline o imatge; el link obre en pestanya nova.)*
+
+## 11) Seguretat i contingut
+
+* **Cap dada personal** ni traça remota; estadístiques **només locals**.
+* **Mode classe** (opcional): QR amb *seed* i nivell perquè tots els alumnes comencin el **mateix puzle**.
+
+## 12) Full de ruta recomanat (mínim viable → complet)
+
+1. **MVP de qualitat**: unicitat garantida + selector de dificultat + UI sense spinners + diferència visual pistas/usuari + keypad mòbil.
+2. **Accessibilitat i UX**: pencil marks, errors configurables, desfer/refés, guardat.
+3. **Rendiment i PWA**: offline, build, tests bàsics.
+4. **Rating avançat i tutorial**: rater millor, petites guies pedagògiques.
+5. **Repte diari i mètriques locals**.
+

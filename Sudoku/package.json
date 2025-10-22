@@ -1,0 +1,9 @@
+{
+  "name": "sudoku-acolorit",
+  "version": "0.1.0",
+  "description": "Sudoku acolorit amb generador amb unicitat garantida.",
+  "type": "module",
+  "scripts": {
+    "test:generator": "node ./scripts/test-generator.mjs"
+  }
+}
