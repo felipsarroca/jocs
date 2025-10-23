@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'sudoku-progress-v3';
 const STATS_KEY = 'sudoku-stats-v1';
 const THEME_KEY = 'sudoku-theme';
+const CONTRAST_KEY = 'sudoku-contrast';
 
 let activeCell = null;
 let solutionGrid = [];
@@ -28,7 +29,9 @@ const checkBtn = document.getElementById('check-btn');
 const notesBtn = document.getElementById('notes-btn');
 const feedbackBtn = document.getElementById('feedback-btn');
 const hintBtn = document.getElementById('hint-btn');
-const themeBtn = document.getElementById('theme-btn');
+const viewBtn = document.getElementById('view-btn');
+const optionsBtn = document.getElementById('options-btn');
+const infoBtn = document.getElementById('info-btn');
 const countersEl = document.getElementById('digit-counters');
 
 initApp();
@@ -40,10 +43,13 @@ if (checkBtn) checkBtn.addEventListener('click', checkSolution);
 if (notesBtn) notesBtn.addEventListener('click', toggleNotesMode);
 if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackMode);
 if (hintBtn) hintBtn.addEventListener('click', giveHint);
-if (themeBtn) themeBtn.addEventListener('click', toggleTheme);
+if (viewBtn) viewBtn.addEventListener('click', cycleViewMode);
+if (optionsBtn) optionsBtn.addEventListener('click', () => openModal('options-modal'));
+if (infoBtn) infoBtn.addEventListener('click', () => openModal('info-modal'));
 
 function initApp() {
   applyStoredTheme();
+  applyStoredContrast();
   fetch('config.json')
     .then((response) => {
       if (!response.ok) throw new Error(`Config HTTP ${response.status}`);
@@ -194,6 +200,7 @@ function setActiveLevel(levelId) {
     button.classList.toggle('active', button.dataset.level === levelId);
   });
   updateBestTimeDisplay(levelId);
+  syncOptionsPanel();
 }
 
 function setActiveCell(cell) {
@@ -477,8 +484,31 @@ function candidatesFor(row,col){ const present=new Set(); for(let i=0;i<9;i+=1){
 function updateAutoNotesForPeers(row,col,value){ for(let c=0;c<9;c+=1){ if(c===col) continue; if(notesGrid[row][c].delete(value)) renderCellContent(row,c); } for(let r=0;r<9;r+=1){ if(r===row) continue; if(notesGrid[r][col].delete(value)) renderCellContent(r,col); } const br=Math.floor(row/3)*3, bc=Math.floor(col/3)*3; for(let r=br;r<br+3;r+=1){ for(let c=bc;c<bc+3;c+=1){ if(r===row && c===col) continue; if(notesGrid[r][c].delete(value)) renderCellContent(r,c); } } }
 
 // Theme
-function applyStoredTheme(){ const theme=localStorage.getItem(THEME_KEY); if(!theme) return; document.documentElement.setAttribute('data-theme', theme); }
-function toggleTheme(){ const current=document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light'; const next=current==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme', next); localStorage.setItem(THEME_KEY, next); }
+function applyStoredTheme(){ const theme=localStorage.getItem(THEME_KEY); if(theme) document.documentElement.setAttribute('data-theme', theme); }
+function applyStoredContrast(){ const c=localStorage.getItem(CONTRAST_KEY); if(c) document.documentElement.setAttribute('data-contrast', c); }
+function cycleViewMode(){
+  const theme = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+  const contrast = document.documentElement.getAttribute('data-contrast')==='high'?'high':'normal';
+  // order: classic (light+normal) -> contrast (light+high) -> dark (dark+normal) -> classic
+  let nextTheme = theme, nextContrast = contrast;
+  if (theme==='light' && contrast==='normal') { nextTheme='light'; nextContrast='high'; }
+  else if (theme==='light' && contrast==='high') { nextTheme='dark'; nextContrast='normal'; }
+  else { nextTheme='light'; nextContrast='normal'; }
+  document.documentElement.setAttribute('data-theme', nextTheme);
+  document.documentElement.setAttribute('data-contrast', nextContrast);
+  localStorage.setItem(THEME_KEY, nextTheme);
+  localStorage.setItem(CONTRAST_KEY, nextContrast);
+  updateViewButtonsState();
+}
+function updateViewButtonsState(){
+  const t = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+  const c = document.documentElement.getAttribute('data-contrast')==='high'?'high':'normal';
+  const btn = document.getElementById('view-btn');
+  if (!btn) return;
+  if (t==='dark') btn.title='Visualització: Fosc';
+  else if (c==='high') btn.title='Visualització: Alt contrast';
+  else btn.title='Visualització: Clàssic';
+}
 
 // Counters
 function updateDigitCounters(){ if(!countersEl) return; const counts=Array(10).fill(0); for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ const v=currentBoard[r][c]; if(v>=1&&v<=9) counts[v]+=1; } } const remain=counts.map((cnt,d)=>(d===0?0:9-cnt)); countersEl.innerHTML=''; for(let d=1; d<=9; d+=1){ const el=document.createElement('div'); el.className='counter'; el.textContent=`${d} (${remain[d]})`; countersEl.appendChild(el);} }
@@ -489,3 +519,30 @@ function giveHint(){ const empties=[]; for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+
 // PWA registration
 if('serviceWorker' in navigator){ window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); }); }
 
+// Modals
+function openModal(id){ const el=document.getElementById(id); if(!el) return; el.setAttribute('aria-hidden','false'); attachModalSync(); }
+function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.setAttribute('aria-hidden','true'); }
+document.addEventListener('click',(e)=>{ const target=e.target; if(target?.classList?.contains('modal-close')){ const id=target.getAttribute('data-close'); if(id) closeModal(id); }});
+function attachModalSync(){
+  // sync options toggles
+  const fb = document.getElementById('opt-feedback'); if (fb) fb.checked = feedbackImmediate;
+  const nt = document.getElementById('opt-notes'); if (nt) nt.checked = noteMode;
+  document.querySelectorAll('.segmented .seg').forEach(b=>{
+    b.classList.remove('active');
+  });
+  const t = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
+  const c = document.documentElement.getAttribute('data-contrast')==='high'?'high':'normal';
+  const activeKey = (t==='dark')? 'dark' : (c==='high' ? 'contrast' : 'classic');
+  const activeBtn = document.querySelector(`.segmented .seg[data-view="${activeKey}"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+}
+function syncOptionsPanel(){ updateViewButtonsState(); }
+document.addEventListener('change',(e)=>{
+  const t=e.target;
+  if (t?.id==='opt-feedback'){ toggleFeedbackMode(); t.checked = feedbackImmediate; }
+  if (t?.id==='opt-notes'){ toggleNotesMode(); t.checked = noteMode; }
+});
+document.addEventListener('click',(e)=>{
+  const t=e.target;
+  if (t?.dataset?.view){ const key=t.dataset.view; if(key==='classic'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'normal'); } else if(key==='contrast'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','high'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'high'); } else if(key==='dark'){ document.documentElement.setAttribute('data-theme','dark'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'dark'); localStorage.setItem(CONTRAST_KEY,'normal'); } updateViewButtonsState(); attachModalSync(); }
+});

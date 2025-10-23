@@ -13,7 +13,20 @@
 </head>
 <body>
   <header>
-    <h1 id="app-title"></h1>
+    <div class="topbar">
+      <button id="view-btn" class="icon-btn" title="Tipus de visualització" aria-label="Tipus de visualització">
+        <span class="icon" aria-hidden="true">👁️</span>
+      </button>
+      <h1 id="app-title">Sudoku</h1>
+      <div class="top-actions">
+        <button id="info-btn" class="icon-btn" title="Informació" aria-label="Informació">
+          <span class="icon" aria-hidden="true">ℹ️</span>
+        </button>
+        <button id="options-btn" class="icon-btn" title="Opcions" aria-label="Opcions">
+          <span class="icon" aria-hidden="true">⚙️</span>
+        </button>
+      </div>
+    </div>
     <div id="level-selector"></div>
   </header>
 
@@ -32,12 +45,11 @@
       <button data-num="0">0</button>
     </div>
     <div class="actions">
-      <button id="new-game-btn" type="button" class="btn-3d">Nou Sudoku</button>
-      <button id="check-btn" type="button" class="btn-3d">Comprova</button>
-      <button id="hint-btn" type="button" class="btn-3d" title="Pista">Pista</button>
-      <button id="theme-btn" type="button" class="btn-3d" title="Canvia tema">Tema</button>
-      <button id="notes-btn" type="button" class="toggle btn-3d">Notes desactivades</button>
-      <button id="feedback-btn" type="button" class="toggle btn-3d">Feedback immediat</button>
+      <button id="new-game-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✨</span><span class="label">Nou Sudoku</span></button>
+      <button id="check-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✔️</span><span class="label">Comprova</span></button>
+      <button id="hint-btn" type="button" class="btn-3d" title="Pista"><span class="icon" aria-hidden="true">💡</span><span class="label">Pista</span></button>
+      <button id="notes-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">✏️</span><span class="label">Notes desactivades</span></button>
+      <button id="feedback-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">⚡</span><span class="label">Feedback immediat</span></button>
       <button id="autonotes-btn" type="button" class="toggle btn-3d" title="Autonotes">Autonotes</button>
       <div id="digit-counters" aria-label="Comptador de dígits restants"></div>
       <span id="status-message" role="status" aria-live="polite"></span>
@@ -45,6 +57,94 @@
       <span id="timer" aria-label="temporitzador">00:00</span>
     </div>
   </main>
+
+  <!-- Opcions Modal -->
+  <div id="options-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="options-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="options-title">Opcions</h2>
+        <button class="icon-btn modal-close" data-close="options-modal" aria-label="Tanca">✖</button>
+      </div>
+      <div class="modal-body">
+        <div class="option-item">
+          <span class="icon">⚡</span>
+          <div class="text">
+            <strong>Feedback immediat</strong>
+            <small>Mostra conflictes a l’instant</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-feedback">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="option-item">
+          <span class="icon">✏️</span>
+          <div class="text">
+            <strong>Notes</strong>
+            <small>Activa les anotacions 3×3</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-notes">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="option-item">
+          <span class="icon">👁️</span>
+          <div class="text">
+            <strong>Visualització</strong>
+            <small>Clàssic / Alt contrast / Fosc</small>
+          </div>
+          <div class="segmented">
+            <button data-view="classic" class="seg">Clàssic</button>
+            <button data-view="contrast" class="seg">Contrast</button>
+            <button data-view="dark" class="seg">Fosc</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="info-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="info-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="info-title">Informació</h2>
+        <button class="icon-btn modal-close" data-close="info-modal" aria-label="Tanca">✖</button>
+      </div>
+      <div class="modal-body info-grid">
+        <div class="card">
+          <div class="icon">✨</div>
+          <div class="title">Nou Sudoku</div>
+          <div class="desc">Genera un nou tauler instantàniament.</div>
+        </div>
+        <div class="card">
+          <div class="icon">✔️</div>
+          <div class="title">Comprova</div>
+          <div class="desc">Valida el tauler i marca errors.</div>
+        </div>
+        <div class="card">
+          <div class="icon">💡</div>
+          <div class="title">Pista</div>
+          <div class="desc">Omple una casella correcta aleatòria.</div>
+        </div>
+        <div class="card">
+          <div class="icon">✏️</div>
+          <div class="title">Notes</div>
+          <div class="desc">Mostra candidats 1–9 a cada casella.</div>
+        </div>
+        <div class="card">
+          <div class="icon">⚡</div>
+          <div class="title">Feedback</div>
+          <div class="desc">Mostra conflictes al moment o en verificar.</div>
+        </div>
+        <div class="card">
+          <div class="icon">👁️</div>
+          <div class="title">Visualització</div>
+          <div class="desc">Clàssic, Alt contrast o Mode fosc.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <p>Aplicació creada per <strong>Felip Sarroca</strong> amb l'assistència de la IA.</p>

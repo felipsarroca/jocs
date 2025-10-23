@@ -50,16 +50,15 @@ body {
 }
 
 header {
-  text-align: center;
   width: 100%;
   max-width: 420px;
 }
 
-#app-title {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.8rem, 5vw, 2.4rem);
-  font-weight: 700;
-}
+.topbar { display: grid; grid-template-columns: 40px 1fr 80px; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+.icon-btn { background: transparent; border: none; cursor: pointer; font-size: 1.2rem; height: 40px; width: 40px; display: grid; place-items: center; border-radius: 10px; transition: background-color 120ms ease, transform 120ms ease; }
+.icon-btn:hover { background: rgba(0,0,0,0.06); transform: translateY(-1px); }
+.top-actions { display: flex; gap: 0.4rem; justify-content: flex-end; }
+#app-title { margin: 0; text-align: center; font-size: clamp(1.9rem, 5vw, 2.5rem); font-weight: 800; letter-spacing: 0.5px; background: linear-gradient(90deg, #ff9f43, #ff7675, #a29bfe); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: 0 2px 18px rgba(255,153,102,0.25); }
 
 #level-selector {
   display: flex;
@@ -208,6 +207,7 @@ main {
   background: linear-gradient(180deg, #ffb167 0%, #ff8a3d 100%);
   color: white;
   box-shadow: 0 4px 0 #e27022, 0 10px 20px rgba(0,0,0,0.15);
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
 }
 
 .actions button:hover {
@@ -263,10 +263,7 @@ main {
   box-shadow: 0 4px 0 #6366f1, 0 10px 20px rgba(0,0,0,0.15);
 }
 
-#theme-btn.btn-3d {
-  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
-  box-shadow: 0 4px 0 #0b7db4, 0 10px 20px rgba(0,0,0,0.15);
-}
+#view-btn.btn-3d, .icon-btn#view-btn { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%); box-shadow: 0 4px 0 #0b7db4, 0 10px 20px rgba(0,0,0,0.15); color: white; }
 
 .actions #status-message {
   grid-column: 1 / -1;
@@ -298,6 +295,34 @@ main {
   gap: 0.4rem;
   width: 100%;
 }
+
+/* Modals */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 20; }
+.modal[aria-hidden='false'] { display: flex; }
+.modal-content { width: min(92vw, 420px); background: var(--color-editable); border: 1px solid rgba(0,0,0,0.08); border-radius: 14px; box-shadow: 0 14px 36px rgba(0,0,0,0.18); overflow: hidden; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem 1rem; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.modal-body { padding: 0.8rem 1rem 1rem; display: grid; gap: 0.8rem; }
+.modal-close { font-size: 1rem; }
+.option-item { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 0.6rem; background: rgba(0,0,0,0.03); border-radius: 12px; padding: 0.5rem 0.6rem; }
+.option-item .text small { color: #69707a; display: block; }
+.segmented { display: inline-grid; grid-auto-flow: column; background: rgba(0,0,0,0.06); border-radius: 999px; overflow: hidden; }
+.segmented .seg { background: transparent; border: none; padding: 0.35rem 0.7rem; cursor: pointer; font-weight: 600; }
+.segmented .seg.active { background: white; }
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #c7ccd1; transition: .2s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%; }
+.switch input:checked + .slider { background-color: #34d399; }
+.switch input:checked + .slider:before { transform: translateX(20px); }
+
+/* Info grid */
+.info-grid { grid-template-columns: repeat(2, 1fr); }
+.card { background: rgba(0,0,0,0.03); border-radius: 12px; padding: 0.8rem; display: grid; gap: 0.3rem; text-align: center; }
+.card .icon { font-size: 1.4rem; }
+.card .title { font-weight: 700; }
+.card .desc { font-size: 0.9rem; color: #69707a; }
 
 #digit-counters .counter {
   display: flex;
@@ -398,9 +423,9 @@ footer {
     grid-template-columns: repeat(5, minmax(44px, 1fr));
   }
 
-  .actions {
-    grid-template-columns: 1fr;
-  }
+  .actions { grid-template-columns: 1fr; }
+  .actions .label { display: none; }
+  .actions .icon { font-size: 1.2rem; }
 }
 
 [data-contrast='high'] #sudoku-grid {
