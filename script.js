@@ -22,12 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
             description: "Combina les fitxes numèriques per arribar a la xifra 2048. Un repte d'estratègia." 
         },
         { 
-            name: "SlitherLink", 
-            path: 'SlitherLink/', 
-            category: 'Jocs de lògica i nombres', 
-            description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques." 
-        }
-    ];
+                        name: "SlitherLink",
+                        path: 'SlitherLink/',
+                        category: 'Jocs de lògica i nombres',
+                        description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques."
+                    },
+                    {
+                        name: "Sudoku",
+                        path: 'Sudoku/',
+                        category: 'Jocs de lògica i nombres',
+                        description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3."
+                    }    ];
 
     const mainContainer = document.getElementById('apps-container');
     if (!mainContainer) return;
