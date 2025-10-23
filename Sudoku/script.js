@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'sudoku-progress-v4';
+const STORAGE_KEY = 'sudoku-progress-v5';
 const STATS_KEY = 'sudoku-stats-v1';
 const THEME_KEY = 'sudoku-theme';
 const CONTRAST_KEY = 'sudoku-contrast';
@@ -34,7 +34,6 @@ const feedbackBtn = document.getElementById('feedback-btn');
 const hintBtn = document.getElementById('hint-btn');
 const optionsBtn = document.getElementById('options-btn');
 const infoBtn = document.getElementById('info-btn');
-const countersEl = document.getElementById('digit-counters');
 const undoBtn = document.getElementById('undo-btn');
 const redoBtn = document.getElementById('redo-btn');
 
@@ -139,6 +138,7 @@ async function loadSudoku(levelId, userRequest) {
   updateFeedbackButton();
   updateUndoRedoButtons();
   updateHintButton();
+  updateKeypadState();
   focusFirstEditableCell();
   resetTimer();
   startTimer();
@@ -178,7 +178,15 @@ function renderGrid(board) {
     grid.appendChild(cell);
   });
   cellElements = Array.from(grid.querySelectorAll('.cell'));
-  updateDigitCounters();
+  updateKeypadState();
+}
+
+function renderAllCells() {
+    for (let i = 0; i < 81; i++) {
+        const row = Math.floor(i / 9);
+        const col = i % 9;
+        renderCellContent(row, col);
+    }
 }
 
 function renderCellContent(row, col, cell = getCell(row, col)) {
@@ -200,6 +208,8 @@ function renderCellContent(row, col, cell = getCell(row, col)) {
       wrapper.appendChild(span);
     }
     cell.appendChild(wrapper);
+  } else {
+    cell.textContent = '';
   }
 }
 
@@ -298,7 +308,7 @@ function setCellValue(value) {
   const cell = getCell(row, col);
   if (cell) cell.classList.remove('incorrect');
   updateConflicts();
-  updateDigitCounters();
+  updateKeypadState();
   updateAutoNotesForPeers(row, col, value);
   saveProgress();
 }
@@ -427,9 +437,7 @@ function updateConflicts() {
 
 function toggleNotesMode() {
   noteMode = !noteMode;
-  if (!noteMode) {
-    clearAllNotesRender();
-  }
+  renderAllCells(); // Re-render to show/hide notes without deleting data
   updateNotesButton();
   setMessage(noteMode ? 'Mode notes activat.' : 'Mode notes desactivat.', 'info');
   saveProgress();
@@ -476,7 +484,21 @@ function restoreProgress() {
   isRestoring = true; currentLevelId = saved.levelId; solutionGrid = saved?.solution ? stringToGrid(saved.solution) : stringToGrid(level.solution); currentBoard = restoredBoard; notesGrid = createNotesGrid();
   if (Array.isArray(saved.notes)) { for (let row = 0; row < 9; row += 1) { for (let col = 0; col < 9; col += 1) { const cellNotes = saved.notes[row]?.[col]; if (Array.isArray(cellNotes)) { const cleanNotes = cellNotes.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 1 && n <= 9); notesGrid[row][col] = new Set(cleanNotes); } } } }
   noteMode = Boolean(saved.noteMode); feedbackImmediate = saved.feedbackImmediate !== false; hintsUsed = saved.hintsUsed || 0;
-  renderGrid(currentBoard); setActiveLevel(currentLevelId); updateNotesButton(); updateFeedbackButton(); updateHintButton(); focusFirstEditableCell(); elapsedSeconds = Number(saved.elapsedSeconds) || 0; updateTimerDisplay(); updateConflicts(); updateBestTimeDisplay(currentLevelId); isRestoring = false; startTimer(); saveProgress(); return true;
+  renderGrid(currentBoard);
+  setActiveLevel(currentLevelId);
+  updateNotesButton();
+  updateFeedbackButton();
+  updateHintButton();
+  updateKeypadState();
+  focusFirstEditableCell();
+  elapsedSeconds = Number(saved.elapsedSeconds) || 0;
+  updateTimerDisplay();
+  updateConflicts();
+  updateBestTimeDisplay(currentLevelId);
+  isRestoring = false;
+  startTimer();
+  saveProgress();
+  return true;
 }
 function normalizeBoard(board) { if (!Array.isArray(board) || board.length !== 9) return null; const out = []; for (let r = 0; r < 9; r += 1) { const row = board[r]; if (!Array.isArray(row) || row.length !== 9) return null; out.push(row.map((v) => { const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 9 ? n : 0; })); } return out; }
 
@@ -510,20 +532,33 @@ function applyAction(a, isUndo){
     }
     renderCellContent(row, col);
     updateConflicts();
-    updateDigitCounters();
+    updateKeypadState();
 }
 function updateUndoRedoButtons(){ if(undoBtn) undoBtn.disabled = undoStack.length === 0; if(redoBtn) redoBtn.disabled = redoStack.length === 0; }
 
 // Notes helpers
-function clearAllNotesRender(){ for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]===0) { notesGrid[r][c].clear(); renderCellContent(r,c); } } } }
 function updateAutoNotesForPeers(row,col,value){ if (!noteMode) return; for(let c=0;c<9;c+=1){ if(c===col) continue; if(notesGrid[row][c].delete(value)) renderCellContent(row,c); } for(let r=0;r<9;r+=1){ if(r===row) continue; if(notesGrid[r][col].delete(value)) renderCellContent(r,col); } const br=Math.floor(row/3)*3, bc=Math.floor(col/3)*3; for(let r=br;r<br+3;r+=1){ for(let c=bc;c<bc+3;c+=1){ if(r===row && c===col) continue; if(notesGrid[r][c].delete(value)) renderCellContent(r,c); } } }
 
 // Theme
 function applyStoredTheme(){ const theme=localStorage.getItem(THEME_KEY); if(theme) document.documentElement.setAttribute('data-theme', theme); }
 function applyStoredContrast(){ const c=localStorage.getItem(CONTRAST_KEY); if(c) document.documentElement.setAttribute('data-contrast', c); }
 
-// Counters
-function updateDigitCounters(){ if(!countersEl) return; const counts=Array(10).fill(0); for(const row of currentBoard){ for(const v of row){ if(v>=1&&v<=9) counts[v]+=1; } } countersEl.innerHTML=''; for(let d=1; d<=9; d+=1){ const count = counts[d]; const el=document.createElement('div'); el.className='counter'; el.classList.toggle('completed', count === 9); el.innerHTML = `<span class="digit">${d}</span><span class="count">${9 - count}</span>`; countersEl.appendChild(el);} }
+// Keypad state
+function updateKeypadState() {
+    if (!keypad) return;
+    const counts = Array(10).fill(0);
+    for (const row of currentBoard) {
+        for (const v of row) {
+            if (v >= 1 && v <= 9) counts[v]++;
+        }
+    }
+    for (let i = 1; i <= 9; i++) {
+        const btn = keypad.querySelector(`[data-num="${i}"]`);
+        if (btn) {
+            btn.classList.toggle('completed', counts[i] === 9);
+        }
+    }
+}
 
 // Hint
 function giveHint(){ if (hintsUsed >= MAX_HINTS) { setMessage(`Has esgotat les ${MAX_HINTS} pistes disponibles.`, 'warn'); return; } const empties=[]; for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]===0) empties.push([r,c]); } } if(empties.length===0){ setMessage('No hi ha caselles buides per a una pista.', 'info'); return; } const [row,col]=empties[Math.floor(Math.random()*empties.length)]; const value=solutionGrid[row][col];
