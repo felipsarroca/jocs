@@ -521,7 +521,7 @@ footer p { margin: 0; }
 }
 .license-text a:hover { text-decoration: underline; }
 .cc-logo {
-  height: 2rem;
+  height: 1.5rem;
   filter: grayscale(1) opacity(0.6);
 }
 
