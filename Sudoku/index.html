@@ -14,9 +14,6 @@
 <body>
   <header>
     <div class="topbar">
-      <button id="view-btn" class="icon-btn" title="Tipus de visualització" aria-label="Tipus de visualització">
-        <span class="icon" aria-hidden="true">👁️</span>
-      </button>
       <h1 id="app-title">Sudoku</h1>
       <div class="top-actions">
         <button id="info-btn" class="icon-btn" title="Informació" aria-label="Informació">
@@ -31,30 +28,52 @@
   </header>
 
   <main>
-    <div id="sudoku-grid" class="grid" role="grid" aria-label="Tauler de Sudoku 9 per 9"></div>
-    <div id="mobile-keypad" class="keypad" aria-label="Teclat numèric">
-      <button data-num="1">1</button>
-      <button data-num="2">2</button>
-      <button data-num="3">3</button>
-      <button data-num="4">4</button>
-      <button data-num="5">5</button>
-      <button data-num="6">6</button>
-      <button data-num="7">7</button>
-      <button data-num="8">8</button>
-      <button data-num="9">9</button>
-      <button data-num="0">0</button>
+    <div id="status-indicators">
+      <div id="timer-container">
+        <span class="icon">⏱️</span>
+        <span id="timer" aria-label="temporitzador">00:00</span>
+      </div>
+      <div id="best-time-container">
+        <span class="icon">🏆</span>
+        <span id="best-time" aria-label="millor temps">--:--</span>
+      </div>
     </div>
+
+    <div id="full-board-controls">
+      <div id="sudoku-grid" class="grid" role="grid" aria-label="Tauler de Sudoku 9 per 9"></div>
+      <div id="mobile-keypad" class="keypad" aria-label="Teclat numèric">
+        <button data-num="1">1</button>
+        <button data-num="2">2</button>
+        <button data-num="3">3</button>
+        <button data-num="4">4</button>
+        <button data-num="5">5</button>
+        <button data-num="6">6</button>
+        <button data-num="7">7</button>
+        <button data-num="8">8</button>
+        <button data-num="9">9</button>
+        <button data-num="0" id="erase-btn" title="Esborrar">
+          <span class="icon">🗑️</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="digit-counters" aria-label="Comptador de dígits restants"></div>
+    <span id="status-message" role="status" aria-live="polite"></span>
+
     <div class="actions">
-      <button id="new-game-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✨</span><span class="label">Nou Sudoku</span></button>
-      <button id="check-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✔️</span><span class="label">Comprova</span></button>
-      <button id="hint-btn" type="button" class="btn-3d" title="Pista"><span class="icon" aria-hidden="true">💡</span><span class="label">Pista</span></button>
-      <button id="notes-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">✏️</span><span class="label">Notes desactivades</span></button>
-      <button id="feedback-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">⚡</span><span class="label">Feedback immediat</span></button>
-      <button id="autonotes-btn" type="button" class="toggle btn-3d" title="Autonotes">Autonotes</button>
-      <div id="digit-counters" aria-label="Comptador de dígits restants"></div>
-      <span id="status-message" role="status" aria-live="polite"></span>
-      <span id="best-time" aria-label="millor temps">Sense millor temps</span>
-      <span id="timer" aria-label="temporitzador">00:00</span>
+      <div class="main-actions">
+        <button id="new-game-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✨</span><span class="label">Nou</span></button>
+        <button id="check-btn" type="button" class="btn-3d"><span class="icon" aria-hidden="true">✔️</span><span class="label">Comprova</span></button>
+        <button id="hint-btn" type="button" class="btn-3d" title="Pista"><span class="icon" aria-hidden="true">💡</span><span class="label">Pista</span></button>
+      </div>
+      <div class="toggle-actions">
+        <button id="notes-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">✏️</span><span class="label">Notes</span></button>
+        <button id="feedback-btn" type="button" class="toggle btn-3d"><span class="icon" aria-hidden="true">⚡</span><span class="label">Feedback</span></button>
+      </div>
+      <div class="secondary-actions">
+        <button id="undo-btn" type="button" class="icon-btn" title="Desfés"><span class="icon">↩️</span></button>
+        <button id="redo-btn" type="button" class="icon-btn" title="Refés"><span class="icon">↪️</span></button>
+      </div>
     </div>
   </main>
 
@@ -67,20 +86,9 @@
       </div>
       <div class="modal-body">
         <div class="option-item">
-          <span class="icon">⚡</span>
-          <div class="text">
-            <strong>Feedback immediat</strong>
-            <small>Mostra conflictes a l’instant</small>
-          </div>
-          <label class="switch">
-            <input type="checkbox" id="opt-feedback">
-            <span class="slider"></span>
-          </label>
-        </div>
-        <div class="option-item">
           <span class="icon">✏️</span>
           <div class="text">
-            <strong>Notes</strong>
+            <strong>Mode Notes</strong>
             <small>Activa les anotacions 3×3</small>
           </div>
           <label class="switch">
@@ -89,10 +97,21 @@
           </label>
         </div>
         <div class="option-item">
-          <span class="icon">👁️</span>
+          <span class="icon">⚡</span>
           <div class="text">
-            <strong>Visualització</strong>
-            <small>Clàssic / Alt contrast / Fosc</small>
+            <strong>Feedback Immediat</strong>
+            <small>Mostra conflictes a l’instant</small>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="opt-feedback">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="option-item">
+          <span class="icon">🎨</span>
+          <div class="text">
+            <strong>Tema de Colors</strong>
+            <small>Canvia l'aparença de l'app</small>
           </div>
           <div class="segmented">
             <button data-view="classic" class="seg">Clàssic</button>
