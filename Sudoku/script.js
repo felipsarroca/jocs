@@ -1,4 +1,7 @@
-﻿let activeCell = null;
+﻿const STORAGE_KEY = 'sudoku-progress-v1';
+const STATS_KEY = 'sudoku-stats-v1';
+
+let activeCell = null;
 let solutionGrid = [];
 let currentBoard = [];
 let notesGrid = [];
@@ -10,9 +13,12 @@ let noteMode = false;
 let feedbackImmediate = true;
 let timerInterval = null;
 let elapsedSeconds = 0;
+let isRestoring = false;
+let bestTimes = {};
 
 const keypad = document.getElementById('mobile-keypad');
 const messageEl = document.getElementById('status-message');
+const bestTimeEl = document.getElementById('best-time');
 const timerEl = document.getElementById('timer');
 const newGameBtn = document.getElementById('new-game-btn');
 const checkBtn = document.getElementById('check-btn');
@@ -21,12 +27,12 @@ const feedbackBtn = document.getElementById('feedback-btn');
 
 initApp();
 
+if (keypad) keypad.addEventListener('click', handleKeypadClick);
 document.addEventListener('keydown', handleKeyDown);
-keypad.addEventListener('click', handleKeypadClick);
-newGameBtn.addEventListener('click', () => loadSudoku(currentLevelId, true));
-checkBtn.addEventListener('click', checkSolution);
-notesBtn.addEventListener('click', toggleNotesMode);
-feedbackBtn.addEventListener('click', toggleFeedbackMode);
+if (newGameBtn) newGameBtn.addEventListener('click', () => loadSudoku(currentLevelId, true));
+if (checkBtn) checkBtn.addEventListener('click', checkSolution);
+if (notesBtn) notesBtn.addEventListener('click', toggleNotesMode);
+if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackMode);
 
 function initApp() {
   fetch('config.json')
@@ -38,18 +44,27 @@ function initApp() {
       configData = config;
       document.getElementById('app-title').textContent = config.title;
       renderLevelSelector(config.levels);
-      loadSudoku(config.levels[0]?.id, false);
+      loadStats();
+      updateBestTimeDisplay(config.levels?.[0]?.id ?? null);
+      if (!restoreProgress()) {
+        loadSudoku(config.levels?.[0]?.id, false);
+      } else {
+        setMessage('Partida recuperada. Continua jugant!', 'info');
+      }
     })
     .catch((error) => {
-      console.error('No s’ha pogut carregar la configuració.', error);
+      console.error('No s\'ha pogut carregar la configuració.', error);
       const grid = document.getElementById('sudoku-grid');
-      grid.textContent = 'Error carregant els fitxers de configuració.';
-      setMessage('No s’ha pogut carregar la configuració.', 'error');
+      if (grid) {
+        grid.textContent = 'Error carregant els fitxers de configuració.';
+      }
+      setMessage('No s\'ha pogut carregar la configuració.', 'error');
     });
 }
 
 function renderLevelSelector(levels = []) {
   const container = document.getElementById('level-selector');
+  if (!container) return;
   container.innerHTML = '';
   levels.forEach((level, index) => {
     levelsById.set(level.id, level);
@@ -69,46 +84,53 @@ function loadSudoku(levelId, userRequest) {
     levelId = configData?.levels?.[0]?.id;
   }
   const grid = document.getElementById('sudoku-grid');
+  if (!grid) return;
   const loadingText = configData?.messages?.loading ?? 'Carregant...';
   grid.textContent = loadingText;
 
   let level = levelsById.get(levelId);
   if (!level) {
-    const firstEntry = levelsById.values().next();
-    if (!firstEntry.done) {
-      level = firstEntry.value;
+    const iterator = levelsById.values().next();
+    if (!iterator.done) {
+      level = iterator.value;
       levelId = level.id;
     }
   }
   if (!level) {
     grid.textContent = 'Nivell no disponible.';
-    setMessage('No s’ha trobat el nivell sol·licitat.', 'error');
+    setMessage('No s\'ha trobat el nivell sol·licitat.', 'error');
     return;
   }
 
+  if (userRequest) {
+    clearProgress();
+  }
+
+  isRestoring = true;
+  currentLevelId = levelId;
   solutionGrid = stringToGrid(level.solution);
   currentBoard = stringToGrid(level.puzzle);
   notesGrid = createNotesGrid();
-  noteMode = false;
-  updateNotesButton();
-  updateFeedbackButton();
 
   renderGrid(currentBoard);
   setActiveLevel(levelId);
+  updateNotesButton();
+  updateFeedbackButton();
   focusFirstEditableCell();
   resetTimer();
   startTimer();
   updateConflicts();
+  updateBestTimeDisplay(levelId);
 
-  if (userRequest) {
-    setMessage('Nou Sudoku carregat!', 'success');
-  } else {
-    setMessage('Sudoku carregat. Bona sort!', 'info');
-  }
+  isRestoring = false;
+  saveProgress();
+
+  setMessage(userRequest ? 'Nou Sudoku carregat!' : 'Sudoku carregat. Bona sort!', userRequest ? 'success' : 'info');
 }
 
 function renderGrid(board) {
   const grid = document.getElementById('sudoku-grid');
+  if (!grid) return;
   grid.innerHTML = '';
   clearHighlights();
   activeCell = null;
@@ -158,8 +180,6 @@ function renderCellContent(row, col, cell = getCell(row, col)) {
       wrapper.appendChild(span);
     }
     cell.appendChild(wrapper);
-  } else {
-    cell.textContent = '';
   }
 }
 
@@ -168,6 +188,7 @@ function setActiveLevel(levelId) {
   document.querySelectorAll('#level-selector .level-btn').forEach((button) => {
     button.classList.toggle('active', button.dataset.level === levelId);
   });
+  updateBestTimeDisplay(levelId);
 }
 
 function setActiveCell(cell) {
@@ -300,13 +321,14 @@ function setCellValue(value) {
   currentBoard[row][col] = value;
   notesGrid[row][col].clear();
   renderCellContent(row, col);
-  getCell(row, col).classList.remove('incorrect');
+  const cell = getCell(row, col);
+  if (cell) cell.classList.remove('incorrect');
   updateConflicts();
+  saveProgress();
 }
 
 function toggleNoteValue(digit) {
-  if (digit < 1 || digit > 9) return;
-  if (!activeCell) return;
+  if (!activeCell || digit < 1 || digit > 9) return;
   const row = Number(activeCell.dataset.row);
   const col = Number(activeCell.dataset.col);
   const notes = notesGrid[row][col];
@@ -317,6 +339,7 @@ function toggleNoteValue(digit) {
     notes.add(digit);
   }
   renderCellContent(row, col);
+  saveProgress();
 }
 
 function clearNotesForActiveCell() {
@@ -325,6 +348,7 @@ function clearNotesForActiveCell() {
   const col = Number(activeCell.dataset.col);
   notesGrid[row][col].clear();
   renderCellContent(row, col);
+  saveProgress();
 }
 
 function getCell(row, col) {
@@ -365,32 +389,41 @@ function checkSolution() {
   for (let row = 0; row < 9; row += 1) {
     for (let col = 0; col < 9; col += 1) {
       const cell = getCell(row, col);
-      if (cell.dataset.fixed === 'true') continue;
+      if (cell?.dataset.fixed === 'true') continue;
       const currentValue = currentBoard[row][col];
       if (currentValue === 0) {
         complete = false;
-        cell.classList.remove('incorrect');
+        if (cell) cell.classList.remove('incorrect');
         continue;
       }
       if (currentValue === solutionGrid[row][col]) {
-        cell.classList.remove('incorrect');
+        if (cell) cell.classList.remove('incorrect');
       } else {
         correct = false;
-        cell.classList.add('incorrect');
+        if (cell) cell.classList.add('incorrect');
       }
     }
   }
 
   if (!complete) {
     setMessage('Encara hi ha caselles buides.', 'warning');
+    saveProgress();
     return;
   }
 
   if (correct) {
     stopTimer();
-    setMessage(`Felicitats! Has completat el Sudoku en ${formatTime(elapsedSeconds)}.`, 'success');
+    const isRecord = recordBestTime(currentLevelId, elapsedSeconds);
+    clearProgress();
+    setMessage(
+      isRecord
+        ? `Nou rècord! Has completat el Sudoku en ${formatTime(elapsedSeconds)}.`
+        : `Felicitats! Has completat el Sudoku en ${formatTime(elapsedSeconds)}.`,
+      'success',
+    );
   } else {
     setMessage('Hi ha errors. Revisa les caselles en vermell.', 'error');
+    saveProgress();
   }
 }
 
@@ -402,7 +435,6 @@ function updateConflicts() {
 
   const conflictGrid = Array.from({ length: 9 }, () => Array(9).fill(false));
 
-  // Files
   for (let row = 0; row < 9; row += 1) {
     const map = new Map();
     for (let col = 0; col < 9; col += 1) {
@@ -422,7 +454,6 @@ function updateConflicts() {
     });
   }
 
-  // Columnes
   for (let col = 0; col < 9; col += 1) {
     const map = new Map();
     for (let row = 0; row < 9; row += 1) {
@@ -442,7 +473,6 @@ function updateConflicts() {
     });
   }
 
-  // Caixes
   for (let boxRow = 0; boxRow < 3; boxRow += 1) {
     for (let boxCol = 0; boxCol < 3; boxCol += 1) {
       const map = new Map();
@@ -475,11 +505,7 @@ function updateConflicts() {
       cell.classList.remove('conflict');
       return;
     }
-    if (conflictGrid[row][col]) {
-      cell.classList.add('conflict');
-    } else {
-      cell.classList.remove('conflict');
-    }
+    cell.classList.toggle('conflict', conflictGrid[row][col]);
   });
 }
 
@@ -487,9 +513,11 @@ function toggleNotesMode() {
   noteMode = !noteMode;
   updateNotesButton();
   setMessage(noteMode ? 'Mode notes activat.' : 'Mode notes desactivat.', 'info');
+  saveProgress();
 }
 
 function updateNotesButton() {
+  if (!notesBtn) return;
   notesBtn.dataset.active = String(noteMode);
   notesBtn.textContent = noteMode ? 'Notes activades' : 'Notes desactivades';
 }
@@ -500,15 +528,17 @@ function toggleFeedbackMode() {
   setMessage(
     feedbackImmediate
       ? 'Feedback immediat activat (conflictes marcats al moment).'
-      : 'Mode clÃ ssic: els conflictes no es mostren fins que comprovis.',
+      : 'Mode clàssic: els conflictes no es mostren fins a comprovar.',
     'info',
   );
   updateConflicts();
+  saveProgress();
 }
 
 function updateFeedbackButton() {
+  if (!feedbackBtn) return;
   feedbackBtn.dataset.active = String(feedbackImmediate);
-  feedbackBtn.textContent = feedbackImmediate ? 'Feedback immediat' : 'Feedback clÃ ssic';
+  feedbackBtn.textContent = feedbackImmediate ? 'Feedback immediat' : 'Feedback clàssic';
 }
 
 function setMessage(text, tone = 'info') {
@@ -523,6 +553,9 @@ function startTimer() {
   timerInterval = setInterval(() => {
     elapsedSeconds += 1;
     updateTimerDisplay();
+    if (!isRestoring && elapsedSeconds % 5 === 0) {
+      saveProgress();
+    }
   }, 1000);
 }
 
@@ -550,9 +583,142 @@ function formatTime(totalSeconds) {
   return `${minutes}:${seconds}`;
 }
 
-// Inicialitzar botons de configuració
-// Inicialitzar botons de configuració
+function saveProgress() {
+  if (isRestoring || !currentLevelId) return;
+  try {
+    const payload = {
+      levelId: currentLevelId,
+      board: currentBoard.map((row) => row.slice()),
+      notes: notesGrid.map((row) => row.map((set) => Array.from(set.values()).sort((a, b) => a - b))),
+      noteMode,
+      feedbackImmediate,
+      elapsedSeconds,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn('No s\'ha pogut desar el progrés.', error);
+  }
+}
+
+function clearProgress() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.warn('No s\'ha pogut netejar el progrés.', error);
+  }
+}
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STATS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data && typeof data === 'object' && data.bestTimes) {
+      bestTimes = data.bestTimes;
+    }
+  } catch (error) {
+    console.warn('No s\'han pogut carregar les estadístiques.', error);
+  }
+}
+
+function saveStats() {
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify({ bestTimes }));
+  } catch (error) {
+    console.warn('No s\'han pogut desar les estadístiques.', error);
+  }
+}
+
+function updateBestTimeDisplay(levelId = currentLevelId) {
+  if (!bestTimeEl) return;
+  const best = levelId ? bestTimes[levelId] : null;
+  bestTimeEl.textContent = best
+    ? `Millor temps: ${formatTime(best)}`
+    : 'Sense millor temps';
+}
+
+function recordBestTime(levelId, time) {
+  if (!levelId) return false;
+  const currentBest = bestTimes[levelId];
+  if (!currentBest || time < currentBest) {
+    bestTimes[levelId] = time;
+    saveStats();
+    updateBestTimeDisplay(levelId);
+    return true;
+  }
+  return false;
+}
+
+function restoreProgress() {
+  let saved;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    saved = JSON.parse(raw);
+  } catch (error) {
+    console.warn('No s\'ha pogut recuperar el progrés.', error);
+    return false;
+  }
+
+  const level = saved?.levelId ? levelsById.get(saved.levelId) : null;
+  if (!level) return false;
+
+  const restoredBoard = normalizeBoard(saved.board);
+  if (!restoredBoard) return false;
+
+  isRestoring = true;
+  currentLevelId = saved.levelId;
+  solutionGrid = stringToGrid(level.solution);
+  currentBoard = restoredBoard;
+  notesGrid = createNotesGrid();
+
+  if (Array.isArray(saved.notes)) {
+    for (let row = 0; row < 9; row += 1) {
+      for (let col = 0; col < 9; col += 1) {
+        const cellNotes = saved.notes[row]?.[col];
+        if (Array.isArray(cellNotes)) {
+          const cleanNotes = cellNotes
+            .map((n) => Number(n))
+            .filter((n) => Number.isInteger(n) && n >= 1 && n <= 9);
+          notesGrid[row][col] = new Set(cleanNotes);
+        }
+      }
+    }
+  }
+
+  noteMode = Boolean(saved.noteMode);
+  feedbackImmediate = saved.feedbackImmediate !== false;
+  renderGrid(currentBoard);
+  setActiveLevel(currentLevelId);
+  updateNotesButton();
+  updateFeedbackButton();
+  focusFirstEditableCell();
+  elapsedSeconds = Number(saved.elapsedSeconds) || 0;
+  updateTimerDisplay();
+  updateConflicts();
+  updateBestTimeDisplay(currentLevelId);
+  isRestoring = false;
+  startTimer();
+  saveProgress();
+  return true;
+}
+
+function normalizeBoard(board) {
+  if (!Array.isArray(board) || board.length !== 9) return null;
+  const normalized = [];
+  for (let row = 0; row < 9; row += 1) {
+    const currentRow = board[row];
+    if (!Array.isArray(currentRow) || currentRow.length !== 9) return null;
+    normalized.push(
+      currentRow.map((value) => {
+        const num = Number(value);
+        return Number.isInteger(num) && num >= 0 && num <= 9 ? num : 0;
+      }),
+    );
+  }
+  return normalized;
+}
+
 updateFeedbackButton();
 updateNotesButton();
-
-
+updateBestTimeDisplay();

@@ -1,7 +1,7 @@
-# Full de ruta · Sudoku (felipsarroca.github.io/jocs/Sudoku/)
+﻿# Full de ruta · Sudoku (felipsarroca.github.io/jocs/Sudoku/)
 
 ## Estat actual (23/10/2025)
-- UI compacta amb selector de nivell, teclat tàctil i puzles definits a `config.json`.
+- UI compacta amb selector de nivell, teclat tàctil i puzles definits a config.json.
 - Subquadrats 3×3 marcats visualment, controls de teclat complets i ressaltat de fila/columna/caixa.
 - Botons “Nou Sudoku” i “Comprova”, temporitzador i missatges contextuals.
 - Mode notes amb anotacions petites i opció de feedback immediat/clàssic per als conflictes.
@@ -18,7 +18,7 @@
    Mode notes (pencil marks) amb representació 3×3 i commutador de feedback immediat/clàssic.
 
 4. **Persistència i estadístiques** ⏳\
-   Guardar progrés al `localStorage`, temps i errors. Historial de partides resoltes i millor temps per nivell.
+   Guardar progrés al localStorage, temps i errors. Historial de partides resoltes i millor temps per nivell.
 
 5. **Catàleg de puzles** ⏳\
    Ampliar la llista de puzles per nivell, selecció aleatòria i possibilitat d’importar/compartir un puzle via codi.
