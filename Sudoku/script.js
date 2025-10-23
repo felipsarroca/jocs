@@ -1,4 +1,4 @@
-﻿const STORAGE_KEY = 'sudoku-progress-v1';
+const STORAGE_KEY = 'sudoku-progress-v2';
 const STATS_KEY = 'sudoku-stats-v1';
 
 let activeCell = null;
@@ -15,6 +15,8 @@ let timerInterval = null;
 let elapsedSeconds = 0;
 let isRestoring = false;
 let bestTimes = {};
+let undoStack = [];
+let redoStack = [];
 
 const keypad = document.getElementById('mobile-keypad');
 const messageEl = document.getElementById('status-message');
@@ -24,6 +26,8 @@ const newGameBtn = document.getElementById('new-game-btn');
 const checkBtn = document.getElementById('check-btn');
 const notesBtn = document.getElementById('notes-btn');
 const feedbackBtn = document.getElementById('feedback-btn');
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
 
 initApp();
 
@@ -33,6 +37,8 @@ if (newGameBtn) newGameBtn.addEventListener('click', () => loadSudoku(currentLev
 if (checkBtn) checkBtn.addEventListener('click', checkSolution);
 if (notesBtn) notesBtn.addEventListener('click', toggleNotesMode);
 if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackMode);
+if (undoBtn) undoBtn.addEventListener('click', undoAction);
+if (redoBtn) redoBtn.addEventListener('click', redoAction);
 
 function initApp() {
   fetch('config.json')
@@ -47,18 +53,18 @@ function initApp() {
       loadStats();
       updateBestTimeDisplay(config.levels?.[0]?.id ?? null);
       if (!restoreProgress()) {
-        loadSudoku(config.levels?.[0]?.id, false);
+        loadSudoku(config.levels?.[0]?.id, true);
       } else {
         setMessage('Partida recuperada. Continua jugant!', 'info');
       }
     })
     .catch((error) => {
-      console.error('No s\'ha pogut carregar la configuració.', error);
+      console.error("No s'ha pogut carregar la configuració.", error);
       const grid = document.getElementById('sudoku-grid');
       if (grid) {
         grid.textContent = 'Error carregant els fitxers de configuració.';
       }
-      setMessage('No s\'ha pogut carregar la configuració.', 'error');
+      setMessage("No s'ha pogut carregar la configuració.", 'error');
     });
 }
 
@@ -79,7 +85,7 @@ function renderLevelSelector(levels = []) {
   });
 }
 
-function loadSudoku(levelId, userRequest) {
+async function loadSudoku(levelId, userRequest) {
   if (!levelId) {
     levelId = configData?.levels?.[0]?.id;
   }
@@ -98,7 +104,7 @@ function loadSudoku(levelId, userRequest) {
   }
   if (!level) {
     grid.textContent = 'Nivell no disponible.';
-    setMessage('No s\'ha trobat el nivell sol·licitat.', 'error');
+    setMessage("No s'ha trobat el nivell sol·licitat.", 'error');
     return;
   }
 
@@ -108,8 +114,13 @@ function loadSudoku(levelId, userRequest) {
 
   isRestoring = true;
   currentLevelId = levelId;
-  solutionGrid = stringToGrid(level.solution);
-  currentBoard = stringToGrid(level.puzzle);
+
+  const fresh = await getFreshPuzzle(levelId);
+  const puzzleStr = fresh?.puzzle ?? level.puzzle;
+  const solutionStr = fresh?.solution ?? level.solution;
+
+  solutionGrid = stringToGrid(solutionStr);
+  currentBoard = stringToGrid(puzzleStr);
   notesGrid = createNotesGrid();
 
   renderGrid(currentBoard);
@@ -121,6 +132,9 @@ function loadSudoku(levelId, userRequest) {
   startTimer();
   updateConflicts();
   updateBestTimeDisplay(levelId);
+  undoStack = [];
+  redoStack = [];
+  updateUndoRedoButtons();
 
   isRestoring = false;
   saveProgress();
@@ -146,6 +160,10 @@ function renderGrid(board) {
     cell.dataset.row = row;
     cell.dataset.col = col;
     cell.dataset.fixed = String(!editable);
+    cell.setAttribute('role', 'gridcell');
+    cell.setAttribute('aria-selected', 'false');
+    const labelValue = value === 0 ? 'buida' : String(value);
+    cell.setAttribute('aria-label', `fila ${row + 1}, columna ${col + 1}, ${labelValue}`);
 
     if (col === 2 || col === 5) cell.classList.add('block-right');
     if (row === 2 || row === 5) cell.classList.add('block-bottom');
@@ -196,6 +214,7 @@ function setActiveCell(cell) {
   if (activeCell) activeCell.classList.remove('active');
   activeCell = cell;
   updateHighlights();
+  cell.setAttribute('aria-selected', 'true');
 }
 
 function focusFirstEditableCell() {
@@ -219,10 +238,12 @@ function stringToGrid(sequence) {
   return grid;
 }
 
+function gridToString(grid) {
+  return grid.flat().map((n) => String(n ?? 0)).join('');
+}
+
 function createNotesGrid() {
-  return Array.from({ length: 9 }, () =>
-    Array.from({ length: 9 }, () => new Set()),
-  );
+  return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
 }
 
 function handleKeypadClick(event) {
@@ -234,15 +255,7 @@ function handleKeypadClick(event) {
 function handleKeyDown(event) {
   if (!cellElements.length) return;
 
-  const actionableKeys = [
-    'ArrowUp',
-    'ArrowDown',
-    'ArrowLeft',
-    'ArrowRight',
-    'Backspace',
-    'Delete',
-    '0',
-  ];
+  const actionableKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Backspace', 'Delete', '0'];
 
   if (!activeCell && (actionableKeys.includes(event.key) || /^[1-9]$/.test(event.key))) {
     focusFirstEditableCell();
@@ -283,6 +296,15 @@ function handleKeyDown(event) {
     moveSelection(moves[event.key][0], moves[event.key][1]);
     event.preventDefault();
   }
+
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') {
+    undoAction();
+    event.preventDefault();
+  }
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+    redoAction();
+    event.preventDefault();
+  }
 }
 
 function handleDigitInput(digit) {
@@ -318,6 +340,9 @@ function setCellValue(value) {
   if (!activeCell) return;
   const row = Number(activeCell.dataset.row);
   const col = Number(activeCell.dataset.col);
+  const prevValue = currentBoard[row][col];
+  if (prevValue === value) return;
+  pushUndo({ type: 'set', row, col, prevValue, newValue: value, prevNotes: new Set(notesGrid[row][col]) });
   currentBoard[row][col] = value;
   notesGrid[row][col].clear();
   renderCellContent(row, col);
@@ -333,11 +358,10 @@ function toggleNoteValue(digit) {
   const col = Number(activeCell.dataset.col);
   const notes = notesGrid[row][col];
 
-  if (notes.has(digit)) {
-    notes.delete(digit);
-  } else {
-    notes.add(digit);
-  }
+  const before = new Set(notes);
+  if (notes.has(digit)) notes.delete(digit);
+  else notes.add(digit);
+  pushUndo({ type: 'note', row, col, prevNotes: before, newNotes: new Set(notes) });
   renderCellContent(row, col);
   saveProgress();
 }
@@ -346,7 +370,10 @@ function clearNotesForActiveCell() {
   if (!activeCell) return;
   const row = Number(activeCell.dataset.row);
   const col = Number(activeCell.dataset.col);
+  const before = new Set(notesGrid[row][col]);
+  if (before.size === 0) return;
   notesGrid[row][col].clear();
+  pushUndo({ type: 'note', row, col, prevNotes: before, newNotes: new Set() });
   renderCellContent(row, col);
   saveProgress();
 }
@@ -356,7 +383,10 @@ function getCell(row, col) {
 }
 
 function clearHighlights() {
-  cellElements.forEach((cell) => cell.classList.remove('active', 'peer'));
+  cellElements.forEach((cell) => {
+    cell.classList.remove('active', 'peer', 'same-digit');
+    cell.setAttribute('aria-selected', 'false');
+  });
 }
 
 function updateHighlights() {
@@ -367,6 +397,7 @@ function updateHighlights() {
   const col = Number(activeCell.dataset.col);
   const boxRow = Math.floor(row / 3);
   const boxCol = Math.floor(col / 3);
+  const activeVal = currentBoard[row][col];
 
   cellElements.forEach((cell) => {
     const r = Number(cell.dataset.row);
@@ -377,6 +408,9 @@ function updateHighlights() {
     const sameBox = Math.floor(r / 3) === boxRow && Math.floor(c / 3) === boxCol;
     if (sameRow || sameCol || sameBox) {
       cell.classList.add('peer');
+    }
+    if (activeVal && currentBoard[r][c] === activeVal) {
+      cell.classList.add('same-digit');
     }
   });
 }
@@ -593,10 +627,11 @@ function saveProgress() {
       noteMode,
       feedbackImmediate,
       elapsedSeconds,
+      solution: gridToString(solutionGrid),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) {
-    console.warn('No s\'ha pogut desar el progrés.', error);
+    console.warn("No s'ha pogut desar el progrés.", error);
   }
 }
 
@@ -604,7 +639,7 @@ function clearProgress() {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
-    console.warn('No s\'ha pogut netejar el progrés.', error);
+    console.warn("No s'ha pogut netejar el progrés.", error);
   }
 }
 
@@ -617,7 +652,7 @@ function loadStats() {
       bestTimes = data.bestTimes;
     }
   } catch (error) {
-    console.warn('No s\'han pogut carregar les estadístiques.', error);
+    console.warn("No s'han pogut carregar les estadístiques.", error);
   }
 }
 
@@ -625,16 +660,14 @@ function saveStats() {
   try {
     localStorage.setItem(STATS_KEY, JSON.stringify({ bestTimes }));
   } catch (error) {
-    console.warn('No s\'han pogut desar les estadístiques.', error);
+    console.warn("No s'han pogut desar les estadístiques.", error);
   }
 }
 
 function updateBestTimeDisplay(levelId = currentLevelId) {
   if (!bestTimeEl) return;
   const best = levelId ? bestTimes[levelId] : null;
-  bestTimeEl.textContent = best
-    ? `Millor temps: ${formatTime(best)}`
-    : 'Sense millor temps';
+  bestTimeEl.textContent = best ? `Millor temps: ${formatTime(best)}` : 'Sense millor temps';
 }
 
 function recordBestTime(levelId, time) {
@@ -656,7 +689,7 @@ function restoreProgress() {
     if (!raw) return false;
     saved = JSON.parse(raw);
   } catch (error) {
-    console.warn('No s\'ha pogut recuperar el progrés.', error);
+    console.warn("No s'ha pogut recuperar el progrés.", error);
     return false;
   }
 
@@ -668,7 +701,7 @@ function restoreProgress() {
 
   isRestoring = true;
   currentLevelId = saved.levelId;
-  solutionGrid = stringToGrid(level.solution);
+  solutionGrid = saved?.solution ? stringToGrid(saved.solution) : stringToGrid(level.solution);
   currentBoard = restoredBoard;
   notesGrid = createNotesGrid();
 
@@ -717,6 +750,148 @@ function normalizeBoard(board) {
     );
   }
   return normalized;
+}
+
+// -------- Fresh puzzle generation via valid Sudoku symmetries --------
+function randomInt(n) {
+  return Math.floor(Math.random() * n);
+}
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i -= 1) {
+    const j = randomInt(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function applyDigitPerm(str, perm) {
+  return str
+    .split('')
+    .map((ch) => {
+      const d = Number.parseInt(ch, 10);
+      if (!d) return '0';
+      return String(perm[d]);
+    })
+    .join('');
+}
+function transformSudoku(puzzleStr, solutionStr) {
+  const perm = [0];
+  const digits = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  for (let i = 0; i < 9; i += 1) perm.push(digits[i]);
+  let p = applyDigitPerm(puzzleStr, perm);
+  let s = applyDigitPerm(solutionStr, perm);
+
+  let pg = stringToGrid(p);
+  let sg = stringToGrid(s);
+
+  // rows within bands
+  for (let band = 0; band < 3; band += 1) {
+    const base = band * 3;
+    const order = shuffle([0, 1, 2]);
+    const rows = [pg[base], pg[base + 1], pg[base + 2]];
+    const rowsS = [sg[base], sg[base + 1], sg[base + 2]];
+    for (let i = 0; i < 3; i += 1) {
+      pg[base + i] = rows[order[i]];
+      sg[base + i] = rowsS[order[i]];
+    }
+  }
+
+  // columns within stacks
+  for (let stack = 0; stack < 3; stack += 1) {
+    const base = stack * 3;
+    const order = shuffle([0, 1, 2]);
+    for (let r = 0; r < 9; r += 1) {
+      const cols = [pg[r][base], pg[r][base + 1], pg[r][base + 2]];
+      const colsS = [sg[r][base], sg[r][base + 1], sg[r][base + 2]];
+      pg[r][base] = cols[order[0]];
+      pg[r][base + 1] = cols[order[1]];
+      pg[r][base + 2] = cols[order[2]];
+      sg[r][base] = colsS[order[0]];
+      sg[r][base + 1] = colsS[order[1]];
+      sg[r][base + 2] = colsS[order[2]];
+    }
+  }
+
+  // swap bands
+  const bandOrder = shuffle([0, 1, 2]);
+  const newPg = [];
+  const newSg = [];
+  for (let i = 0; i < 3; i += 1) {
+    const b = bandOrder[i];
+    newPg.push(pg[b * 3], pg[b * 3 + 1], pg[b * 3 + 2]);
+    newSg.push(sg[b * 3], sg[b * 3 + 1], sg[b * 3 + 2]);
+  }
+  pg = newPg;
+  sg = newSg;
+
+  // swap stacks
+  const stackOrder = shuffle([0, 1, 2]);
+  for (let r = 0; r < 9; r += 1) {
+    const cols = [pg[r].slice(0, 3), pg[r].slice(3, 6), pg[r].slice(6, 9)];
+    const colsS = [sg[r].slice(0, 3), sg[r].slice(3, 6), sg[r].slice(6, 9)];
+    pg[r] = [...cols[stackOrder[0]], ...cols[stackOrder[1]], ...cols[stackOrder[2]]];
+    sg[r] = [...colsS[stackOrder[0]], ...colsS[stackOrder[1]], ...colsS[stackOrder[2]]];
+  }
+
+  return { puzzle: gridToString(pg), solution: gridToString(sg) };
+}
+
+async function getFreshPuzzle(levelId) {
+  const level = levelsById.get(levelId);
+  if (!level) return null;
+  const basePuzzle = level.puzzle;
+  const baseSolution = level.solution;
+  return transformSudoku(basePuzzle, baseSolution);
+}
+
+// ---------------- Undo / Redo ----------------
+function pushUndo(action) {
+  undoStack.push(action);
+  redoStack = [];
+  updateUndoRedoButtons();
+}
+function undoAction() {
+  if (undoStack.length === 0) return;
+  const action = undoStack.pop();
+  applyInverse(action);
+  redoStack.push(action);
+  updateUndoRedoButtons();
+  saveProgress();
+}
+function redoAction() {
+  if (redoStack.length === 0) return;
+  const action = redoStack.pop();
+  applyForward(action);
+  undoStack.push(action);
+  updateUndoRedoButtons();
+  saveProgress();
+}
+function applyForward(action) {
+  const { row, col } = action;
+  if (action.type === 'set') {
+    currentBoard[row][col] = action.newValue;
+    notesGrid[row][col] = new Set();
+    renderCellContent(row, col);
+    updateConflicts();
+  } else if (action.type === 'note') {
+    notesGrid[row][col] = new Set(action.newNotes);
+    renderCellContent(row, col);
+  }
+}
+function applyInverse(action) {
+  const { row, col } = action;
+  if (action.type === 'set') {
+    currentBoard[row][col] = action.prevValue;
+    notesGrid[row][col] = new Set(action.prevNotes);
+    renderCellContent(row, col);
+    updateConflicts();
+  } else if (action.type === 'note') {
+    notesGrid[row][col] = new Set(action.prevNotes);
+    renderCellContent(row, col);
+  }
+}
+function updateUndoRedoButtons() {
+  if (undoBtn) undoBtn.disabled = undoStack.length === 0;
+  if (redoBtn) redoBtn.disabled = redoStack.length === 0;
 }
 
 updateFeedbackButton();
