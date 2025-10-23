@@ -5,6 +5,7 @@
   <title>Sudoku</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#ff9f43">
+  <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="description" content="Sudoku educatiu amb notes, conflictes i temporitzador">
@@ -35,8 +36,17 @@
       <button id="check-btn" type="button" class="btn-3d">Comprova</button>
       <button id="undo-btn" type="button" class="btn-3d subtle" aria-label="Desfer" title="Desfer (Ctrl+Z)">Desfer</button>
       <button id="redo-btn" type="button" class="btn-3d subtle" aria-label="Refer" title="Refer (Ctrl+Y)">Refer</button>
+      <button id="hint-btn" type="button" class="btn-3d" title="Pista">Pista</button>
+      <button id="daily-btn" type="button" class="btn-3d" title="Repte diari">Repte diari</button>
+      <button id="theme-btn" type="button" class="btn-3d" title="Canvia tema">Tema</button>
+      <button id="contrast-btn" type="button" class="btn-3d" title="Alt contrast">Contrast</button>
+      <button id="import-btn" type="button" class="btn-3d" title="Importa puzle">Importa</button>
+      <button id="share-btn" type="button" class="btn-3d" title="Comparteix puzle">Comparteix</button>
       <button id="notes-btn" type="button" class="toggle btn-3d">Notes desactivades</button>
       <button id="feedback-btn" type="button" class="toggle btn-3d">Feedback immediat</button>
+      <button id="autonotes-btn" type="button" class="toggle btn-3d" title="Autonotes">Autonotes</button>
+      <div id="digit-counters" aria-label="Comptador de dígits restants"></div>
+      <div id="stats" aria-label="Estadístiques"></div>
       <span id="status-message" role="status" aria-live="polite"></span>
       <span id="best-time" aria-label="millor temps">Sense millor temps</span>
       <span id="timer" aria-label="temporitzador">00:00</span>
