@@ -126,39 +126,25 @@
   <div id="info-modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="info-title">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 id="info-title">Informació</h2>
+        <h2 id="info-title">Com Jugar</h2>
         <button class="icon-btn modal-close" data-close="info-modal" aria-label="Tanca">✖</button>
       </div>
-      <div class="modal-body info-grid">
-        <div class="card">
-          <div class="icon">✨</div>
-          <div class="title">Nou Sudoku</div>
-          <div class="desc">Genera un nou tauler instantàniament.</div>
+      <div class="modal-body info-list">
+        <div class="info-item">
+          <strong class="info-title"><span class="icon">🎯</span> Objectiu</strong>
+          <p class="info-desc">Omple la graella de 9x9 de manera que cada fila, cada columna i cada bloc de 3x3 contingui tots els números de l'1 al 9 sense repetir-se.</p>
         </div>
-        <div class="card">
-          <div class="icon">✔️</div>
-          <div class="title">Comprova</div>
-          <div class="desc">Valida el tauler i marca errors.</div>
+        <div class="info-item">
+          <strong class="info-title"><span class="icon">✏️</span> Mode Notes</strong>
+          <p class="info-desc">Activa'l per afegir o eliminar possibles números en una cel·la. Les notes es guarden si desactives el mode.</p>
         </div>
-        <div class="card">
-          <div class="icon">💡</div>
-          <div class="title">Pista</div>
-          <div class="desc">Resol una cel·la. Tens 3 pistes per partida.</div>
+        <div class="info-item">
+          <strong class="info-title"><span class="icon">💡</span> Pistes</strong>
+          <p class="info-desc">Resol una cel·la automàticament. Disposes de 3 pistes per partida. El botó es desactiva quan s'esgoten.</p>
         </div>
-        <div class="card">
-          <div class="icon">✏️</div>
-          <div class="title">Notes</div>
-          <div class="desc">Permet afegir i esborrar números petits com a candidats a les cel·les.</div>
-        </div>
-        <div class="card">
-          <div class="icon">⚡</div>
-          <div class="title">Feedback</div>
-          <div class="desc">Mostra conflictes al moment o només en verificar.</div>
-        </div>
-        <div class="card">
-          <div class="icon">🎨</div>
-          <div class="title">Tema</div>
-          <div class="desc">Canvia entre els temes Clàssic, Contrast i Fosc des de les Opcions.</div>
+        <div class="info-item">
+          <strong class="info-title"><span class="icon">✔️</span> Comprovar</strong>
+          <p class="info-desc">Verifica si la solució és correcta. Les cel·les amb errors es marcaran en vermell.</p>
         </div>
       </div>
     </div>
@@ -166,10 +152,10 @@
 
   <footer>
     <p>Aplicació creada per <strong>Felip Sarroca</strong> amb l'assistència de la IA.</p>
-    <p>
+    <p class="license">
       <img src="assets/cc-by-nc-sa.svg" alt="Llicència Creative Commons" class="cc-logo">
       <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">
-        CC BY-NC-SA 4.0
+        Obra sota llicència CC BY-NC-SA 4.0
       </a>
     </p>
   </footer>

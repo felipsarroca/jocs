@@ -369,11 +369,11 @@ main {
 
 .actions {
   width: 100%;
-  max-width: 420px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1rem;
+  max-width: 480px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .main-actions,
@@ -488,21 +488,52 @@ main {
 .switch input:checked + .slider { background-color: var(--secondary); }
 .switch input:checked + .slider:before { transform: translateX(20px); }
 
-.info-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
-.card { background: var(--cell-fixed-bg); border-radius: 12px; padding: 1rem; display: grid; place-items: center; gap: 0.5rem; text-align: center; }
-.card .icon { font-size: 1.8rem; }
-.card .title { font-weight: 700; }
-.card .desc { font-size: 0.85rem; color: var(--text-light); }
+.info-list .info-item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 0.5rem 1rem;
+  align-items: start;
+}
+.info-list .info-title {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+.info-list .info-title .icon { font-size: 1.2rem; }
+.info-list .info-desc {
+  grid-column: 2;
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
 
 footer {
   text-align: center;
   margin-top: auto;
   padding: 1.5rem 0 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--text-light);
 }
-
-.cc-logo { height: 1rem; vertical-align: middle; margin-right: 0.4rem; filter: grayscale(1) opacity(0.7); }
+footer p { margin: 0.25rem 0; }
+.license {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+.license a {
+  color: var(--text-light);
+  text-decoration: none;
+}
+.license a:hover { text-decoration: underline; }
+.cc-logo { 
+  height: 1rem;
+  filter: grayscale(1) opacity(0.6);
+}
 
 [data-contrast='high'] .cell.active {
   box-shadow: inset 0 0 0 3px var(--accent);
@@ -526,8 +557,15 @@ footer {
   #sudoku-grid { width: 100%; }
   #mobile-keypad { width: 100%; gap: 0.3rem; }
   #mobile-keypad button { height: 48px; font-size: 1.1rem; }
-  .actions { grid-template-columns: 1fr; gap: 0.75rem; }
-  .main-actions, .toggle-actions, .secondary-actions { justify-content: center; }
+  .actions { 
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .main-actions, .toggle-actions, .secondary-actions { 
+    gap: 0.5rem;
+  }
   .btn-3d .label { display: none; }
   .btn-3d { padding: 0; width: 52px; height: 52px; border-radius: 50%; }
   .btn-3d .icon { font-size: 1.5rem; }
