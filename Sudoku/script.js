@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'sudoku-progress-v3';
+const STORAGE_KEY = 'sudoku-progress-v4';
 const STATS_KEY = 'sudoku-stats-v1';
 const THEME_KEY = 'sudoku-theme';
 const CONTRAST_KEY = 'sudoku-contrast';
@@ -19,7 +19,10 @@ let isRestoring = false;
 let bestTimes = {};
 let undoStack = [];
 let redoStack = [];
+let hintsUsed = 0;
+const MAX_HINTS = 3;
 
+// Element cache
 const keypad = document.getElementById('mobile-keypad');
 const messageEl = document.getElementById('status-message');
 const bestTimeEl = document.getElementById('best-time');
@@ -29,33 +32,24 @@ const checkBtn = document.getElementById('check-btn');
 const notesBtn = document.getElementById('notes-btn');
 const feedbackBtn = document.getElementById('feedback-btn');
 const hintBtn = document.getElementById('hint-btn');
-const viewBtn = document.getElementById('view-btn');
 const optionsBtn = document.getElementById('options-btn');
 const infoBtn = document.getElementById('info-btn');
 const countersEl = document.getElementById('digit-counters');
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
 
 initApp();
-
-if (keypad) keypad.addEventListener('click', handleKeypadClick);
-document.addEventListener('keydown', handleKeyDown);
-if (newGameBtn) newGameBtn.addEventListener('click', () => loadSudoku(currentLevelId, true));
-if (checkBtn) checkBtn.addEventListener('click', checkSolution);
-if (notesBtn) notesBtn.addEventListener('click', toggleNotesMode);
-if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackMode);
-if (hintBtn) hintBtn.addEventListener('click', giveHint);
-if (viewBtn) viewBtn.addEventListener('click', cycleViewMode);
-if (optionsBtn) optionsBtn.addEventListener('click', () => openModal('options-modal'));
-if (infoBtn) infoBtn.addEventListener('click', () => openModal('info-modal'));
 
 function initApp() {
   applyStoredTheme();
   applyStoredContrast();
+  addEventListeners();
   fetch('config.json')
-    .then((response) => {
+    .then(response => {
       if (!response.ok) throw new Error(`Config HTTP ${response.status}`);
       return response.json();
     })
-    .then((config) => {
+    .then(config => {
       configData = config;
       document.getElementById('app-title').textContent = config.title;
       renderLevelSelector(config.levels);
@@ -67,12 +61,29 @@ function initApp() {
         setMessage('Partida recuperada. Continua jugant!', 'info');
       }
     })
-    .catch((error) => {
+    .catch(error => {
       console.error("No s'ha pogut carregar la configuració.", error);
       const grid = document.getElementById('sudoku-grid');
       if (grid) grid.textContent = 'Error carregant els fitxers de configuració.';
       setMessage("No s'ha pogut carregar la configuració.", 'error');
     });
+}
+
+function addEventListeners() {
+  if (keypad) keypad.addEventListener('click', handleKeypadClick);
+  if (newGameBtn) newGameBtn.addEventListener('click', () => loadSudoku(currentLevelId, true));
+  if (checkBtn) checkBtn.addEventListener('click', checkSolution);
+  if (notesBtn) notesBtn.addEventListener('click', toggleNotesMode);
+  if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackMode);
+  if (hintBtn) hintBtn.addEventListener('click', giveHint);
+  if (optionsBtn) optionsBtn.addEventListener('click', () => openModal('options-modal'));
+  if (infoBtn) infoBtn.addEventListener('click', () => openModal('info-modal'));
+  if (undoBtn) undoBtn.addEventListener('click', undoAction);
+  if (redoBtn) redoBtn.addEventListener('click', redoAction);
+
+  document.addEventListener('keydown', handleKeyDown);
+  document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('change', handleDocumentChange);
 }
 
 function renderLevelSelector(levels = []) {
@@ -96,8 +107,7 @@ async function loadSudoku(levelId, userRequest) {
   if (!levelId) levelId = configData?.levels?.[0]?.id;
   const grid = document.getElementById('sudoku-grid');
   if (!grid) return;
-  const loadingText = configData?.messages?.loading ?? 'Carregant...';
-  grid.textContent = loadingText;
+  grid.innerHTML = `<div class="loading">${configData?.messages?.loading ?? 'Carregant...'}</div>`;
 
   let level = levelsById.get(levelId);
   if (!level) {
@@ -115,25 +125,25 @@ async function loadSudoku(levelId, userRequest) {
   currentLevelId = levelId;
 
   const fresh = await getFreshPuzzle(levelId);
-  const puzzleStr = fresh?.puzzle ?? level.puzzle;
-  const solutionStr = fresh?.solution ?? level.solution;
-
-  solutionGrid = stringToGrid(solutionStr);
-  currentBoard = stringToGrid(puzzleStr);
+  solutionGrid = stringToGrid(fresh?.solution ?? level.solution);
+  currentBoard = stringToGrid(fresh?.puzzle ?? level.puzzle);
   notesGrid = createNotesGrid();
+  
+  undoStack = [];
+  redoStack = [];
+  hintsUsed = 0;
 
   renderGrid(currentBoard);
   setActiveLevel(levelId);
   updateNotesButton();
   updateFeedbackButton();
+  updateUndoRedoButtons();
+  updateHintButton();
   focusFirstEditableCell();
   resetTimer();
   startTimer();
   updateConflicts();
   updateBestTimeDisplay(levelId);
-  undoStack = [];
-  redoStack = [];
-  updateUndoRedoButtons();
 
   isRestoring = false;
   saveProgress();
@@ -156,7 +166,6 @@ function renderGrid(board) {
     cell.dataset.index = index;
     cell.dataset.row = row;
     cell.dataset.col = col;
-    cell.dataset.fixed = String(!editable);
     cell.setAttribute('role', 'gridcell');
     cell.setAttribute('aria-selected', 'false');
     const labelValue = value === 0 ? 'buida' : String(value);
@@ -204,9 +213,11 @@ function setActiveLevel(levelId) {
 }
 
 function setActiveCell(cell) {
-  if (!cell) return;
+  if (!cell || cell.classList.contains('fixed')) return;
+  if (activeCell === cell) return;
   if (activeCell) activeCell.classList.remove('active');
   activeCell = cell;
+  activeCell.classList.add('active');
   updateHighlights();
   cell.setAttribute('aria-selected', 'true');
 }
@@ -228,9 +239,12 @@ function gridToString(grid) { return grid.flat().map((n) => String(n ?? 0)).join
 function createNotesGrid() { return Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set())); }
 
 function handleKeypadClick(event) {
-  if (!activeCell || !event.target.matches('button')) return;
-  const digit = Number.parseInt(event.target.dataset.num, 10) || 0;
-  handleDigitInput(digit);
+  const button = event.target.closest('button');
+  if (!activeCell || !button) return;
+  const digit = Number.parseInt(button.dataset.num, 10);
+  if (!isNaN(digit)) {
+    handleDigitInput(digit);
+  }
 }
 
 function handleKeyDown(event) {
@@ -241,8 +255,7 @@ function handleKeyDown(event) {
   }
   if (!activeCell) return;
   if (/^[1-9]$/.test(event.key)) { handleDigitInput(Number(event.key)); event.preventDefault(); return; }
-  if (event.key === '0') { handleDigitInput(0); event.preventDefault(); return; }
-  if (event.key === 'Backspace' || event.key === 'Delete') { if (noteMode) { clearNotesForActiveCell(); } else { handleDigitInput(0); } event.preventDefault(); return; }
+  if (event.key === '0' || event.key === 'Backspace' || event.key === 'Delete') { handleDigitInput(0); event.preventDefault(); return; }
   const moves = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
   if (moves[event.key]) { moveSelection(moves[event.key][0], moves[event.key][1]); event.preventDefault(); }
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z') { undoAction(); event.preventDefault(); }
@@ -250,7 +263,7 @@ function handleKeyDown(event) {
 }
 
 function handleDigitInput(digit) {
-  if (!activeCell || activeCell.dataset.fixed === 'true') return;
+  if (!activeCell || activeCell.classList.contains('fixed')) return;
   if (noteMode) {
     if (digit === 0) { clearNotesForActiveCell(); } else { toggleNoteValue(digit); }
   } else {
@@ -263,7 +276,12 @@ function moveSelection(deltaRow, deltaCol) {
   let row = Number(activeCell.dataset.row);
   let col = Number(activeCell.dataset.col);
   let attempts = 0;
-  do { row = (row + deltaRow + 9) % 9; col = (col + deltaCol + 9) % 9; attempts += 1; if (attempts > 81) return; } while (getCell(row, col)?.dataset.fixed === 'true');
+  do {
+    row = (row + deltaRow + 9) % 9;
+    col = (col + deltaCol + 9) % 9;
+    attempts += 1;
+    if (attempts > 81) return;
+  } while (getCell(row, col)?.classList.contains('fixed'));
   setActiveCell(getCell(row, col));
 }
 
@@ -281,7 +299,7 @@ function setCellValue(value) {
   if (cell) cell.classList.remove('incorrect');
   updateConflicts();
   updateDigitCounters();
-  if (noteMode && value !== 0) updateAutoNotesForPeers(row, col, value);
+  updateAutoNotesForPeers(row, col, value);
   saveProgress();
 }
 
@@ -294,7 +312,6 @@ function toggleNoteValue(digit) {
   if (notes.has(digit)) notes.delete(digit); else notes.add(digit);
   pushUndo({ type: 'note', row, col, prevNotes: before, newNotes: new Set(notes) });
   renderCellContent(row, col);
-  updateDigitCounters();
   saveProgress();
 }
 
@@ -307,7 +324,6 @@ function clearNotesForActiveCell() {
   notesGrid[row][col].clear();
   pushUndo({ type: 'note', row, col, prevNotes: before, newNotes: new Set() });
   renderCellContent(row, col);
-  updateDigitCounters();
   saveProgress();
 }
 
@@ -317,9 +333,8 @@ function clearHighlights() {
   cellElements.forEach((cell) => { cell.classList.remove('active', 'peer', 'same-digit'); cell.setAttribute('aria-selected', 'false'); });
 }
 function updateHighlights() {
+  cellElements.forEach(c => c.classList.remove('peer', 'same-digit'));
   if (!activeCell) return;
-  clearHighlights();
-  activeCell.classList.add('active');
   const row = Number(activeCell.dataset.row);
   const col = Number(activeCell.dataset.col);
   const boxRow = Math.floor(row / 3);
@@ -341,7 +356,7 @@ function checkSolution() {
   for (let row = 0; row < 9; row += 1) {
     for (let col = 0; col < 9; col += 1) {
       const cell = getCell(row, col);
-      if (cell?.dataset.fixed === 'true') continue;
+      if (cell?.classList.contains('fixed')) continue;
       const currentValue = currentBoard[row][col];
       if (currentValue === 0) { complete = false; if (cell) cell.classList.remove('incorrect'); continue; }
       if (currentValue === solutionGrid[row][col]) { if (cell) cell.classList.remove('incorrect'); }
@@ -361,65 +376,77 @@ function checkSolution() {
 }
 
 function updateConflicts() {
-  if (!feedbackImmediate) { cellElements.forEach((cell) => cell.classList.remove('conflict')); return; }
-  const conflictGrid = Array.from({ length: 9 }, () => Array(9).fill(false));
-  for (let row = 0; row < 9; row += 1) {
-    const map = new Map();
-    for (let col = 0; col < 9; col += 1) {
-      const value = currentBoard[row][col];
+  cellElements.forEach((cell) => cell.classList.remove('conflict'));
+  if (!feedbackImmediate) return;
+
+  const getCellCoords = (type, unitIndex, itemIndex) => {
+    if (type === 'row') return [unitIndex, itemIndex];
+    if (type === 'col') return [itemIndex, unitIndex];
+    const boxRow = Math.floor(unitIndex / 3);
+    const boxCol = unitIndex % 3;
+    const cellRow = Math.floor(itemIndex / 3);
+    const cellCol = itemIndex % 3;
+    return [boxRow * 3 + cellRow, boxCol * 3 + cellCol];
+  };
+
+  const markConflicts = (unit, type, unitIndex) => {
+    const seen = new Map();
+    for (let i = 0; i < 9; i++) {
+      const value = unit[i];
       if (value === 0) continue;
-      if (!map.has(value)) map.set(value, []);
-      map.get(value).push(col);
-    }
-    map.forEach((cols) => { if (cols.length > 1) cols.forEach((col) => { conflictGrid[row][col] = true; }); });
-  }
-  for (let col = 0; col < 9; col += 1) {
-    const map = new Map();
-    for (let row = 0; row < 9; row += 1) {
-      const value = currentBoard[row][col];
-      if (value === 0) continue;
-      if (!map.has(value)) map.set(value, []);
-      map.get(value).push(row);
-    }
-    map.forEach((rows) => { if (rows.length > 1) rows.forEach((row) => { conflictGrid[row][col] = true; }); });
-  }
-  for (let boxRow = 0; boxRow < 3; boxRow += 1) {
-    for (let boxCol = 0; boxCol < 3; boxCol += 1) {
-      const map = new Map();
-      for (let r = 0; r < 3; r += 1) {
-        for (let c = 0; c < 3; c += 1) {
-          const row = boxRow * 3 + r; const col = boxCol * 3 + c; const value = currentBoard[row][col];
-          if (value === 0) continue;
-          if (!map.has(value)) map.set(value, []);
-          map.get(value).push([row, col]);
-        }
+      if (seen.has(value)) {
+        const originalCoords = getCellCoords(type, unitIndex, seen.get(value));
+        getCell(originalCoords[0], originalCoords[1])?.classList.add('conflict');
+        const currentCoords = getCellCoords(type, unitIndex, i);
+        getCell(currentCoords[0], currentCoords[1])?.classList.add('conflict');
+      } else {
+        seen.set(value, i);
       }
-      map.forEach((cells) => { if (cells.length > 1) cells.forEach(([row, col]) => { conflictGrid[row][col] = true; }); });
     }
+  };
+
+  // Check rows and columns
+  for (let i = 0; i < 9; i++) {
+    markConflicts(currentBoard[i], 'row', i);
+    markConflicts(currentBoard.map(row => row[i]), 'col', i);
   }
-  cellElements.forEach((cell) => {
-    const row = Number(cell.dataset.row); const col = Number(cell.dataset.col);
-    if (cell.dataset.fixed === 'true') { cell.classList.remove('conflict'); return; }
-    cell.classList.toggle('conflict', conflictGrid[row][col]);
-  });
+
+  // Check 3x3 boxes
+  for (let i = 0; i < 9; i++) {
+    const box = [];
+    const boxRow = Math.floor(i / 3);
+    const boxCol = i % 3;
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 3; c++) {
+        box.push(currentBoard[boxRow * 3 + r][boxCol * 3 + c]);
+      }
+    }
+    markConflicts(box, 'box', i);
+  }
 }
 
 function toggleNotesMode() {
   noteMode = !noteMode;
-  if (noteMode) recomputeAllNotes(); else clearAllNotes();
+  if (!noteMode) {
+    clearAllNotesRender();
+  }
   updateNotesButton();
   setMessage(noteMode ? 'Mode notes activat.' : 'Mode notes desactivat.', 'info');
   saveProgress();
 }
-function updateNotesButton() { if (!notesBtn) return; notesBtn.dataset.active = String(noteMode); notesBtn.textContent = noteMode ? 'Notes activades' : 'Notes desactivades'; }
+
+function updateNotesButton() { if (!notesBtn) return; notesBtn.dataset.active = String(noteMode); }
+
 function toggleFeedbackMode() {
   feedbackImmediate = !feedbackImmediate;
   updateFeedbackButton();
-  setMessage(feedbackImmediate ? 'Feedback immediat activat (conflictes marcats al moment).' : 'Mode clàssic: els conflictes no es mostren fins a comprovar.', 'info');
+  setMessage(feedbackImmediate ? 'Feedback immediat activat.' : 'Feedback desactivat.', 'info');
   updateConflicts();
   saveProgress();
 }
-function updateFeedbackButton() { if (!feedbackBtn) return; feedbackBtn.dataset.active = String(feedbackImmediate); feedbackBtn.textContent = feedbackImmediate ? 'Feedback immediat' : 'Feedback clàssic'; }
+
+function updateFeedbackButton() { if (!feedbackBtn) return; feedbackBtn.dataset.active = String(feedbackImmediate); }
+
 function setMessage(text, tone = 'info') { if (!messageEl) return; messageEl.textContent = text; messageEl.className = ''; messageEl.classList.add(`status-${tone}`); }
 
 function startTimer() { stopTimer(); timerInterval = setInterval(() => { elapsedSeconds += 1; updateTimerDisplay(); if (!isRestoring && elapsedSeconds % 5 === 0) saveProgress(); }, 1000); }
@@ -431,7 +458,7 @@ function formatTime(totalSeconds) { const m = String(Math.floor(totalSeconds / 6
 function saveProgress() {
   if (isRestoring || !currentLevelId) return;
   try {
-    const payload = { levelId: currentLevelId, board: currentBoard.map((r) => r.slice()), notes: notesGrid.map((row) => row.map((set) => Array.from(set.values()).sort((a, b) => a - b))), noteMode, feedbackImmediate, elapsedSeconds, solution: gridToString(solutionGrid) };
+    const payload = { levelId: currentLevelId, board: currentBoard.map((r) => r.slice()), notes: notesGrid.map((row) => row.map((set) => Array.from(set.values()).sort((a, b) => a - b))), noteMode, feedbackImmediate, elapsedSeconds, hintsUsed, solution: gridToString(solutionGrid) };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) { console.warn("No s'ha pogut desar el progrés.", error); }
 }
@@ -439,7 +466,7 @@ function clearProgress() { try { localStorage.removeItem(STORAGE_KEY); } catch (
 
 function loadStats() { try { const raw = localStorage.getItem(STATS_KEY); if (!raw) return; const data = JSON.parse(raw); if (data && typeof data === 'object' && data.bestTimes) { bestTimes = data.bestTimes; } } catch (error) { console.warn("No s'han pogut carregar les estadístiques.", error); } }
 function saveStats() { try { localStorage.setItem(STATS_KEY, JSON.stringify({ bestTimes })); } catch (error) { console.warn("No s'han pogut desar les estadístiques.", error); } }
-function updateBestTimeDisplay(levelId = currentLevelId) { if (!bestTimeEl) return; const best = levelId ? bestTimes[levelId] : null; bestTimeEl.textContent = best ? `Millor temps: ${formatTime(best)}` : 'Sense millor temps'; }
+function updateBestTimeDisplay(levelId = currentLevelId) { if (!bestTimeEl) return; const best = levelId ? bestTimes[levelId] : null; bestTimeEl.textContent = best ? formatTime(best) : '--:--'; }
 function recordBestTime(levelId, time) { if (!levelId) return false; const currentBest = bestTimes[levelId]; if (!currentBest || time < currentBest) { bestTimes[levelId] = time; saveStats(); updateBestTimeDisplay(levelId); return true; } return false; }
 
 function restoreProgress() {
@@ -448,8 +475,8 @@ function restoreProgress() {
   const restoredBoard = normalizeBoard(saved.board); if (!restoredBoard) return false;
   isRestoring = true; currentLevelId = saved.levelId; solutionGrid = saved?.solution ? stringToGrid(saved.solution) : stringToGrid(level.solution); currentBoard = restoredBoard; notesGrid = createNotesGrid();
   if (Array.isArray(saved.notes)) { for (let row = 0; row < 9; row += 1) { for (let col = 0; col < 9; col += 1) { const cellNotes = saved.notes[row]?.[col]; if (Array.isArray(cellNotes)) { const cleanNotes = cellNotes.map((n) => Number(n)).filter((n) => Number.isInteger(n) && n >= 1 && n <= 9); notesGrid[row][col] = new Set(cleanNotes); } } } }
-  noteMode = Boolean(saved.noteMode); feedbackImmediate = saved.feedbackImmediate !== false;
-  renderGrid(currentBoard); setActiveLevel(currentLevelId); updateNotesButton(); updateFeedbackButton(); focusFirstEditableCell(); elapsedSeconds = Number(saved.elapsedSeconds) || 0; updateTimerDisplay(); updateConflicts(); updateBestTimeDisplay(currentLevelId); isRestoring = false; startTimer(); saveProgress(); return true;
+  noteMode = Boolean(saved.noteMode); feedbackImmediate = saved.feedbackImmediate !== false; hintsUsed = saved.hintsUsed || 0;
+  renderGrid(currentBoard); setActiveLevel(currentLevelId); updateNotesButton(); updateFeedbackButton(); updateHintButton(); focusFirstEditableCell(); elapsedSeconds = Number(saved.elapsedSeconds) || 0; updateTimerDisplay(); updateConflicts(); updateBestTimeDisplay(currentLevelId); isRestoring = false; startTimer(); saveProgress(); return true;
 }
 function normalizeBoard(board) { if (!Array.isArray(board) || board.length !== 9) return null; const out = []; for (let r = 0; r < 9; r += 1) { const row = board[r]; if (!Array.isArray(row) || row.length !== 9) return null; out.push(row.map((v) => { const n = Number(v); return Number.isInteger(n) && n >= 0 && n <= 9 ? n : 0; })); } return out; }
 
@@ -458,7 +485,7 @@ function randomInt(n) { return Math.floor(Math.random() * n); }
 function shuffle(arr) { for (let i = arr.length - 1; i > 0; i -= 1) { const j = randomInt(i + 1); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 function applyDigitPerm(str, perm) { return str.split('').map((ch) => { const d = Number.parseInt(ch, 10); return d ? String(perm[d]) : '0'; }).join(''); }
 function transformSudoku(puzzleStr, solutionStr) {
-  const perm = [0]; const digits = shuffle([1,2,3,4,5,6,7,8,9]); for (let i=0;i<9;i+=1) perm.push(digits[i]);
+  const perm = [0, ...shuffle([1,2,3,4,5,6,7,8,9])];
   let p = applyDigitPerm(puzzleStr, perm); let s = applyDigitPerm(solutionStr, perm);
   let pg = stringToGrid(p); let sg = stringToGrid(s);
   for (let band=0; band<3; band+=1){ const base=band*3; const order=shuffle([0,1,2]); const rows=[pg[base],pg[base+1],pg[base+2]]; const rowsS=[sg[base],sg[base+1],sg[base+2]]; for(let i=0;i<3;i+=1){ pg[base+i]=rows[order[i]]; sg[base+i]=rowsS[order[i]]; } }
@@ -471,50 +498,53 @@ async function getFreshPuzzle(levelId){ const level=levelsById.get(levelId); if(
 
 // Undo / Redo
 function pushUndo(a){ undoStack.push(a); redoStack=[]; updateUndoRedoButtons(); }
-function undoAction(){ if(undoStack.length===0) return; const a=undoStack.pop(); applyInverse(a); redoStack.push(a); updateUndoRedoButtons(); saveProgress(); }
-function redoAction(){ if(redoStack.length===0) return; const a=redoStack.pop(); applyForward(a); undoStack.push(a); updateUndoRedoButtons(); saveProgress(); }
-function applyForward(a){ const {row,col}=a; if(a.type==='set'){ currentBoard[row][col]=a.newValue; notesGrid[row][col]=new Set(); renderCellContent(row,col); updateConflicts(); } else if(a.type==='note'){ notesGrid[row][col]=new Set(a.newNotes); renderCellContent(row,col); } }
-function applyInverse(a){ const {row,col}=a; if(a.type==='set'){ currentBoard[row][col]=a.prevValue; notesGrid[row][col]=new Set(a.prevNotes); renderCellContent(row,col); updateConflicts(); } else if(a.type==='note'){ notesGrid[row][col]=new Set(a.prevNotes); renderCellContent(row,col); } }
-function updateUndoRedoButtons(){ /* hidden controls: no UI buttons shown */ }
+function undoAction(){ if(undoStack.length===0) return; const a=undoStack.pop(); applyAction(a, true); redoStack.push(a); updateUndoRedoButtons(); saveProgress(); }
+function redoAction(){ if(redoStack.length===0) return; const a=redoStack.pop(); applyAction(a, false); undoStack.push(a); updateUndoRedoButtons(); saveProgress(); }
+function applyAction(a, isUndo){
+    const {row, col} = a;
+    if (a.type === 'set') {
+        currentBoard[row][col] = isUndo ? a.prevValue : a.newValue;
+        notesGrid[row][col] = new Set(isUndo ? a.prevNotes : []);
+    } else if (a.type === 'note') {
+        notesGrid[row][col] = new Set(isUndo ? a.prevNotes : a.newNotes);
+    }
+    renderCellContent(row, col);
+    updateConflicts();
+    updateDigitCounters();
+}
+function updateUndoRedoButtons(){ if(undoBtn) undoBtn.disabled = undoStack.length === 0; if(redoBtn) redoBtn.disabled = redoStack.length === 0; }
 
 // Notes helpers
-function recomputeAllNotes(){ for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]!==0){ notesGrid[r][c].clear(); continue;} const cand=candidatesFor(r,c); notesGrid[r][c]=new Set(cand); renderCellContent(r,c); } } }
-function clearAllNotes(){ for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ notesGrid[r][c].clear(); renderCellContent(r,c); } } }
-function candidatesFor(row,col){ const present=new Set(); for(let i=0;i<9;i+=1){ if(currentBoard[row][i]!==0) present.add(currentBoard[row][i]); if(currentBoard[i][col]!==0) present.add(currentBoard[i][col]); } const br=Math.floor(row/3)*3, bc=Math.floor(col/3)*3; for(let r=br;r<br+3;r+=1){ for(let c=bc;c<bc+3;c+=1){ if(currentBoard[r][c]!==0) present.add(currentBoard[r][c]); } } const out=[]; for(let d=1; d<=9; d+=1) if(!present.has(d)) out.push(d); return out; }
-function updateAutoNotesForPeers(row,col,value){ for(let c=0;c<9;c+=1){ if(c===col) continue; if(notesGrid[row][c].delete(value)) renderCellContent(row,c); } for(let r=0;r<9;r+=1){ if(r===row) continue; if(notesGrid[r][col].delete(value)) renderCellContent(r,col); } const br=Math.floor(row/3)*3, bc=Math.floor(col/3)*3; for(let r=br;r<br+3;r+=1){ for(let c=bc;c<bc+3;c+=1){ if(r===row && c===col) continue; if(notesGrid[r][c].delete(value)) renderCellContent(r,c); } } }
+function clearAllNotesRender(){ for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]===0) { notesGrid[r][c].clear(); renderCellContent(r,c); } } } }
+function updateAutoNotesForPeers(row,col,value){ if (!noteMode) return; for(let c=0;c<9;c+=1){ if(c===col) continue; if(notesGrid[row][c].delete(value)) renderCellContent(row,c); } for(let r=0;r<9;r+=1){ if(r===row) continue; if(notesGrid[r][col].delete(value)) renderCellContent(r,col); } const br=Math.floor(row/3)*3, bc=Math.floor(col/3)*3; for(let r=br;r<br+3;r+=1){ for(let c=bc;c<bc+3;c+=1){ if(r===row && c===col) continue; if(notesGrid[r][c].delete(value)) renderCellContent(r,c); } } }
 
 // Theme
 function applyStoredTheme(){ const theme=localStorage.getItem(THEME_KEY); if(theme) document.documentElement.setAttribute('data-theme', theme); }
 function applyStoredContrast(){ const c=localStorage.getItem(CONTRAST_KEY); if(c) document.documentElement.setAttribute('data-contrast', c); }
-function cycleViewMode(){
-  const theme = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
-  const contrast = document.documentElement.getAttribute('data-contrast')==='high'?'high':'normal';
-  // order: classic (light+normal) -> contrast (light+high) -> dark (dark+normal) -> classic
-  let nextTheme = theme, nextContrast = contrast;
-  if (theme==='light' && contrast==='normal') { nextTheme='light'; nextContrast='high'; }
-  else if (theme==='light' && contrast==='high') { nextTheme='dark'; nextContrast='normal'; }
-  else { nextTheme='light'; nextContrast='normal'; }
-  document.documentElement.setAttribute('data-theme', nextTheme);
-  document.documentElement.setAttribute('data-contrast', nextContrast);
-  localStorage.setItem(THEME_KEY, nextTheme);
-  localStorage.setItem(CONTRAST_KEY, nextContrast);
-  updateViewButtonsState();
-}
-function updateViewButtonsState(){
-  const t = document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light';
-  const c = document.documentElement.getAttribute('data-contrast')==='high'?'high':'normal';
-  const btn = document.getElementById('view-btn');
-  if (!btn) return;
-  if (t==='dark') btn.title='Visualització: Fosc';
-  else if (c==='high') btn.title='Visualització: Alt contrast';
-  else btn.title='Visualització: Clàssic';
-}
 
 // Counters
-function updateDigitCounters(){ if(!countersEl) return; const counts=Array(10).fill(0); for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ const v=currentBoard[r][c]; if(v>=1&&v<=9) counts[v]+=1; } } const remain=counts.map((cnt,d)=>(d===0?0:9-cnt)); countersEl.innerHTML=''; for(let d=1; d<=9; d+=1){ const el=document.createElement('div'); el.className='counter'; el.textContent=`${d} (${remain[d]})`; countersEl.appendChild(el);} }
+function updateDigitCounters(){ if(!countersEl) return; const counts=Array(10).fill(0); for(const row of currentBoard){ for(const v of row){ if(v>=1&&v<=9) counts[v]+=1; } } countersEl.innerHTML=''; for(let d=1; d<=9; d+=1){ const count = counts[d]; const el=document.createElement('div'); el.className='counter'; el.classList.toggle('completed', count === 9); el.innerHTML = `<span class="digit">${d}</span><span class="count">${9 - count}</span>`; countersEl.appendChild(el);} }
 
 // Hint
-function giveHint(){ const empties=[]; for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]===0 && getCell(r,c)?.dataset.fixed==='false') empties.push([r,c]); } } if(empties.length===0){ setMessage('No hi ha caselles disponibles per a pista.', 'info'); return; } const [row,col]=empties[Math.floor(Math.random()*empties.length)]; const cell=getCell(row,col); if(!cell) return; const value=solutionGrid[row][col]; activeCell=cell; pushUndo({ type:'set', row, col, prevValue:0, newValue:value, prevNotes:new Set(notesGrid[row][col]) }); currentBoard[row][col]=value; notesGrid[row][col].clear(); renderCellContent(row,col); updateConflicts(); updateDigitCounters(); if(noteMode) updateAutoNotesForPeers(row,col,value); saveProgress(); setMessage('Pista aplicada.', 'info'); }
+function giveHint(){ if (hintsUsed >= MAX_HINTS) { setMessage(`Has esgotat les ${MAX_HINTS} pistes disponibles.`, 'warn'); return; } const empties=[]; for(let r=0;r<9;r+=1){ for(let c=0;c<9;c+=1){ if(currentBoard[r][c]===0) empties.push([r,c]); } } if(empties.length===0){ setMessage('No hi ha caselles buides per a una pista.', 'info'); return; } const [row,col]=empties[Math.floor(Math.random()*empties.length)]; const value=solutionGrid[row][col];
+  const cell = getCell(row, col);
+  if (cell) setActiveCell(cell);
+  setCellValue(value); 
+  hintsUsed++; 
+  updateHintButton(); 
+  saveProgress(); 
+  setMessage(`Pista ${hintsUsed} de ${MAX_HINTS} utilitzada.`, 'info');
+}
+
+function updateHintButton() {
+  if (!hintBtn) return;
+  const remaining = MAX_HINTS - hintsUsed;
+  hintBtn.disabled = remaining <= 0;
+  const label = hintBtn.querySelector('.label');
+  if (label) {
+    label.textContent = `Pista (${remaining})`;
+  }
+}
 
 // PWA registration
 if('serviceWorker' in navigator){ window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); }); }
@@ -522,9 +552,26 @@ if('serviceWorker' in navigator){ window.addEventListener('load', () => { naviga
 // Modals
 function openModal(id){ const el=document.getElementById(id); if(!el) return; el.setAttribute('aria-hidden','false'); attachModalSync(); }
 function closeModal(id){ const el=document.getElementById(id); if(!el) return; el.setAttribute('aria-hidden','true'); }
-document.addEventListener('click',(e)=>{ const target=e.target; if(target?.classList?.contains('modal-close')){ const id=target.getAttribute('data-close'); if(id) closeModal(id); }});
+function handleDocumentClick(e) {
+  const target=e.target.closest('[data-close]');
+  if(target){ const id=target.getAttribute('data-close'); if(id) closeModal(id); }
+  
+  const viewTarget = e.target.closest('[data-view]');
+  if (viewTarget){ 
+    const key=viewTarget.dataset.view; 
+    if(key==='classic'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'normal'); } 
+    else if(key==='contrast'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','high'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'high'); } 
+    else if(key==='dark'){ document.documentElement.setAttribute('data-theme','dark'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'dark'); localStorage.setItem(CONTRAST_KEY,'normal'); } 
+    attachModalSync(); 
+  }
+}
+function handleDocumentChange(e){
+  const t=e.target;
+  if (t?.id==='opt-feedback'){ toggleFeedbackMode(); t.checked = feedbackImmediate; }
+  if (t?.id==='opt-notes'){ toggleNotesMode(); t.checked = noteMode; }
+}
+
 function attachModalSync(){
-  // sync options toggles
   const fb = document.getElementById('opt-feedback'); if (fb) fb.checked = feedbackImmediate;
   const nt = document.getElementById('opt-notes'); if (nt) nt.checked = noteMode;
   document.querySelectorAll('.segmented .seg').forEach(b=>{
@@ -536,13 +583,4 @@ function attachModalSync(){
   const activeBtn = document.querySelector(`.segmented .seg[data-view="${activeKey}"]`);
   if (activeBtn) activeBtn.classList.add('active');
 }
-function syncOptionsPanel(){ updateViewButtonsState(); }
-document.addEventListener('change',(e)=>{
-  const t=e.target;
-  if (t?.id==='opt-feedback'){ toggleFeedbackMode(); t.checked = feedbackImmediate; }
-  if (t?.id==='opt-notes'){ toggleNotesMode(); t.checked = noteMode; }
-});
-document.addEventListener('click',(e)=>{
-  const t=e.target;
-  if (t?.dataset?.view){ const key=t.dataset.view; if(key==='classic'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'normal'); } else if(key==='contrast'){ document.documentElement.setAttribute('data-theme','light'); document.documentElement.setAttribute('data-contrast','high'); localStorage.setItem(THEME_KEY,'light'); localStorage.setItem(CONTRAST_KEY,'high'); } else if(key==='dark'){ document.documentElement.setAttribute('data-theme','dark'); document.documentElement.setAttribute('data-contrast','normal'); localStorage.setItem(THEME_KEY,'dark'); localStorage.setItem(CONTRAST_KEY,'normal'); } updateViewButtonsState(); attachModalSync(); }
-});
+function syncOptionsPanel(){ attachModalSync(); }
