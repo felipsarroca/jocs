@@ -63,11 +63,21 @@ function renderGrid(board) {
   const grid = document.getElementById('sudoku-grid');
   grid.innerHTML = '';
   board.flat().forEach((value, index) => {
+    const row = Math.floor(index / 9);
+    const col = index % 9;
     const cell = document.createElement('div');
     const isEditable = value === 0;
     cell.className = isEditable ? 'cell editable' : 'cell fixed';
     cell.textContent = isEditable ? '' : value;
     cell.dataset.index = index;
+
+    if (col === 2 || col === 5) {
+      cell.classList.add('block-right');
+    }
+    if (row === 2 || row === 5) {
+      cell.classList.add('block-bottom');
+    }
+
     if (isEditable) {
       cell.addEventListener('click', () => setActiveCell(cell));
     }
