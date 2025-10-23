@@ -138,6 +138,18 @@ button:active {
   filter: brightness(0.95);
 }
 
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
+}
+
+button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 button[data-active="true"] {
   background: linear-gradient(135deg, #f97316, #fb7185);
   box-shadow: 0 8px 18px rgba(249, 115, 22, 0.35);

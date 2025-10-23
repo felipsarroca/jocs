@@ -94,6 +94,7 @@ export class BoardView {
     if (!cell || cell.classList.contains('given')) return;
     this.clearCellContent(cell);
     cell.classList.remove('note');
+    cell.classList.remove('error', 'correct', 'conflict');
     cell.textContent = value === 0 ? '' : String(value);
     if (value === 0) {
       this.clearNotes(row, col);
@@ -145,11 +146,34 @@ export class BoardView {
     cell.classList.add('correct');
   }
 
+  highlightConflicts(conflictGrid) {
+    for (let row = 0; row < SIZE; row++) {
+      for (let col = 0; col < SIZE; col++) {
+        const cell = this.cells[row][col];
+        if (!cell || cell.classList.contains('given')) continue;
+        if (conflictGrid[row]?.[col]) {
+          cell.classList.add('conflict');
+        } else {
+          cell.classList.remove('conflict');
+        }
+      }
+    }
+  }
+
+  clearConflicts() {
+    for (const row of this.cells) {
+      for (const cell of row) {
+        if (!cell) continue;
+        cell.classList.remove('conflict');
+      }
+    }
+  }
+
   clearFeedback() {
     for (const row of this.cells) {
       for (const cell of row) {
         if (!cell) continue;
-        cell.classList.remove('error', 'correct');
+        cell.classList.remove('error', 'correct', 'conflict');
       }
     }
   }
