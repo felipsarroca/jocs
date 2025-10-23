@@ -1,0 +1,130 @@
+Aquí tens unes **instruccions completes i clares**, dividides en dues parts:
+
+1. ✅ Les característiques actuals de l’aplicació.
+2. 🚀 Les millores que es poden implementar fàcilment per fer-la molt més completa i potent.
+
+---
+
+# 🧩 **1. Característiques actuals de l’aplicació de Sudoku**
+
+### 🏗 Estructura tècnica
+
+* L’aplicació està feta amb **HTML**, **CSS**, **JavaScript** i **JSON** (per configurar textos i nivells).
+* Tot està empaquetat en una estructura clara i lleugera (`index.html`, `styles.css`, `config.json`, `script.js`, `/assets`).
+* No cal cap servidor propi: **funciona localment** obrint `index.html` en qualsevol navegador modern.
+
+### 🧠 Generació de Sudoku
+
+* Fa servir l’API pública [`https://you-do-sudoku-api.vercel.app/api`](https://you-do-sudoku-api.vercel.app/api) per generar automàticament:
+
+  * Un **tauler inicial** amb caselles buides i pistes fixes.
+  * Una **solució única** per poder validar les jugades.
+* No cal implementar generadors ni solvers manualment.
+
+### 🧭 Nivells de dificultat
+
+* Hi ha **3 nivells predefinits**:
+
+  * 🟢 Fàcil
+  * 🟡 Mitjà
+  * 🔴 Difícil
+* L’usuari pot canviar de nivell amb un clic abans de començar una nova partida.
+
+### 🧑‍💻 Interfície d’usuari
+
+* Interfície **colorida i clara**, dissenyada per ser fàcil d’usar per a infants i principiants.
+* Les **caselles amb pistes fixes** estan **sombrejades** i no es poden modificar.
+* Les **caselles editables** tenen fons blanc i permeten introduir números lliurement.
+* Quan es selecciona una casella, queda **ressaltada** visualment.
+
+### 📱 Adaptació a mòbils
+
+* L’aplicació és **responsiva**:
+
+  * La graella s’adapta automàticament a diferents amplades de pantalla.
+  * En mòbil apareix un **teclat numèric** fix a la part inferior (de l’1 al 9 + esborrar).
+* El teclat permet introduir números fàcilment amb un sol dit.
+
+### 📝 Altres detalls visuals i legals
+
+* Inclou peu de pàgina amb **crèdit personalitzat**:
+  *“Aplicació creada per Felip Sarroca amb l’assistència de la IA”*.
+* Inclou icona i enllaç a **llicència Creative Commons BY-NC-SA 4.0**.
+* Tipografia clara i colors agradables per a ús educatiu.
+
+---
+
+# 🚀 **2. Millores que es poden implementar fàcilment**
+
+## 🧠 Lògica i funcionalitats avançades
+
+* **Validació de moviments en temps real**:
+  marcar automàticament conflictes a la fila, columna o caixa quan es posa un número no vàlid.
+* **Botó “Comprova”**: comprova si totes les caselles són correctes segons la solució.
+* **Botó “Pista”**: omple automàticament una casella buida de forma controlada.
+* **Sistema de “pencil marks”** (anotacions):
+  permet escriure candidats petits dins les caselles sense comprometre la resposta.
+
+## 🏆 Experiència de joc millorada
+
+* **Guardar el progrés** de la partida en `localStorage` per poder continuar després.
+* **Desfer i refer** moviments.
+* **Comptador de temps** i nombre d’errors.
+* **Estadístiques personals**: millor temps per nivell, partides jugades, etc.
+* **Modalitat “Repte diari”**: generar un Sudoku diari compartit per tothom.
+
+## 🧭 Nivells i control de dificultat
+
+* Afegir **més nivells intermedis** (per exemple, molt fàcil, expert).
+* Mostrar **etiquetes de dificultat** i explicació (p. ex. “ideal per a principiants”).
+* Possibilitat de **seleccionar una llavor (`seed`)** per repetir un Sudoku concret.
+
+## 🧑‍🏫 Adaptacions educatives
+
+* Mode “infantil” amb **icones o colors** en lloc de números.
+* Explicacions o tutorials interactius (per exemple: “Aquesta casella només pot ser un 7 perquè…”).
+* Sistema de **pistes pedagògiques** i petits reptes progressius per aprendre.
+
+## 📱 Interfície i accessibilitat
+
+* **Ressaltat automàtic** de files i columnes relacionades amb la casella activa.
+* Mode fosc / clar per adaptar-se a diferents llums ambientals.
+* Compatibilitat amb lectors de pantalla i navegació per teclat (accessibilitat A11y).
+* Animacions suaus al seleccionar cel·les i col·locar números.
+
+## 🌐 Internacionalització i personalització
+
+* Afegir **fitxers de traducció JSON** (p. ex. `en.json`, `es.json`, `fr.json`) per tenir la UI en diversos idiomes.
+* Configuració de **colors i tipografia personalitzables** per l’usuari.
+* Possibilitat d’**afegir un logotip o nom de centre educatiu** per personalitzar l’app en entorns escolars.
+
+## 🧮 Més funcionalitats tècniques
+
+* **Verificació d’unicitat** alternativa si mai l’API falla (generador propi de reserva).
+* Implementar una **PWA** (Progressive Web App):
+
+  * per poder instal·lar l’aplicació al mòbil
+  * per jugar **offline** sense connexió.
+* Possibilitat de **descarregar o compartir** el Sudoku com a imatge o PDF.
+
+---
+
+# 🪄 **3. Full de ruta recomanat (de simple a avançat)**
+
+| Etapa             | Millores clau                                              | Objectiu                        |
+| ----------------- | ---------------------------------------------------------- | ------------------------------- |
+| 🟢 **Bàsica**     | Validació, botó “Comprova”, pista, desfer                  | Fer-la més útil en l’aula       |
+| 🟡 **Intermèdia** | Guardat local, temporitzador, estadístiques, mode infantil | Fer-la més completa i educativa |
+| 🔴 **Avançada**   | Repte diari, PWA, idiomes, personalització                 | Fer-la escalable i compartible  |
+
+---
+
+## 🏁 Conclusió
+
+Aquesta aplicació **ja és funcional, lleugera i fàcil d’usar**, i pot ser utilitzada tant per alumnes com per adults.
+Amb unes quantes millores incrementals —moltes d’elles senzilles d’implementar— pot convertir-se en:
+
+* Una eina educativa de gran valor a l’aula,
+* Un joc familiar atractiu,
+* I una aplicació web moderna i personalitzable.
+

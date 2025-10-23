@@ -1,13 +1,28 @@
 {
-  "title": "Sudoku per a nens",
+  "title": "Sudoku",
   "levels": [
-    { "id": "easy", "label": "Fàcil" },
-    { "id": "medium", "label": "Mitjà" },
-    { "id": "hard", "label": "Difícil" }
+    {
+      "id": "easy",
+      "label": "Fàcil",
+      "puzzle": "040907000951836004060410000003198040070000009000043020710329005402500307800670090",
+      "solution": "248957613951836274367412958523198746174265839689743521716329485492581367835674192"
+    },
+    {
+      "id": "medium",
+      "label": "Mitjà",
+      "puzzle": "097800000064001009201590604070003506420050187000278000010760090000030708700905460",
+      "solution": "397846215564321879281597634978413526423659187156278943815764392649132758732985461"
+    },
+    {
+      "id": "hard",
+      "label": "Difícil",
+      "puzzle": "005069004004703009000854023762000030031500090850632401523000000000300210000908307",
+      "solution": "315269784284713569697854123762491835431587692859632471523176948978345216146928357"
+    }
   ],
   "messages": {
-    "win": "Felicitats! Has completat el Sudoku 🎉",
-    "check": "Hi ha errors, revisa les caselles!",
-    "loading": "Generant un nou Sudoku..."
+    "loading": "Carregant nou tauler...",
+    "win": "Felicitats! Has completat el Sudoku!",
+    "check": "Revisa les caselles destacades."
   }
 }
