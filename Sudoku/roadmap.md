@@ -1,37 +1,30 @@
-# Full de ruta Sudoku (felipsarroca.github.io/jocs/Sudoku/)
+# Full de ruta · Sudoku (felipsarroca.github.io/jocs/Sudoku/)
 
 ## Estat actual (23/10/2025)
 - UI compacta amb selector de nivell, teclat tàctil i puzles definits a `config.json`.
-- Subquadrats 3×3 marcats visualment i estètica adaptada a mòbil.
-- Ja incorpora controls de teclat i ressaltat de fila/columna/caixa.
+- Subquadrats 3×3 marcats visualment, controls de teclat complets i ressaltat de fila/columna/caixa.
+- Botons “Nou Sudoku” i “Comprova”, temporitzador i missatges contextuals.
+- Mode notes amb anotacions petites i opció de feedback immediat/clàssic per als conflictes.
 
 ## Millores planificades
 
-1. **Controls de teclat i ressaltat de peers**
-   - Permetre moure’s amb fletxes, escriure números, utilitzar Backspace.
-   - Destacar fila / columna / caixa de la cel·la activa.
+1. **Controls de teclat i ressaltat de peers** ✅\
+   Permetre moure’s amb fletxes, escriure números, utilitzar Backspace i destacar fila/columna/caixa.
 
-2. **Validació bàsica i feedback de partida**
-   - Botó “Comprova” que compari contra la solució.
-   - Opcional: temporitzador i comptador d’errors visibles.
+2. **Validació bàsica i feedback de partida** ✅\
+   Botó “Comprova”, missatges d’estat i temporitzador amb aturada quan es resol el puzle.
 
-3. **Notes i modes de feedback**
-   - Mode “notes” per posar candidats petits.
-   - Configuració per activar/desactivar conflictes immediats.
+3. **Notes i modes de feedback** ✅\
+   Mode notes (pencil marks) amb representació 3×3 i commutador de feedback immediat/clàssic.
 
-4. **Persistència i estadístiques**
-   - Guardar progrés al localStorage (tauler, temps, errors).
-   - Historial de partides resoltes, millor temps per nivell.
+4. **Persistència i estadístiques** ⏳\
+   Guardar progrés al `localStorage`, temps i errors. Historial de partides resoltes i millor temps per nivell.
 
-5. **Catàleg de puzles**
-- Afegir més puzles per nivell i selecció aleatòria.
-- Possibilitat d’importar/compartir un puzle a partir d’un codi.
+5. **Catàleg de puzles** ⏳\
+   Ampliar la llista de puzles per nivell, selecció aleatòria i possibilitat d’importar/compartir un puzle via codi.
 
-## Pendents d’implementació
-- [x] Millora 1: Controls de teclat i ressaltat peers.
-- [ ] Millora 2: Botó Comprova + validació.
-- [ ] Millora 3: Notes i modes feedback.
-- [ ] Millora 4: Guardat i estadístiques.
-- [ ] Millora 5: Catàleg ampli.
+## To-do pendent
+- [ ] Millora 4: Guardat local i estadístiques bàsiques.
+- [ ] Millora 5: Amplia catàleg de puzles i aleatorització.
 
-Aquest document s’actualitzarà a mesura que completem o redefinim els passos.
+*(Document actualitzat automàticament després de cada iteració important.)*
