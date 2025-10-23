@@ -1,0 +1,13 @@
+{
+  "title": "Sudoku per a nens",
+  "levels": [
+    { "id": "easy", "label": "Fàcil" },
+    { "id": "medium", "label": "Mitjà" },
+    { "id": "hard", "label": "Difícil" }
+  ],
+  "messages": {
+    "win": "Felicitats! Has completat el Sudoku 🎉",
+    "check": "Hi ha errors, revisa les caselles!",
+    "loading": "Generant un nou Sudoku..."
+  }
+}

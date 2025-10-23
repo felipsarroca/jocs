@@ -1,0 +1,105 @@
+:root {
+  --color-bg: #fdf7f0;
+  --color-primary: #ff9f43;
+  --color-secondary: #feca57;
+  --color-text: #2d3436;
+  --color-fixed: #ffeaa7;
+  --color-editable: #ffffff;
+  --color-active: #fab1a0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+header {
+  text-align: center;
+  padding: 1rem;
+}
+
+#level-selector button {
+  margin: 0.2rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  font-size: 1rem;
+}
+
+#sudoku-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  max-width: 90vw;
+  margin: 1rem auto;
+  border: 3px solid var(--color-primary);
+}
+
+.cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.4rem;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.cell.fixed {
+  background-color: var(--color-fixed);
+  font-weight: bold;
+}
+
+.cell.editable {
+  background-color: var(--color-editable);
+}
+
+.cell.active {
+  background-color: var(--color-active);
+}
+
+.keypad {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  max-width: 400px;
+  margin: 0 auto;
+  padding-bottom: 1rem;
+}
+
+.keypad button {
+  font-size: 1.2rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--color-secondary);
+  border: none;
+  border-radius: 8px;
+}
+
+footer {
+  text-align: center;
+  margin-top: auto;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.cc-logo {
+  height: 1rem;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  #sudoku-grid {
+    max-width: 95vw;
+  }
+
+  .cell {
+    font-size: 1.2rem;
+  }
+}
