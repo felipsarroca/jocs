@@ -1,0 +1,145 @@
+.board {
+  position: relative;
+  width: min(90vw, 520px);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  background-color: var(--color-surface);
+  border: 4px solid #0c4a6e;
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(1.1rem, 3.8vw, 2rem);
+  font-weight: 600;
+  color: #0f172a;
+  background-color: #ffffff;
+  border: 1px solid rgba(12, 74, 110, 0.1);
+  transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cell[data-block-border-right="true"] {
+  border-right: 3px solid #0c4a6e;
+}
+
+.cell[data-block-border-bottom="true"] {
+  border-bottom: 3px solid #0c4a6e;
+}
+
+.cell.given {
+  background-color: #e0f2fe;
+  color: #082f49;
+  cursor: default;
+}
+
+.cell.note {
+  font-size: clamp(0.55rem, 2.1vw, 0.9rem);
+  font-weight: 500;
+  color: #2563eb;
+  line-height: 1.1;
+}
+
+.cell.active {
+  background-color: #fee2e2;
+  color: #991b1b;
+  box-shadow: inset 0 0 0 3px rgba(248, 113, 113, 0.7);
+}
+
+.cell.peer {
+  background-color: rgba(56, 189, 248, 0.2);
+}
+
+.cell.match {
+  color: #0369a1;
+  background-color: rgba(56, 189, 248, 0.28);
+}
+
+.cell.error {
+  background-color: rgba(254, 202, 202, 0.75);
+  color: #991b1b;
+}
+
+.cell.conflict {
+  background-color: rgba(248, 113, 113, 0.3);
+  color: #be123c;
+}
+
+.cell.correct {
+  background-color: rgba(187, 247, 208, 0.7);
+  color: #166534;
+}
+
+.notes {
+  position: absolute;
+  inset: 0;
+  padding: 0.3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 0.1rem;
+  font-size: clamp(0.45rem, 1.8vw, 0.8rem);
+  color: #0284c7;
+  font-weight: 500;
+  text-align: center;
+}
+
+.notes span {
+  display: block;
+  opacity: 0.8;
+}
+
+.keypad {
+  width: min(90vw, 520px);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.75rem;
+}
+
+.keypad button {
+  border-radius: 1rem;
+  padding: 0.75rem 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #f97316, #fb7185);
+  box-shadow: 0 6px 18px rgba(251, 113, 133, 0.3);
+}
+
+.keypad button.keypad-action {
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  box-shadow: 0 6px 18px rgba(34, 197, 94, 0.3);
+}
+
+.keypad button:focus-visible,
+.cell:focus-visible {
+  outline: 3px solid rgba(56, 189, 248, 0.45);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .keypad {
+    position: sticky;
+    bottom: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    padding: 0.75rem;
+  }
+}

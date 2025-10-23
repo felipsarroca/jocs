@@ -4,6 +4,7 @@
   "description": "Sudoku acolorit amb generador amb unicitat garantida.",
   "type": "module",
   "scripts": {
-    "test:generator": "node ./scripts/test-generator.mjs"
+    "test:generator": "node ./scripts/test-generator.mjs",
+    "build:pages": "node ./scripts/build-pages.mjs"
   }
 }
