@@ -237,6 +237,37 @@ main {
   box-shadow: 0 4px 0 #5b6bd6, 0 10px 20px rgba(0,0,0,0.15);
 }
 
+/* Color-coded buttons */
+#new-game-btn.btn-3d {
+  background: linear-gradient(180deg, #ffb167 0%, #ff8a3d 100%);
+  box-shadow: 0 4px 0 #e27022, 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#check-btn.btn-3d {
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 4px 0 #0e8f68, 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#hint-btn.btn-3d {
+  background: linear-gradient(180deg, #c084fc 0%, #a78bfa 100%);
+  box-shadow: 0 4px 0 #7c5bd6, 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#notes-btn.btn-3d {
+  background: linear-gradient(180deg, #93c5fd 0%, #60a5fa 100%);
+  box-shadow: 0 4px 0 #3b82f6, 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#feedback-btn.btn-3d {
+  background: linear-gradient(180deg, #a5b4fc 0%, #818cf8 100%);
+  box-shadow: 0 4px 0 #6366f1, 0 10px 20px rgba(0,0,0,0.15);
+}
+
+#theme-btn.btn-3d {
+  background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 100%);
+  box-shadow: 0 4px 0 #0b7db4, 0 10px 20px rgba(0,0,0,0.15);
+}
+
 .actions #status-message {
   grid-column: 1 / -1;
   text-align: center;
