@@ -33,7 +33,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    padding: 1rem 1rem 6rem; /* Extra padding at bottom for fixed footer */
+    padding: 1rem; /* Reduced padding since footer is no longer fixed */
     overflow-x: hidden;
     position: relative;
     background-attachment: fixed;
@@ -116,6 +116,7 @@ body::before {
     border: 2px solid transparent;
     transition: all 0.3s ease;
     font-weight: 500;
+    box-sizing: border-box;
 }
 
 #name-input:focus {
@@ -374,7 +375,7 @@ body::before {
 .level-label {
     font-size: 0.9rem; /* Reduced from 1.125rem */
     color: var(--text-secondary);
-    margin-bottom: 0.05rem; /* Further reduced to bring closer to level number */
+    margin-bottom: 0; /* Remove space completely to bring closer to level number */
     font-weight: 500;
 }
 
@@ -475,25 +476,25 @@ body::before {
 }
 
 footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    position: static; /* No longer fixed to bottom */
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.5rem 0;
     color: var(--text-secondary);
     background: var(--primary-bg-color);
     border-top: 1px solid rgba(245, 158, 11, 0.1);
     z-index: 10;
     display: flex;
-    justify-content: center; /* Center the container like the game content */
+    justify-content: flex-start; /* Left align instead of center */
+    margin-top: 1.5rem; /* Space above the footer */
+    padding-left: 1.5rem; /* Position it slightly to the right */
 }
 
 footer .footer-content {
     width: 100%;
     max-width: 500px; /* Same max-width as #game-content */
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: flex-start; /* Align to top of container */
+    gap: 0.7rem; /* Adjusted gap */
     font-size: 0.6rem; /* Made smaller */
     padding: 0.25rem 0;
 }

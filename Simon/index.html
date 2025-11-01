@@ -14,7 +14,7 @@
     <div id="name-modal">
         <div class="modal-content">
             <h2>Com et dius?</h2>
-            <input type="text" id="name-input" placeholder="Escriu el teu nom" maxlength="15">
+            <input type="text" id="name-input" placeholder="Escriu el teu nom" maxlength="30">
             <div class="remember-me">
                 <input type="checkbox" id="remember-checkbox">
                 <label for="remember-checkbox">Recorda'm en aquest dispositiu</label>
@@ -39,14 +39,6 @@
             </div>
         </div>
         
-        <div class="license-info">
-            <img src="CC_BY-NC-SA.svg" alt="Llicència Creative Commons">
-            <div class="license-text">
-                <p>Joc creat per Felip Sarroca amb l'assistència de la IA</p>
-                <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank">CC BY-NC-SA 4.0</a></p>
-            </div>
-        </div>
-        
         <div class="controls">
             <button id="start-button">Inicia</button>
             <button id="ranking-button">🏆 Rànquing</button>
@@ -54,7 +46,13 @@
     </div>
 
     <footer>
-        <!-- Footer now only contains what's necessary, license moved above buttons -->
+        <div class="footer-content">
+            <img src="CC_BY-NC-SA.svg" alt="Llicència Creative Commons">
+            <div class="footer-text">
+                <p>Joc creat per Felip Sarroca amb l'assistència de la IA</p>
+                <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank">CC BY-NC-SA 4.0</a></p>
+            </div>
+        </div>
     </footer>
 
     <script src="app.js"></script>
