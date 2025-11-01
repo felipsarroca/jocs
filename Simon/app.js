@@ -31,34 +31,93 @@ let gameState = 'waiting';
 let playerName = '';
 let bestScore = 0;
 
-function initializeNameEntry() {
-    const savedName = localStorage.getItem('simonPlayerName');
-    if (savedName) {
-        playerName = savedName;
-        bestScore = localStorage.getItem('simonBestScore') || 0;
+    function initializeNameEntry() {
 
-        nameModal.classList.add('hidden');
-        gameContent.classList.remove('hidden');
-    } else {
-        nameModal.classList.remove('hidden');
-    }
+        const savedName = localStorage.getItem('simonPlayerName');
 
-            submitNameButton.addEventListener('click', () => {
-                nameModal.classList.toggle('hidden');
-                gameContent.classList.toggle('hidden');
-            });
-    
-            submitNameButton.addEventListener('touchstart', () => {
-                nameModal.classList.toggle('hidden');
-                gameContent.classList.toggle('hidden');
-            });
-    nameInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-            submitNameButton.click();
+        if (savedName) {
+
+            playerName = savedName;
+
+            bestScore = localStorage.getItem('simonBestScore') || 0;
+
+
+
+            nameModal.classList.add('hidden');
+
+            gameContent.classList.remove('hidden');
+
+        } else {
+
+            nameModal.classList.remove('hidden');
+
+            gameContent.classList.add('hidden');
+
         }
-    });
-    nameInput.focus();
-}
+
+
+
+        submitNameButton.addEventListener('click', () => {
+
+            const name = nameInput.value.trim();
+
+            if (name) {
+
+                playerName = name;
+
+                if (rememberCheckbox.checked) {
+
+                    localStorage.setItem('simonPlayerName', playerName);
+
+                }
+
+                nameModal.classList.add('hidden');
+
+                gameContent.classList.remove('hidden');
+
+            }
+
+        });
+
+
+
+        submitNameButton.addEventListener('touchstart', () => {
+
+            const name = nameInput.value.trim();
+
+            if (name) {
+
+                playerName = name;
+
+                if (rememberCheckbox.checked) {
+
+                    localStorage.setItem('simonPlayerName', playerName);
+
+                }
+
+                nameModal.classList.add('hidden');
+
+                gameContent.classList.remove('hidden');
+
+            }
+
+        });
+
+
+
+        nameInput.addEventListener('keyup', (event) => {
+
+            if (event.key === 'Enter') {
+
+                submitNameButton.click();
+
+            }
+
+        });
+
+        nameInput.focus();
+
+    }
 
 function playSound(color) {
     if (Tone.context.state !== 'running') {
