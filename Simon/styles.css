@@ -33,7 +33,7 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    padding: 1rem;
+    padding: 1rem 1rem 6rem; /* Extra padding at bottom for fixed footer */
     overflow-x: hidden;
     position: relative;
     background-attachment: fixed;
@@ -210,25 +210,25 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 320px;
-    height: 320px;
-    margin: 0 auto 2rem;
+    max-width: 400px;
+    height: 400px;
+    margin: 2rem auto;
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(245, 158, 11, 0.2);
     background: rgba(15, 23, 42, 0.5);
+    padding: 1rem;
 }
 
 .simon-button {
     position: absolute;
-    width: 50%;
-    height: 50%;
+    width: calc(50% - 3px); /* Account for borders */
+    height: calc(50% - 3px); /* Account for borders */
     cursor: pointer;
-    border: 6px solid var(--border-color);
+    border: 3px solid var(--border-color);
     transition: all 0.15s ease;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-    border-width: 3px;
 }
 
 .simon-button:active {
@@ -241,6 +241,8 @@ body::before {
     background-color: var(--green);
     border-top-left-radius: 100%;
     z-index: 1;
+    border-right: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
 }
 
 #green.lit {
@@ -255,6 +257,8 @@ body::before {
     background-color: var(--red);
     border-top-right-radius: 100%;
     z-index: 2;
+    border-left: 2px solid var(--border-color);
+    border-bottom: 2px solid var(--border-color);
 }
 
 #red.lit {
@@ -269,6 +273,8 @@ body::before {
     background-color: var(--yellow);
     border-bottom-left-radius: 100%;
     z-index: 3;
+    border-right: 2px solid var(--border-color);
+    border-top: 2px solid var(--border-color);
 }
 
 #yellow.lit {
@@ -283,6 +289,8 @@ body::before {
     background-color: var(--blue);
     border-bottom-right-radius: 100%;
     z-index: 4;
+    border-left: 2px solid var(--border-color);
+    border-top: 2px solid var(--border-color);
 }
 
 #blue.lit {
@@ -370,29 +378,46 @@ body::before {
 }
 
 footer {
-    position: relative;
-    margin-top: auto;
-    padding: 1.5rem;
-    text-align: center;
-    font-size: 0.875rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.75rem 1.5rem;
     color: var(--text-secondary);
     width: 100%;
-    max-width: 500px;
+    background: var(--primary-bg-color);
+    border-top: 1px solid rgba(245, 158, 11, 0.1);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 footer img {
-    height: 1.75rem;
-    margin-bottom: 0.5rem;
-    filter: brightness(0.8);
+    height: 1.5rem;
+    flex-shrink: 0;
 }
 
-footer a {
+footer .footer-content {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    margin-right: auto;
+}
+
+footer .footer-content p {
+    margin: 0;
+}
+
+footer .footer-content a {
     color: var(--accent-color);
     text-decoration: none;
     font-weight: 500;
+    display: inline;
 }
 
-footer a:hover {
+footer .footer-content a:hover {
     text-decoration: underline;
 }
 
@@ -428,50 +453,105 @@ footer a:hover {
     font-size: 1.75rem;
 }
 
+#ranking-modal .modal-content .ranking-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+#ranking-modal .modal-content .ranking-columns {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    background: rgba(31, 41, 55, 0.7);
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
 #ranking-modal .modal-content ol {
     list-style-type: none;
     padding-left: 0;
     text-align: left;
     max-height: 300px;
     overflow-y: auto;
-    margin: 1.5rem 0;
+    margin: 0;
     padding-right: 1rem;
-}
-
-#ranking-modal .modal-content ol.ranking-list {
     counter-reset: ranking-counter;
 }
 
 #ranking-modal .modal-content ol.ranking-list li {
     counter-increment: ranking-counter;
     position: relative;
-    padding-left: 2rem;
     margin-bottom: 0.75rem;
-    padding: 0.75rem;
+    padding: 0.8rem 1rem;
     background: rgba(31, 41, 55, 0.5);
     border-radius: 0.75rem;
     font-size: 1.1rem;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     transition: transform 0.2s ease;
+    min-height: 2.5rem;
+}
+
+#ranking-modal .modal-content ol.ranking-list li.top-player {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+    border-left: 3px solid var(--accent-color);
+}
+
+#ranking-modal .modal-content ol.ranking-list li.top-player:first-child {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.1) 100%);
+}
+
+#ranking-modal .modal-content ol.ranking-list li.current-player {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border-left: 3px solid #3b82f6;
+    font-weight: bold;
+}
+
+#ranking-modal .modal-content ol.ranking-list li.no-scores {
+    justify-content: center;
+    text-align: center;
+}
+
+#ranking-modal .modal-content ol.ranking-list li .player-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#ranking-modal .modal-content ol.ranking-list li .player-score {
+    background: var(--secondary-bg);
+    color: var(--accent-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    min-width: 3rem;
+    text-align: center;
+    font-weight: bold;
 }
 
 #ranking-modal .modal-content ol.ranking-list li::before {
     content: counter(ranking-counter);
-    position: absolute;
-    left: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
     background: var(--accent-color);
     color: var(--primary-bg-color);
-    width: 2rem;
-    height: 2rem;
+    width: 1.8rem;
+    height: 1.8rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+#ranking-modal .modal-content ol.ranking-list li.top-player::before {
+    background: var(--accent-color);
+    color: var(--primary-bg-color);
 }
 
 /* Scrollbar styling */

@@ -35,21 +35,18 @@ let bestScore = 0;
     const savedName = localStorage.getItem('simonPlayerName');
     const rememberPreference = localStorage.getItem('rememberPreference') === 'true';
 
+    // Always show the name modal at the beginning
+    nameModal.classList.remove('hidden');
+    gameContent.classList.add('hidden');
+    
+    // Pre-fill with saved name if available
     if (savedName) {
-        playerName = savedName;
-        bestScore = localStorage.getItem('simonBestScore') || 0;
         nameInput.value = savedName;
         rememberCheckbox.checked = rememberPreference;
         
-        nameModal.classList.add('hidden');
-        gameContent.classList.remove('hidden');
-        
-        // Keep the game title as "Simon" always
-        gameTitleEl.textContent = 'Simon';
-    } else {
-        nameModal.classList.remove('hidden');
-        gameContent.classList.add('hidden');
-        setTimeout(() => nameInput.focus(), 100); // Slight delay to ensure modal is visible
+        // Set player name for later use
+        playerName = savedName;
+        bestScore = localStorage.getItem('simonBestScore') || 0;
     }
 
     // Submit name via button click
@@ -91,6 +88,9 @@ let bestScore = 0;
             }, 2000);
         }
     }
+    
+    // Focus the input field when modal appears
+    setTimeout(() => nameInput.focus(), 100); // Slight delay to ensure modal is visible
 }
 
 function playSound(color) {
@@ -327,21 +327,26 @@ function showRanking() {
             // Sort ranking by score descending
             ranking.sort((a, b) => b.score - a.score);
             
-            let rankingContent = '<h2>🏆 Rànquing Global</h2><ol class="ranking-list">';
+            let rankingContent = '<div class="ranking-header"><h2>🏆 Rànquing Global</h2><div class="ranking-columns"><span>Jugador</span><span>Nivell</span></div></div><ol class="ranking-list">';
             if (ranking.length > 0) {
                 ranking.slice(0, 10).forEach((player, index) => {
                     // Highlight current player if in ranking
                     const isCurrentPlayer = player.name === playerName;
-                    const playerClass = isCurrentPlayer ? ' class="current-player"' : '';
+                    const playerClass = isCurrentPlayer ? ' current-player' : '';
+                    
                     // Add medal icons for top 3
                     let medal = '';
                     if (index === 0) medal = '🥇';
                     else if (index === 1) medal = '🥈';
                     else if (index === 2) medal = '🥉';
-                    rankingContent += `<li${playerClass}>${medal} ${player.name}: ${player.score}</li>`;
+                    
+                    // Add special class for top 3
+                    const topClass = index < 3 ? ' top-player' : '';
+                    
+                    rankingContent += `<li class="${playerClass}${topClass}">${medal} <span class="player-name">${player.name}</span><span class="player-score">${player.score}</span></li>`;
                 });
             } else {
-                rankingContent += '<li>No hi ha puntuacions encara</li>';
+                rankingContent += '<li class="no-scores">No hi ha puntuacions encara</li>';
             }
             rankingContent += '</ol>';
             
