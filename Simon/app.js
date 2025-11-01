@@ -47,11 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         submitNameButton.addEventListener('click', () => {
+            alert('Botó Comença clicat!');
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
         });
 
         submitNameButton.addEventListener('touchstart', () => {
+            alert('Botó Comença tocat!');
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
         });
