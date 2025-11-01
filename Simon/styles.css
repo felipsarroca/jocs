@@ -818,3 +818,33 @@ footer {
         min-width: 180px;
     }
 }
+
+/* Mobile device specific styles - larger elements for better touch interaction */
+body.mobile-device .simon-container {
+    width: 100%;
+    max-width: 320px; /* Larger for mobile */
+    height: 320px;    /* Larger for mobile */
+    padding: 2.5rem;  /* Adjusted padding */
+}
+
+body.mobile-device #game-title {
+    font-size: 4.8rem; /* Larger title for mobile */
+}
+
+body.mobile-device .center-circle {
+    width: 32%; /* Slightly larger center circle for better visibility */
+    height: 32%;
+}
+
+body.mobile-device .level-label {
+    font-size: 1.1rem; /* Slightly larger text in center */
+}
+
+body.mobile-device #level {
+    font-size: 3.8rem; /* Larger level number for better visibility */
+}
+
+body.mobile-device .controls {
+    margin-top: 2rem; /* Ensure adequate spacing on mobile */
+    gap: 1.5rem;
+}

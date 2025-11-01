@@ -48,6 +48,17 @@ function clearSequenceTimer() {
   }
 }
 
+// --- Mobile detection ---
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+         window.innerWidth <= 768; // Or check for touch capability
+}
+
+// Add mobile class to body if on mobile device
+if (isMobile()) {
+  document.body.classList.add('mobile-device');
+}
+
 // --- Gestió de puntuacions locals per jugador ---
 function getAllScores() {
   try {
