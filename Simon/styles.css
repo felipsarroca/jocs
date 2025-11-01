@@ -264,8 +264,8 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 299px; /* Additional 15% smaller (352 * 0.85) */
-    height: 299px;   /* Additional 15% smaller (352 * 0.85) */
+    max-width: 329px; /* +10% respecte als 299px */
+    height: 329px;    /* +10% respecte als 299px */
     margin: 0.5rem auto; /* Reduced margin to bring closer to title */
     border-radius: 16px;
     overflow: hidden;
