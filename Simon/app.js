@@ -137,13 +137,12 @@ function nextTurn() {
 
 function startGame() {
     if (gameState === 'showing') return;
-
+    
     level = 1;
     sequence = [];
     gameState = 'waiting';
-    startButton.textContent = 'Inicia';  // Set button text like in the model
+    startButton.textContent = 'Inicia';
     messageEl.textContent = "Concentra't...";
-    levelEl.textContent = level;
 
     setTimeout(nextTurn, 1000);
 }
@@ -168,10 +167,14 @@ function handlePlayerInput(color) {
 
 function endGame() {
     gameState = 'gameover';
-    
-    document.body.classList.add('game-over');
-    setTimeout(() => document.body.classList.remove('game-over'), 500);
+    messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
+    // Pequeña animación de error
+    document.body.classList.add('bg-red-900');
+    setTimeout(() => document.body.classList.remove('bg-red-900'), 500);
 
+    startButton.disabled = false;
+    startButton.textContent = 'Torna a Jugar';
+    
     // Check if it's a personal best
     if (level > bestScore) {
         bestScore = level;
@@ -180,10 +183,6 @@ function endGame() {
         
         // Ask user if they want to send their score
         showSendScoreDialog();
-    } else {
-        messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
-        startButton.disabled = false;
-        startButton.textContent = 'Torna a Jugar';
     }
 }
 
