@@ -94,6 +94,7 @@ let bestScore = 0;
 }
 
 function playSound(color) {
+    // Asegurarse de que el contexto de audio se inicie con un gesto del usuario
     if (Tone.context.state !== 'running') {
         Tone.context.resume();
     }
@@ -113,7 +114,7 @@ function showSequence() {
     gameState = 'showing';
     messageEl.textContent = 'Memoritza la seqüència...';
     startButton.disabled = true;
-
+    
     let i = 0;
     const interval = setInterval(() => {
         lightUpButton(sequence[i]);
@@ -123,7 +124,6 @@ function showSequence() {
             gameState = 'playing';
             playerSequenceIndex = 0;
             messageEl.textContent = 'El teu torn!';
-            startButton.disabled = false; // Allow player to click after sequence
         }
     }, 700);
 }
@@ -140,21 +140,21 @@ function startGame() {
     
     level = 1;
     sequence = [];
-    playerSequenceIndex = 0;
     gameState = 'waiting';
     startButton.textContent = 'Inicia';
-    messageEl.textContent = "Concentra't...";
+    messageEl.textContent = 'Concentra\'t...';
 
     setTimeout(nextTurn, 1000);
 }
 
 function handlePlayerInput(color) {
     if (gameState !== 'playing') return;
-
+    
     lightUpButton(color);
 
     if (color === sequence[playerSequenceIndex]) {
         playerSequenceIndex++;
+        // Si el jugador ha completado la secuencia del nivel
         if (playerSequenceIndex >= sequence.length) {
             messageEl.textContent = 'Correcte!';
             level++;
@@ -175,8 +175,8 @@ function endGame() {
 
     startButton.disabled = false;
     startButton.textContent = 'Torna a Jugar';
-    
-    // Check if it's a personal best
+
+    // Check if it's a personal best (logic merged from original app.js)
     if (level > bestScore) {
         bestScore = level;
         localStorage.setItem('simonBestScore', bestScore);
@@ -456,6 +456,10 @@ rankingButton.addEventListener('click', () => {
 
 // Add keyboard support for accessibility
 document.addEventListener('keydown', (e) => {
+    // Prevent keyboard actions if the name modal is visible
+    if (!nameModal.classList.contains('hidden')) {
+        return;
+    }
     switch(e.key.toLowerCase()) {
         case 'q':
         case 'a':
