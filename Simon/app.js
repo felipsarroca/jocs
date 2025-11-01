@@ -30,6 +30,7 @@ let playerSequenceIndex = 0;
 let gameState = 'waiting';
 let playerName = '';
 let bestScore = 0;
+let sequenceInterval = null;  // Variable to store the sequence interval
 
     function initializeNameEntry() {
     const savedName = localStorage.getItem('simonPlayerName');
@@ -110,16 +111,23 @@ function lightUpButton(color) {
 }
 
 function showSequence() {
+    // Clear any existing interval to prevent multiple intervals running
+    if (sequenceInterval) {
+        clearInterval(sequenceInterval);
+        sequenceInterval = null;
+    }
+    
     gameState = 'showing';
     messageEl.textContent = 'Memoritza la seqüència...';
     startButton.disabled = true;
 
     let i = 0;
-    const interval = setInterval(() => {
+    sequenceInterval = setInterval(() => {
         lightUpButton(sequence[i]);
         i++;
         if (i >= sequence.length) {
-            clearInterval(interval);
+            clearInterval(sequenceInterval);
+            sequenceInterval = null;
             gameState = 'playing';
             playerSequenceIndex = 0;
             messageEl.textContent = 'El teu torn!';
@@ -129,6 +137,12 @@ function showSequence() {
 }
 
 function nextTurn() {
+    // Make sure we're in the right state and clear any existing interval
+    if (sequenceInterval) {
+        clearInterval(sequenceInterval);
+        sequenceInterval = null;
+    }
+    
     levelEl.textContent = level;
     const randomColor = colors[Math.floor(Math.random() * colors.length)];
     sequence.push(randomColor);
@@ -138,8 +152,15 @@ function nextTurn() {
 function startGame() {
     if (gameState === 'showing') return;
     
+    // Clear any existing interval when starting a new game
+    if (sequenceInterval) {
+        clearInterval(sequenceInterval);
+        sequenceInterval = null;
+    }
+    
     level = 1;
     sequence = [];
+    playerSequenceIndex = 0;  // Reset player sequence index as well
     gameState = 'waiting';
     startButton.textContent = 'Inicia';
     messageEl.textContent = "Concentra't...";
@@ -155,6 +176,12 @@ function handlePlayerInput(color) {
     if (color === sequence[playerSequenceIndex]) {
         playerSequenceIndex++;
         if (playerSequenceIndex >= sequence.length) {
+            // Clear any potential interval before going to next turn
+            if (sequenceInterval) {
+                clearInterval(sequenceInterval);
+                sequenceInterval = null;
+            }
+            
             messageEl.textContent = 'Correcte!';
             level++;
             gameState = 'waiting';
@@ -166,6 +193,12 @@ function handlePlayerInput(color) {
 }
 
 function endGame() {
+    // Clear any existing interval to prevent further sequence display
+    if (sequenceInterval) {
+        clearInterval(sequenceInterval);
+        sequenceInterval = null;
+    }
+    
     gameState = 'gameover';
     messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
     // Pequeña animación de error
