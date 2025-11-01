@@ -202,7 +202,7 @@ body::before {
     font-size: 4.25rem; /* 15% smaller than 5rem */
     font-weight: 800;
     color: var(--accent-color);
-    margin: 0 0 0.25rem 0; /* Further reduced margin */
+    margin: 0 0 0.1rem 0; /* Further reduced margin */
     text-shadow: 
         0 1px 0 #ccc, 
         0 2px 0 #c9c9c9,
@@ -374,7 +374,7 @@ body::before {
 .level-label {
     font-size: 0.9rem; /* Reduced from 1.125rem */
     color: var(--text-secondary);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.1rem; /* Reduced to bring closer to level number */
     font-weight: 500;
 }
 
@@ -448,24 +448,31 @@ footer .footer-content {
     width: 100%;
     max-width: 500px; /* Same max-width as #game-content */
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    align-items: flex-start; /* Align to top of container */
+    gap: 0.7rem; /* Adjusted gap */
     font-size: 0.6rem; /* Made smaller */
     padding: 0.25rem 0;
 }
 
 footer img {
-    height: 1rem; /* Made smaller */
+    height: 1.3rem; /* 30% larger than previous 1rem */
+    margin-top: 0.1rem; /* Small adjustment for alignment */
 }
 
 footer .footer-text {
     display: flex;
     flex-direction: column;
     line-height: 1.1;
+    flex: 1; /* Take remaining space */
 }
 
 footer .footer-text p {
     margin: 0;
+    margin-bottom: 0.1rem; /* Small gap between lines */
+}
+
+footer .footer-text p:last-child {
+    margin-bottom: 0;
 }
 
 footer .footer-text a {
