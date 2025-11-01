@@ -320,6 +320,22 @@ body::before {
     font-weight: 700;
 }
 
+.level-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: -0.2rem;
+    font-weight: 500;
+}
+
+#level {
+    font-weight: 700;
+    font-size: 2.8rem;
+    color: var(--accent-color);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    top: -0.1rem;
+}
+
 .simon-button {
     position: absolute;
     width: calc(50% - 3px); /* Account for borders */
