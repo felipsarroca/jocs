@@ -264,8 +264,8 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 329px; /* +10% respecte a l'original */
-    height: 329px;
+    max-width: 329px;
+    aspect-ratio: 1 / 1; /* 👈 Evita que es deformi */
     margin: 0.5rem auto;
     border-radius: 16px;
     background: rgba(15, 23, 42, 0.5);
