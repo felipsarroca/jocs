@@ -1,6 +1,9 @@
 'use strict';
 
+console.log('app.js loaded');
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired');
     const nameModal = document.getElementById('name-modal');
     const nameInput = document.getElementById('name-input');
     const rememberCheckbox = document.getElementById('remember-checkbox');
