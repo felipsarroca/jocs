@@ -120,10 +120,13 @@ function showSequence() {
         i++;
         if (i >= sequence.length) {
             clearInterval(interval);
-            gameState = 'playing';
-            playerSequenceIndex = 0;
-            messageEl.textContent = 'El teu torn!';
-            startButton.disabled = false; // Enable the button after showing the sequence
+            // Wait a bit after the last color before allowing player input
+            setTimeout(() => {
+                gameState = 'playing';
+                playerSequenceIndex = 0;
+                messageEl.textContent = 'El teu torn!';
+                startButton.disabled = false; // Enable the button after showing the sequence
+            }, 700);
         }
     }, 700);
 }
