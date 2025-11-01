@@ -494,13 +494,13 @@ footer {
 }
 
 .license-inline img {
-    height: 1.2rem;
+    height: 1.44rem; /* 20% larger than 1.2rem */
 }
 
 .license-inline-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    line-height: 1.0; /* Reduced line spacing */
 }
 
 .license-inline-text a {
