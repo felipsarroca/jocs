@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (savedName) {
             playerName = savedName;
             bestScore = localStorage.getItem('simonBestScore') || 0;
-            gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORS`;
+
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
         } else {
@@ -47,41 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         submitNameButton.addEventListener('click', () => {
-            console.log('Submit name button clicked');
-            const name = nameInput.value.trim();
-            if (name) {
-                playerName = name;
-                if (rememberCheckbox.checked) {
-                    localStorage.setItem('simonPlayerName', playerName);
-                }
-                gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORS`;
-                nameModal.classList.add('hidden');
-                gameContent.classList.remove('hidden');
-            } else {
-                nameInput.placeholder = "Per favor, escriu un nom!";
-                setTimeout(() => {
-                    nameInput.placeholder = "Escriu el teu nom";
-                }, 2000);
-            }
+            nameModal.classList.add('hidden');
+            gameContent.classList.remove('hidden');
         });
 
         submitNameButton.addEventListener('touchstart', () => {
-            console.log('Submit name button touched');
-            const name = nameInput.value.trim();
-            if (name) {
-                playerName = name;
-                if (rememberCheckbox.checked) {
-                    localStorage.setItem('simonPlayerName', playerName);
-                }
-                gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORS`;
-                nameModal.classList.add('hidden');
-                gameContent.classList.remove('hidden');
-            } else {
-                nameInput.placeholder = "Per favor, escriu un nom!";
-                setTimeout(() => {
-                    nameInput.placeholder = "Escriu el teu nom";
-                }, 2000);
-            }
+            nameModal.classList.add('hidden');
+            gameContent.classList.remove('hidden');
         });
 
         nameInput.addEventListener('keyup', (event) => {
