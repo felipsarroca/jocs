@@ -1,3 +1,5 @@
+'use strict';
+
 document.addEventListener('DOMContentLoaded', () => {
     const nameModal = document.getElementById('name-modal');
     const nameInput = document.getElementById('name-input');
@@ -45,6 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         submitNameButton.addEventListener('click', () => {
+            console.log('Submit name button clicked');
+            const name = nameInput.value.trim();
+            if (name) {
+                playerName = name;
+                if (rememberCheckbox.checked) {
+                    localStorage.setItem('simonPlayerName', playerName);
+                }
+                gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORS`;
+                nameModal.classList.add('hidden');
+                gameContent.classList.remove('hidden');
+            } else {
+                nameInput.placeholder = "Per favor, escriu un nom!";
+                setTimeout(() => {
+                    nameInput.placeholder = "Escriu el teu nom";
+                }, 2000);
+            }
+        });
+
+        submitNameButton.addEventListener('touchstart', () => {
+            console.log('Submit name button touched');
             const name = nameInput.value.trim();
             if (name) {
                 playerName = name;
@@ -118,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sequence = [];
         gameState = 'waiting';
         startButton.textContent = 'Inicia';
-        messageEl.textContent = 'Concentra't...';
+        messageEl.textContent = "Concentra't...";
 
         setTimeout(nextTurn, 1000);
     }
@@ -157,14 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
         startButton.textContent = 'Torna a Jugar';
     }
 
-    startButton.addEventListener('click', startGame);
-
-    Object.values(colorButtons).forEach(button => {
-        button.addEventListener('click', () => {
-            handlePlayerInput(button.dataset.color);
-        });
-    });
-
     function sendScore(name, score) {
         fetch('https://script.google.com/macros/s/AKfycbyTnaRWXneulJ2E3w2t_lx7GDslA_2NtN9-o4cR6WUal3m9q3op8KNf-FtQIoAOV_wbFg/exec', {
             method: 'POST',
@@ -195,6 +209,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
     }
+
+    startButton.addEventListener('click', startGame);
+
+    Object.values(colorButtons).forEach(button => {
+        button.addEventListener('click', () => {
+            handlePlayerInput(button.dataset.color);
+        });
+        button.addEventListener('touchstart', () => {
+            handlePlayerInput(button.dataset.color);
+        });
+    });
 
     rankingButton.addEventListener('click', showRanking);
 
