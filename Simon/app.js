@@ -306,9 +306,6 @@ function showRanking() {
       let html = `
         <div class="ranking-header">
           <h2>🏆 Rànquing global</h2>
-          <div class="ranking-columns">
-            <span class="col-player">Jugador</span><span class="col-score">Nivell</span>
-          </div>
         </div>
         <ol class="ranking-list">
       `;

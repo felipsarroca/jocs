@@ -263,15 +263,15 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 440px; /* 10% bigger (400 + 10%) */
-    height: 440px;   /* 10% bigger (400 + 10%) */
+    max-width: 352px; /* 20% smaller (440 * 0.8) */
+    height: 352px;   /* 20% smaller (440 * 0.8) */
     margin: 1rem auto; /* Reduced margin to bring closer to title */
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(245, 158, 11, 0.2);
     background: rgba(15, 23, 42, 0.5);
-    padding: 3rem; /* Keep padding for space between square and circle */
+    padding: 2.4rem; /* 20% smaller than 3rem for proportionate spacing */
 }
 
 .simon-button {
@@ -357,8 +357,8 @@ body::before {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 30%; /* Made smaller to increase distance from square */
-    height: 30%; /* Made smaller to increase distance from square */
+    width: 24%; /* 20% smaller (30% * 0.8) */
+    height: 24%; /* 20% smaller (30% * 0.8) */
     background: linear-gradient(145deg, var(--secondary-bg) 0%, #0f172a 100%);
     border-radius: 50%;
     display: flex;
@@ -728,8 +728,8 @@ footer .footer-content a:hover {
     
     .simon-container {
         width: 100%;
-        max-width: 280px;
-        height: 280px;
+        max-width: 224px; /* 20% smaller (280 * 0.8) */
+        height: 224px;   /* 20% smaller (280 * 0.8) */
     }
     
     #level {
@@ -756,8 +756,8 @@ footer .footer-content a:hover {
 @media (max-width: 480px) {
     .simon-container {
         width: 100%;
-        max-width: 240px;
-        height: 240px;
+        max-width: 192px; /* 20% smaller (240 * 0.8) */
+        height: 192px;   /* 20% smaller (240 * 0.8) */
     }
     
     #game-title {
