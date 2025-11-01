@@ -500,7 +500,11 @@ footer {
 .license-inline-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.0; /* Reduced line spacing */
+    line-height: 1.0;
+}
+
+.license-inline-text p {
+    margin: 0; /* Remove default margins to ensure no space between phrases */
 }
 
 .license-inline-text a {
