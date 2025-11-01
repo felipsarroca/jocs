@@ -48,6 +48,26 @@ function clearSequenceTimer() {
   }
 }
 
+// --- Gestió de puntuacions locals per jugador ---
+function getAllScores() {
+  try {
+    return JSON.parse(localStorage.getItem('simonScores')) || {};
+  } catch {
+    return {};
+  }
+}
+
+function getBestScore(name) {
+  const scores = getAllScores();
+  return scores[name] || 0;
+}
+
+function setBestScore(name, score) {
+  const scores = getAllScores();
+  scores[name] = score;
+  localStorage.setItem('simonScores', JSON.stringify(scores));
+}
+
 // --- Entrada del nom i preferències ---
 function initializeNameEntry() {
   const savedName = localStorage.getItem('simonPlayerName');
@@ -61,7 +81,7 @@ function initializeNameEntry() {
     nameInput.value = savedName;
     rememberCheckbox.checked = rememberPreference;
     playerName = savedName;
-    bestScore = Number(localStorage.getItem('simonBestScore') || 0);
+    bestScore = getBestScore(playerName);
   }
 
   submitNameButton.addEventListener('click', submitName);
@@ -93,7 +113,7 @@ function initializeNameEntry() {
       localStorage.removeItem('rememberPreference');
     }
 
-    bestScore = Number(localStorage.getItem('simonBestScore') || 0);
+    bestScore = getBestScore(playerName);
 
     gameTitleEl.textContent = 'Simon';
     nameModal.classList.add('hidden');
@@ -210,12 +230,12 @@ function endGame() {
   const finalLevel = level - 1; // nivell real assolit
   if (finalLevel > bestScore) {
     bestScore = finalLevel;
-    localStorage.setItem('simonBestScore', String(bestScore));
+    setBestScore(playerName, bestScore);
     showSendScoreDialog(finalLevel, true);
   } else if (bestScore === 0) {
     // Nou jugador: enviem directament el primer resultat (recomanat)
     bestScore = finalLevel;
-    localStorage.setItem('simonBestScore', String(bestScore));
+    setBestScore(playerName, bestScore);
     sendScore(playerName, bestScore);
   }
 }
