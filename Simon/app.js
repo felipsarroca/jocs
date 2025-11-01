@@ -9,7 +9,7 @@ const gameTitleEl = document.getElementById('game-title');
 const startButton = document.getElementById('start-button');
 const rankingButton = document.getElementById('ranking-button');
 const levelEl = document.getElementById('level');
-const messageEl = document.getElementById('message');
+// Note: message element has been removed from HTML, so messageEl is not needed
 
 const colorButtons = {
   green: document.getElementById('green'),
@@ -96,7 +96,7 @@ function initializeNameEntry() {
     gameTitleEl.textContent = 'Simon';
     nameModal.classList.add('hidden');
     gameContent.classList.remove('hidden');
-    messageEl.textContent = 'Pulsa "Inicia" per jugar';
+    // Removed initial message as message element no longer exists
   }
 }
 
@@ -115,7 +115,7 @@ function lightUpButton(color) {
 // --- Mostrar seqüència ---
 function showSequence() {
   gameState = 'showing';
-  messageEl.textContent = 'Memoritza la seqüència...';
+  // Removed message as message element no longer exists
   startButton.disabled = true;
 
   let i = 0;
@@ -140,7 +140,7 @@ function showSequence() {
       setTimeout(() => {
         gameState = 'playing';
         playerSequenceIndex = 0;
-        messageEl.textContent = 'El teu torn!';
+        // Removed message as message element no longer exists
       }, 200);
     }
   }, 700);
@@ -168,7 +168,7 @@ function startGame() {
   gameState = 'waiting';
 
   startButton.textContent = 'Inicia';
-  messageEl.textContent = "Concentra't...";
+  // Removed message as message element no longer exists
   startButton.disabled = true;
 
   setTimeout(nextTurn, 600);
@@ -184,7 +184,7 @@ function handlePlayerInput(color) {
   if (color === sequence[playerSequenceIndex]) {
     playerSequenceIndex++;
     if (playerSequenceIndex >= sequence.length) {
-      messageEl.textContent = 'Correcte!';
+      // Removed message as message element no longer exists
       level++;
       gameState = 'waiting';
       setTimeout(nextTurn, 900);
@@ -197,7 +197,7 @@ function handlePlayerInput(color) {
 // --- Fi de partida ---
 function endGame() {
   gameState = 'gameover';
-  messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
+  // Removed message as message element no longer exists
 
   document.body.classList.add('bg-red-900');
   setTimeout(() => document.body.classList.remove('bg-red-900'), 500);
@@ -208,7 +208,7 @@ function endGame() {
   if (level > bestScore) {
     bestScore = level;
     localStorage.setItem('simonBestScore', String(bestScore));
-    messageEl.textContent = `Nova marca personal! Has arribat al nivell ${level}.`;
+    // Removed message as message element no longer exists
     showSendScoreDialog();
   }
 }
@@ -222,7 +222,7 @@ function showSendScoreDialog() {
       <h2>🏆 Nova Marca Personal!</h2>
       <p>Vols enviar el teu rècord al rànquing global?</p>
       <div class="modal-buttons">
-        <button id="send-score-yes">Sí, enviar</button>
+        <button id="send-score-yes"><span class="send-icon">📤</span> Sí, enviar</button>
         <button id="send-score-no">No, gràcies</button>
       </div>
     </div>
@@ -230,13 +230,26 @@ function showSendScoreDialog() {
 
   const style = document.createElement('style');
   style.textContent = `
+    #confirm-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.3s ease-out;
+    }
     #confirm-modal .modal-buttons { display:flex; gap:1rem; justify-content:center; margin-top:1.5rem; }
     #confirm-modal #send-score-yes, #confirm-modal #send-score-no {
-      padding:0.75rem 1.5rem; border-radius:9999px; font-weight:700; border:none; cursor:pointer; transition:all .3s ease;
+      padding:0.75rem 1.5rem; border-radius:9999px; font-weight:700; border:none; cursor:pointer; transition:all .3s ease; display: flex; align-items: center; gap: 0.5rem;
     }
     #confirm-modal #send-score-yes { background:linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%); color:var(--primary-bg-color); }
     #confirm-modal #send-score-no { background:linear-gradient(135deg, #6b7280 0%, #4b5563 100%); color:white; }
     #confirm-modal #send-score-yes:hover, #confirm-modal #send-score-no:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 4px 8px rgba(0,0,0,.2); }
+    .send-icon { font-size: 1.2rem; }
   `;
   document.head.appendChild(style);
   document.body.appendChild(confirmModal);

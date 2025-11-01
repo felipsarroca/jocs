@@ -194,7 +194,7 @@ body::before {
 
 .game-header {
     text-align: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem; /* Reduced margin to bring game closer to title */
     width: 100%;
 }
 
@@ -202,7 +202,7 @@ body::before {
     font-size: 5rem; /* Twice the original size */
     font-weight: 800;
     color: var(--accent-color);
-    margin: 0 0 1rem 0;
+    margin: 0 0 0.5rem 0; /* Reduced margin */
     text-shadow: 
         0 1px 0 #ccc, 
         0 2px 0 #c9c9c9,
@@ -263,15 +263,15 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 352px; /* 20% smaller (440 * 0.8) */
-    height: 352px;   /* 20% smaller (440 * 0.8) */
-    margin: 1rem auto; /* Reduced margin to bring closer to title */
+    max-width: 299px; /* Additional 15% smaller (352 * 0.85) */
+    height: 299px;   /* Additional 15% smaller (352 * 0.85) */
+    margin: 0.5rem auto; /* Reduced margin to bring closer to title */
     border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(245, 158, 11, 0.2);
     background: rgba(15, 23, 42, 0.5);
-    padding: 2.4rem; /* 20% smaller than 3rem for proportionate spacing */
+    padding: 2.04rem; /* 15% smaller than 2.4rem for proportionate spacing */
 }
 
 .simon-button {
@@ -728,8 +728,8 @@ footer .footer-content a:hover {
     
     .simon-container {
         width: 100%;
-        max-width: 224px; /* 20% smaller (280 * 0.8) */
-        height: 224px;   /* 20% smaller (280 * 0.8) */
+        max-width: 190px; /* Additional 15% smaller (224 * 0.85) */
+        height: 190px;   /* Additional 15% smaller (224 * 0.85) */
     }
     
     #level {
@@ -756,8 +756,8 @@ footer .footer-content a:hover {
 @media (max-width: 480px) {
     .simon-container {
         width: 100%;
-        max-width: 192px; /* 20% smaller (240 * 0.8) */
-        height: 192px;   /* 20% smaller (240 * 0.8) */
+        max-width: 163px; /* Additional 15% smaller (192 * 0.85) */
+        height: 163px;   /* Additional 15% smaller (192 * 0.85) */
     }
     
     #game-title {
