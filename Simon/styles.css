@@ -271,8 +271,8 @@ body::before {
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(245, 158, 11, 0.2);
-    background: radial-gradient(circle at center, rgba(245, 158, 11, 0.08) 0%, rgba(15, 23, 42, 0.85) 100%);
-    padding: 2.25rem; /* +10% respecte al valor original */
+    background: rgba(15, 23, 42, 0.5);
+    padding: 2.04rem; /* 15% smaller than 2.4rem for proportionate spacing */
 }
 
 .simon-button {
