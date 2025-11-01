@@ -21,7 +21,10 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 50;
-    transition: opacity 0.5s;
+}
+
+#name-modal.hidden {
+    display: none;
 }
 
 .modal-content {

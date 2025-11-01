@@ -43,16 +43,15 @@ function initializeNameEntry() {
         nameModal.classList.remove('hidden');
     }
 
-    submitNameButton.addEventListener('click', () => {
-        nameModal.classList.add('hidden');
-        gameContent.classList.remove('hidden');
-    });
-
-    submitNameButton.addEventListener('touchstart', () => {
-        nameModal.classList.add('hidden');
-        gameContent.classList.remove('hidden');
-    });
-
+            submitNameButton.addEventListener('click', () => {
+                nameModal.classList.toggle('hidden');
+                gameContent.classList.toggle('hidden');
+            });
+    
+            submitNameButton.addEventListener('touchstart', () => {
+                nameModal.classList.toggle('hidden');
+                gameContent.classList.toggle('hidden');
+            });
     nameInput.addEventListener('keyup', (event) => {
         if (event.key === 'Enter') {
             submitNameButton.click();
