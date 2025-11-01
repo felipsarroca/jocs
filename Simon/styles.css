@@ -264,15 +264,23 @@ body::before {
 .simon-container {
     position: relative;
     width: 100%;
-    max-width: 329px; /* +10% respecte als 299px */
-    height: 329px;    /* +10% respecte als 299px */
-    margin: 0.5rem auto; /* Reduced margin to bring closer to title */
+    max-width: 329px; /* +10% respecte a l'original */
+    height: 329px;
+    margin: 0.5rem auto;
     border-radius: 16px;
-    overflow: hidden;
+    background: rgba(15, 23, 42, 0.5);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     border: 2px solid rgba(245, 158, 11, 0.2);
-    background: rgba(15, 23, 42, 0.5);
-    padding: 2.45rem; /* +20% respecte a 2.04rem */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Nou: conté el Simon original amb la seva mida exacta */
+.simon-inner {
+    position: relative;
+    width: 299px;   /* mateixa mida que abans */
+    height: 299px;  /* mateixa mida que abans */
 }
 
 .simon-button {
