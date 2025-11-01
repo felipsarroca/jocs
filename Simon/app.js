@@ -417,4 +417,64 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Function to ensure audio context is running
+function ensureAudioContext() {
+    if (Tone.context.state !== 'running') {
+        Tone.context.resume();
+    }
+}
+
+startButton.addEventListener('click', () => {
+    ensureAudioContext();
+    startGame();
+});
+
+Object.values(colorButtons).forEach(button => {
+    button.addEventListener('click', () => {
+        ensureAudioContext();
+        handlePlayerInput(button.dataset.color);
+    });
+    button.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevent default touch behavior
+        ensureAudioContext();
+        handlePlayerInput(button.dataset.color);
+    });
+});
+
+rankingButton.addEventListener('click', () => {
+    ensureAudioContext();
+    showRanking();
+});
+
+// Add keyboard support for accessibility
+document.addEventListener('keydown', (e) => {
+    switch(e.key.toLowerCase()) {
+        case 'q':
+        case 'a':
+            ensureAudioContext();
+            handlePlayerInput('green');
+            break;
+        case 'w':
+        case 's':
+            ensureAudioContext();
+            handlePlayerInput('red');
+            break;
+        case 'z':
+        case 'x':
+            ensureAudioContext();
+            handlePlayerInput('yellow');
+            break;
+        case 'e':
+        case 'd':
+            ensureAudioContext();
+            handlePlayerInput('blue');
+            break;
+        case ' ':
+            e.preventDefault(); // Prevent space from scrolling page
+            ensureAudioContext();
+            startGame();
+            break;
+    }
+});
+
 initializeNameEntry();
