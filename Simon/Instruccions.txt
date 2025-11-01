@@ -1,0 +1,190 @@
+Perfecte, Felip.
+Aquí tens una **descripció tècnica i funcional completa**, pensada perquè **un programador pugui dissenyar i implementar l’aplicació** del joc *Simon* amb totes les millores que proposes, sense que sigui un codi previ. És un document d’encàrrec clar i exhaustiu, que estableix què ha de fer i com ha de ser el resultat final.
+
+---
+
+## **Descripció per al desenvolupament del joc "Simon de colors"**
+
+### 1. Concepte general
+
+Es tracta d’una versió moderna i millorable del clàssic joc **Simon**, en el qual l’usuari ha de repetir una seqüència de colors i sons que el joc mostra progressivament.
+Aquesta versió ha de ser:
+
+* **Visualment atractiva i colorida**
+* **Totalment en català**
+* **Responsiva i jugable des de mòbil o ordinador**
+* **Instal·lable com a aplicació PWA**
+* **Connectada amb un full de càlcul de Google Sheets** per registrar i mostrar rànquings
+* **Respectuosa amb la privacitat i sota llicència Creative Commons**
+
+---
+
+## **2. Objectius principals**
+
+1. Crear una interfície moderna, intuïtiva i equilibrada, millorant el disseny clàssic.
+2. Fer que l’aplicació recordi el nom del jugador i la seva millor puntuació.
+3. Registrar només els millors resultats d’un mateix usuari a un full de càlcul de Google Sheets.
+4. Mostrar un rànquing global dels 10 millors jugadors.
+5. Incorporar la llicència Creative Commons amb el crèdit autoral.
+6. Garantir compatibilitat total amb dispositius mòbils i possibilitat d’instal·lació com a aplicació.
+
+---
+
+## **3. Estructura tècnica del projecte**
+
+El projecte es basarà en una estructura senzilla de tres fitxers principals:
+
+* `index.html`: estructura i contingut visual del joc
+* `styles.css`: full d’estils i disseny visual
+* `app.js`: lògica del joc, connexions i interaccions
+
+A més, caldran fitxers addicionals per:
+
+* El **manifest** de la PWA (`manifest.webmanifest`)
+* El **service worker** (`sw.js`) per permetre la instal·lació i el funcionament offline
+* Una carpeta `assets` amb icones, imatges i el logotip de **Creative Commons (cc.svg)**
+
+---
+
+## **4. Funcionament del joc**
+
+### 4.1 Pantalla inicial
+
+* Mostra un **títol atractiu** (“SIMON de colors”) i un subtítol (“Posa a prova la teva memòria”).
+* Si és la primera vegada que l’usuari entra, apareix un **quadre de diàleg** demanant el nom:
+
+  * Camp de text: “Com et dius?”
+  * Casella per marcar: “Recorda’m en aquest dispositiu”
+  * Botó: “Comença”
+* Si ja ha jugat abans, el nom es recupera automàticament i el joc passa directament a la pantalla principal.
+
+### 4.2 Pantalla principal
+
+* Quatre **quadrants de colors** (verd, vermell, groc i blau) que s’il·luminen successivament segons la seqüència.
+* Un **marcador central** que indica el nivell actual.
+* Un **botó “Inicia”** per començar una nova partida.
+* Un **botó “🏆 Rànquing”** per accedir al rànquing global.
+* Una **àrea de missatge** per mostrar instruccions o estat (per exemple, “Memoritza la seqüència”, “El teu torn”, “Has fallat!”, etc.).
+* A la part inferior, un **peu fix** amb la llicència i el crèdit autoral.
+
+### 4.3 Mecànica de joc
+
+1. Quan el jugador clica “Inicia”, el joc mostra una seqüència aleatòria de colors (i sons associats) que augmenta un pas a cada nivell.
+2. L’usuari ha de repetir la seqüència exactament.
+3. Si ho fa bé, passa al nivell següent.
+4. Si falla, el joc acaba i mostra un missatge amb el nivell assolit.
+5. Si el nivell és **superior al millor nivell anterior**, apareix un missatge:
+
+   > “Has fet marca personal! Vols enviar el teu resultat al rànquing?”
+6. Si l’usuari accepta, el resultat s’envia al full de càlcul de Google Sheets.
+
+---
+
+## **5. Gestió de dades i rànquing**
+
+### 5.1 Emmagatzematge local
+
+* El nom del jugador i el seu millor nivell es guarden localment amb `localStorage`.
+* Això permet que el jugador torni a jugar sense introduir el nom cada vegada.
+
+### 5.2 Full de càlcul (Google Sheets)
+
+* Cada registre conté tres columnes:
+
+  * Data i hora
+  * Nom de l’usuari
+  * Millor nivell aconseguit
+* Només es desa el resultat si **és superior al millor nivell anterior** d’aquell usuari.
+* L’enviament i consulta es fa mitjançant **Apps Script** publicat com a **Web App**.
+
+### 5.3 Rànquing global
+
+* El botó “🏆 Rànquing” obre una finestra amb els **10 millors jugadors**.
+* Els noms apareixen ordenats de **nivell més alt a més baix**.
+* Si el jugador actual figura a la llista, es **ressalta** la seva fila.
+* Els resultats es mostren de manera clara, responsiva i visualment neta.
+
+---
+
+## **6. Disseny i estètica**
+
+### 6.1 Principis visuals
+
+* Colors principals del tauler: **verd, vermell, groc, blau**, amb efectes de resplendor i ombres.
+* Estil visual modern, equilibrat i sense saturar.
+* Tipografia suggerida: **Inter** o **Poppins** (lleugera, clara i moderna).
+* Fons fosc amb contrast elevat i detalls de lluminositat.
+* Botons arrodonits i amb ombra suau.
+
+### 6.2 Responsivitat
+
+* El disseny ha d’adaptar-se a mòbils, tauletes i ordinadors.
+* L’àrea de joc ha de mantenir una forma quadrada.
+* Els textos i botons s’han de redimensionar automàticament segons la mida de pantalla.
+
+### 6.3 Accessibilitat
+
+* Els quadrants han de tenir etiquetes `aria-label` per permetre reconeixement per lectors de pantalla.
+* Els botons s’han de poder activar també amb el teclat (fletxes o tecles W, A, S, D).
+* Els colors han de mantenir un contrast suficient per a persones amb baixa visió.
+
+---
+
+## **7. Elements addicionals**
+
+### 7.1 Llicència i crèdits
+
+A la part inferior hi ha d’aparèixer, en petit i de forma discreta:
+
+* **Logotip CC (en format SVG)**
+* Text:
+  “Joc creat per Felip Sarroca amb l’assistència de la IA”
+  “Obra sota llicència [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca)”
+* L’enllaç de la llicència ha de ser clicable i obrir-se en una pestanya nova.
+
+### 7.2 So i animacions
+
+* Cada color té un **so distintiu** (nota musical diferent).
+* Els quadrants han d’il·luminar-se breument i fer un efecte suau de transició.
+* En cas d’error, s’ha de mostrar una breu vibració o efecte visual que indiqui el fall.
+
+### 7.3 PWA (aplicació instal·lable)
+
+* L’aplicació ha de tenir un **manifest** i un **service worker** perquè pugui instal·lar-se en dispositius Android o escriptoris Chrome.
+* Quan s’instal·la, ha de mostrar-se com una app independent, sense barra d’adreces.
+
+---
+
+## **8. Experiència d’usuari (UX)**
+
+1. **Senzillesa:** tot ha de funcionar amb un sol clic o toc.
+2. **Continuïtat:** el nom i les dades es recorden automàticament.
+3. **Motivació:** els missatges han de ser positius i motivadors (“Ben fet!”, “Segueix així!”, “Marca personal!”).
+4. **Velocitat:** els canvis de pantalla i els efectes han de ser fluids (no més de 300 ms per il·luminació).
+5. **Reconeixement:** el rànquing dona visibilitat als millors jugadors però sense competició agressiva.
+
+---
+
+## **9. Requisits tècnics mínims**
+
+* L’aplicació ha de funcionar amb **HTML5, CSS3 i JavaScript natiu** (sense frameworks com React o Vue).
+* Ha de carregar-se ràpidament i funcionar offline gràcies al **Service Worker**.
+* Els sons poden gestionar-se amb una llibreria lleugera com **Tone.js**.
+* La connexió amb Google Sheets es farà via **Google Apps Script Web App**.
+* Ha de funcionar en els principals navegadors: Chrome, Edge, Firefox i Safari.
+
+---
+
+## **10. Resultat esperat**
+
+El resultat final ha de ser:
+
+* Un joc **agradable visualment i fàcil d’utilitzar** per alumnat de qualsevol edat.
+* Amb una interfície **en català**, coherent, polida i professional.
+* **Instal·lable al mòbil** i jugable sense connexió.
+* Amb un **rànquing actiu i actualitzat** automàticament.
+* I amb **reconeixement explícit** de l’autor i la llicència.
+
+---
+
+Vols que et faci també una **versió resumida d’aquest document**, per exemple en una sola pàgina de briefing o en format de fitxa per lliurar al programador?

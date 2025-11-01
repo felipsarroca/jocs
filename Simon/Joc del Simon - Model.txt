@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Memoria Simón</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            touch-action: manipulation;
+        }
+        .simon-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+        .simon-button {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            cursor: pointer;
+            border: 6px solid #111827; /* bg-gray-900 */
+            transition: background-color 0.2s ease;
+        }
+        #green {
+            top: 0;
+            left: 0;
+            background-color: #15803d; /* green-700 */
+            border-top-left-radius: 100%;
+        }
+        #green.lit { background-color: #4ade80; /* green-400 */ }
+
+        #red {
+            top: 0;
+            right: 0;
+            background-color: #b91c1c; /* red-700 */
+            border-top-right-radius: 100%;
+        }
+        #red.lit { background-color: #f87171; /* red-400 */ }
+
+        #yellow {
+            bottom: 0;
+            left: 0;
+            background-color: #ca8a04; /* yellow-600 */
+            border-bottom-left-radius: 100%;
+        }
+        #yellow.lit { background-color: #facc15; /* yellow-400 */ }
+
+        #blue {
+            bottom: 0;
+            right: 0;
+            background-color: #1d4ed8; /* blue-700 */
+            border-bottom-right-radius: 100%;
+        }
+        #blue.lit { background-color: #60a5fa; /* blue-400 */ }
+        
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 45%;
+            height: 45%;
+            background-color: #1f2937; /* gray-800 */
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border: 6px solid #111827;
+            pointer-events: none; /* Permite que los clics pasen a través */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4 overflow-hidden">
+
+    <!-- Modal para introducir el nombre -->
+    <div id="name-modal" class="absolute inset-0 bg-gray-900 bg-opacity-95 flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+        <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl text-center w-full max-w-sm">
+            <h2 class="text-2xl font-bold mb-4 text-amber-400">¿Cómo te llamas?</h2>
+            <input type="text" id="name-input" class="bg-gray-700 text-white text-center text-xl p-3 rounded-lg w-full mb-4 focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Escribe tu nombre" maxlength="15">
+            <button id="submit-name-button" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-full text-xl transition-transform transform hover:scale-105">
+                ¡A Jugar!
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenido principal del juego (inicialmente oculto) -->
+    <div id="game-content" class="hidden flex flex-col items-center justify-center">
+        <div class="text-center mb-6">
+            <h1 id="game-title" class="text-4xl md:text-5xl font-bold text-amber-400"></h1>
+            <p id="message" class="text-gray-400 mt-2 text-xl h-7">Pulsa "Empezar" para jugar</p>
+        </div>
+
+        <div class="simon-container mb-8">
+            <div id="green" class="simon-button" data-color="green"></div>
+            <div id="red" class="simon-button" data-color="red"></div>
+            <div id="yellow" class="simon-button" data-color="yellow"></div>
+            <div id="blue" class="simon-button" data-color="blue"></div>
+            <div class="center-circle">
+                 <span class="text-gray-400 text-lg">NIVEL</span>
+                 <span id="level" class="font-bold text-5xl">1</span>
+            </div>
+        </div>
+        
+        <button id="start-button" class="bg-amber-500 hover:bg-amber-600 text-gray-900 font-bold py-3 px-8 rounded-full text-xl transition-transform transform hover:scale-105 shadow-lg">
+            Empezar
+        </button>
+    </div>
+
+    <script>
+        // --- Elementos del DOM ---
+        const nameModal = document.getElementById('name-modal');
+        const nameInput = document.getElementById('name-input');
+        const submitNameButton = document.getElementById('submit-name-button');
+        const gameContent = document.getElementById('game-content');
+        const gameTitleEl = document.getElementById('game-title');
+
+        const startButton = document.getElementById('start-button');
+        const levelEl = document.getElementById('level');
+        const messageEl = document.getElementById('message');
+        const colorButtons = {
+            green: document.getElementById('green'),
+            red: document.getElementById('red'),
+            yellow: document.getElementById('yellow'),
+            blue: document.getElementById('blue')
+        };
+        const colors = Object.keys(colorButtons);
+
+        // --- Configuración de Sonido con Tone.js ---
+        const synth = new Tone.Synth().toDestination();
+        const sounds = {
+            green: 'C4',
+            red: 'E4',
+            yellow: 'G4',
+            blue: 'C5'
+        };
+
+        // --- Estado del juego ---
+        let level = 1;
+        let sequence = [];
+        let playerSequenceIndex = 0;
+        let gameState = 'waiting'; // 'waiting', 'showing', 'playing', 'gameover'
+
+        // --- Lógica de Inicio (Nombre de usuario) ---
+        function initializeNameEntry() {
+            submitNameButton.addEventListener('click', () => {
+                const playerName = nameInput.value.trim();
+                if (playerName) {
+                    gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORES`;
+                    // Ocultar modal con transición
+                    nameModal.classList.add('opacity-0', 'pointer-events-none');
+                    // Mostrar contenido del juego
+                    gameContent.classList.remove('hidden');
+                } else {
+                    // Si el nombre está vacío, se muestra un aviso
+                    nameInput.placeholder = "¡Por favor, escribe un nombre!";
+                    nameInput.classList.add('placeholder-red-400');
+                    setTimeout(() => {
+                         nameInput.placeholder = "Escribe tu nombre";
+                         nameInput.classList.remove('placeholder-red-400');
+                    }, 2000);
+                }
+            });
+            
+            // Permitir enviar con la tecla Enter
+            nameInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    submitNameButton.click();
+                }
+            });
+            nameInput.focus();
+        }
+
+        // --- Lógica del juego ---
+        
+        function playSound(color) {
+            // Asegurarse de que el contexto de audio se inicie con un gesto del usuario
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume();
+            }
+            synth.triggerAttackRelease(sounds[color], '8n');
+        }
+        
+        function lightUpButton(color) {
+            const button = colorButtons[color];
+            button.classList.add('lit');
+            playSound(color);
+            setTimeout(() => {
+                button.classList.remove('lit');
+            }, 400);
+        }
+        
+        function showSequence() {
+            gameState = 'showing';
+            messageEl.textContent = 'Memoriza la secuencia...';
+            startButton.disabled = true;
+            
+            let i = 0;
+            const interval = setInterval(() => {
+                lightUpButton(sequence[i]);
+                i++;
+                if (i >= sequence.length) {
+                    clearInterval(interval);
+                    gameState = 'playing';
+                    playerSequenceIndex = 0;
+                    messageEl.textContent = '¡Tu turno!';
+                }
+            }, 700);
+        }
+        
+        function nextTurn() {
+            levelEl.textContent = level;
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            sequence.push(randomColor);
+            showSequence();
+        }
+
+        function startGame() {
+            if (gameState === 'showing') return;
+            
+            level = 1;
+            sequence = [];
+            gameState = 'waiting';
+            startButton.textContent = 'Empezar';
+            messageEl.textContent = 'Concéntrate...';
+
+            setTimeout(nextTurn, 1000);
+        }
+
+        function handlePlayerInput(color) {
+            if (gameState !== 'playing') return;
+            
+            lightUpButton(color);
+
+            if (color === sequence[playerSequenceIndex]) {
+                playerSequenceIndex++;
+                // Si el jugador ha completado la secuencia del nivel
+                if (playerSequenceIndex >= sequence.length) {
+                    messageEl.textContent = '¡Correcto!';
+                    level++;
+                    gameState = 'waiting';
+                    setTimeout(nextTurn, 1500);
+                }
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            gameState = 'gameover';
+            messageEl.textContent = `¡Error! Has llegado al nivel ${level}.`;
+            // Pequeña animación de error
+            const originalBg = document.body.style.backgroundColor;
+            document.body.classList.add('bg-red-900');
+            setTimeout(() => document.body.classList.remove('bg-red-900'), 500);
+
+            startButton.disabled = false;
+            startButton.textContent = 'Volver a Jugar';
+        }
+
+        // --- Event Listeners ---
+        startButton.addEventListener('click', startGame);
+
+        Object.values(colorButtons).forEach(button => {
+            button.addEventListener('click', () => {
+                handlePlayerInput(button.dataset.color);
+            });
+        });
+        
+        // --- Inicialización ---
+        initializeNameEntry();
+    </script>
+</body>
+</html>
