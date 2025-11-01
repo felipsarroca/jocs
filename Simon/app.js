@@ -120,13 +120,10 @@ function showSequence() {
         i++;
         if (i >= sequence.length) {
             clearInterval(interval);
-            // Wait a bit after the last color before allowing player input
-            setTimeout(() => {
-                gameState = 'playing';
-                playerSequenceIndex = 0;
-                messageEl.textContent = 'El teu torn!';
-                startButton.disabled = false; // Enable the button after showing the sequence
-            }, 700);
+            gameState = 'playing';
+            playerSequenceIndex = 0;
+            messageEl.textContent = 'El teu torn!';
+            startButton.disabled = false;
         }
     }, 700);
 }
@@ -172,6 +169,9 @@ function handlePlayerInput(color) {
 function endGame() {
     gameState = 'gameover';
     
+    document.body.classList.add('game-over');
+    setTimeout(() => document.body.classList.remove('game-over'), 500);
+
     // Check if it's a personal best
     if (level > bestScore) {
         bestScore = level;
@@ -182,13 +182,9 @@ function endGame() {
         showSendScoreDialog();
     } else {
         messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
+        startButton.disabled = false;
+        startButton.textContent = 'Torna a Jugar';
     }
-    
-    document.body.classList.add('game-over');
-    setTimeout(() => document.body.classList.remove('game-over'), 500);
-
-    startButton.disabled = false;
-    startButton.textContent = 'Torna a Jugar';
 }
 
 function showSendScoreDialog() {
@@ -252,12 +248,18 @@ function showSendScoreDialog() {
         document.body.removeChild(confirmModal);
         // Remove the added style element when done
         document.head.removeChild(style);
+        // Ensure button is properly configured after dialog closes
+        startButton.disabled = false;
+        startButton.textContent = 'Torna a Jugar';
     });
     
     document.getElementById('send-score-no').addEventListener('click', () => {
         document.body.removeChild(confirmModal);
         // Remove the added style element when done
         document.head.removeChild(style);
+        // Ensure button is properly configured after dialog closes
+        startButton.disabled = false;
+        startButton.textContent = 'Torna a Jugar';
     });
     
     // Allow closing modal by clicking outside
@@ -266,6 +268,9 @@ function showSendScoreDialog() {
             document.body.removeChild(confirmModal);
             // Remove the added style element when done
             document.head.removeChild(style);
+            // Ensure button is properly configured after dialog closes
+            startButton.disabled = false;
+            startButton.textContent = 'Torna a Jugar';
         }
     });
 }
