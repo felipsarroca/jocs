@@ -44,8 +44,8 @@ let bestScore = 0;
         nameModal.classList.add('hidden');
         gameContent.classList.remove('hidden');
         
-        // Update game title with player name
-        gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORES`;
+        // Keep the game title as "Simon" always
+        gameTitleEl.textContent = 'Simon';
     } else {
         nameModal.classList.remove('hidden');
         gameContent.classList.add('hidden');
@@ -75,8 +75,8 @@ let bestScore = 0;
                 localStorage.removeItem('rememberPreference');
             }
 
-            // Update game title with player name
-            gameTitleEl.textContent = `${playerName.toUpperCase()} DE COLORES`;
+            // Keep the game title as "Simon" always
+            gameTitleEl.textContent = 'Simon';
             
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
@@ -173,7 +173,9 @@ function endGame() {
         bestScore = level;
         localStorage.setItem('simonBestScore', bestScore);
         messageEl.textContent = `Nova marca personal! Has arribat al nivell ${level}.`;
-        sendScore(playerName, bestScore);
+        
+        // Ask user if they want to send their score
+        showSendScoreDialog();
     } else {
         messageEl.textContent = `Error! Has arribat al nivell ${level}.`;
     }
@@ -183,6 +185,85 @@ function endGame() {
 
     startButton.disabled = false;
     startButton.textContent = 'Torna a Jugar';
+}
+
+function showSendScoreDialog() {
+    // Create a confirmation modal
+    const confirmModal = document.createElement('div');
+    confirmModal.id = 'confirm-modal';
+    confirmModal.innerHTML = `
+        <div class="modal-content">
+            <h2>🏆 Nova Marca Personal!</h2>
+            <p>Vols enviar el teu rècord al rànquing global?</p>
+            <div class="modal-buttons">
+                <button id="send-score-yes">Sí, enviar</button>
+                <button id="send-score-no">No, gràcies</button>
+            </div>
+        </div>
+    `;
+    
+    // Add styling for the buttons container
+    const style = document.createElement('style');
+    style.textContent = `
+        #confirm-modal .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+        
+        #confirm-modal #send-score-yes,
+        #confirm-modal #send-score-no {
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #confirm-modal #send-score-yes {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: var(--primary-bg-color);
+        }
+        
+        #confirm-modal #send-score-no {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+        
+        #confirm-modal #send-score-yes:hover,
+        #confirm-modal #send-score-no:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(confirmModal);
+
+    // Add event listeners
+    document.getElementById('send-score-yes').addEventListener('click', () => {
+        sendScore(playerName, bestScore);
+        document.body.removeChild(confirmModal);
+        // Remove the added style element when done
+        document.head.removeChild(style);
+    });
+    
+    document.getElementById('send-score-no').addEventListener('click', () => {
+        document.body.removeChild(confirmModal);
+        // Remove the added style element when done
+        document.head.removeChild(style);
+    });
+    
+    // Allow closing modal by clicking outside
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) {
+            document.body.removeChild(confirmModal);
+            // Remove the added style element when done
+            document.head.removeChild(style);
+        }
+    });
 }
 
 function sendScore(name, score) {
@@ -197,73 +278,95 @@ function sendScore(name, score) {
 }
 
 function showRanking() {
+    // Show loading message first
+    let rankingHtml = '<h2>🏆 Rànquing Global</h2><div class="loading-container"><p>Carregant dades...</p><div class="spinner"></div></div>';
+    
+    // Check if modal already exists
+    let existingModal = document.getElementById('ranking-modal');
+    if (existingModal) {
+        document.body.removeChild(existingModal);
+    }
+    
+    const rankingModal = document.createElement('div');
+    rankingModal.id = 'ranking-modal';
+    rankingModal.innerHTML = `<div class="modal-content">${rankingHtml}<button id="close-ranking">Tancar</button></div>`;
+    document.body.appendChild(rankingModal);
+
+    // Add spinner styling
+    const spinnerStyle = document.createElement('style');
+    spinnerStyle.textContent = `
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(245, 158, 11, 0.2);
+            border-top: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(spinnerStyle);
+
+    // Now fetch the actual data
     fetch('https://script.google.com/macros/s/AKfycbyTnaRWXneulJ2E3w2t_lx7GDslA_2NtN9-o4cR6WUal3m9q3op8KNf-FtQIoAOV_wbFg/exec')
         .then(response => response.json())
         .then(ranking => {
             // Sort ranking by score descending
             ranking.sort((a, b) => b.score - a.score);
             
-            let rankingHtml = '<h2>🏆 Rànquing Global</h2><ol>';
+            let rankingContent = '<h2>🏆 Rànquing Global</h2><ol class="ranking-list">';
             if (ranking.length > 0) {
                 ranking.slice(0, 10).forEach((player, index) => {
                     // Highlight current player if in ranking
                     const isCurrentPlayer = player.name === playerName;
                     const playerClass = isCurrentPlayer ? ' class="current-player"' : '';
-                    rankingHtml += `<li${playerClass}>${player.name}: ${player.score}</li>`;
+                    // Add medal icons for top 3
+                    let medal = '';
+                    if (index === 0) medal = '🥇';
+                    else if (index === 1) medal = '🥈';
+                    else if (index === 2) medal = '🥉';
+                    rankingContent += `<li${playerClass}>${medal} ${player.name}: ${player.score}</li>`;
                 });
             } else {
-                rankingHtml += '<li>No hi ha puntuacions encara</li>';
+                rankingContent += '<li>No hi ha puntuacions encara</li>';
             }
-            rankingHtml += '</ol>';
+            rankingContent += '</ol>';
             
-            // Check if modal already exists
-            let existingModal = document.getElementById('ranking-modal');
-            if (existingModal) {
-                document.body.removeChild(existingModal);
-            }
+            // Update the modal content
+            const modalContent = rankingModal.querySelector('.modal-content');
+            modalContent.innerHTML = `${rankingContent}<button id="close-ranking">Tancar</button>`;
             
-            const rankingModal = document.createElement('div');
-            rankingModal.id = 'ranking-modal';
-            rankingModal.innerHTML = `<div class="modal-content">${rankingHtml}<button id="close-ranking">Tancar</button></div>`;
-            document.body.appendChild(rankingModal);
-
             document.getElementById('close-ranking').addEventListener('click', () => {
                 document.body.removeChild(rankingModal);
-            });
-            
-            // Allow closing modal by clicking outside
-            rankingModal.addEventListener('click', (e) => {
-                if (e.target === rankingModal) {
-                    document.body.removeChild(rankingModal);
-                }
+                document.head.removeChild(spinnerStyle);
             });
         })
         .catch(error => {
             console.error('Error fetching ranking:', error);
             
             // Show error message
-            let rankingHtml = '<h2>🏆 Rànquing Global</h2><p>Hi ha hagut un error carregant el rànquing. Torna-ho a provar més tard.</p>';
+            let rankingContent = '<h2>🏆 Rànquing Global</h2><p>Hi ha hagut un error carregant el rànquing. Torna-ho a provar més tard.</p>';
             
-            // Check if modal already exists
-            let existingModal = document.getElementById('ranking-modal');
-            if (existingModal) {
-                document.body.removeChild(existingModal);
-            }
+            // Update the modal content
+            const modalContent = rankingModal.querySelector('.modal-content');
+            modalContent.innerHTML = `${rankingContent}<button id="close-ranking">Tancar</button>`;
             
-            const rankingModal = document.createElement('div');
-            rankingModal.id = 'ranking-modal';
-            rankingModal.innerHTML = `<div class="modal-content">${rankingHtml}<button id="close-ranking">Tancar</button></div>`;
-            document.body.appendChild(rankingModal);
-
             document.getElementById('close-ranking').addEventListener('click', () => {
                 document.body.removeChild(rankingModal);
-            });
-            
-            // Allow closing modal by clicking outside
-            rankingModal.addEventListener('click', (e) => {
-                if (e.target === rankingModal) {
-                    document.body.removeChild(rankingModal);
-                }
+                document.head.removeChild(spinnerStyle);
             });
         });
 }
