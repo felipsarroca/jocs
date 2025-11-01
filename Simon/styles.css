@@ -374,7 +374,7 @@ body::before {
 .level-label {
     font-size: 0.9rem; /* Reduced from 1.125rem */
     color: var(--text-secondary);
-    margin-bottom: 0.1rem; /* Reduced to bring closer to level number */
+    margin-bottom: 0.05rem; /* Further reduced to bring closer to level number */
     font-weight: 500;
 }
 
@@ -430,6 +430,50 @@ body::before {
     background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
 }
 
+/* License info positioned below the Simon game */
+.license-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    font-size: 0.6rem;
+    padding: 0.8rem 0;
+    margin: 0 auto;
+    max-width: 500px;
+    width: 100%;
+}
+
+.license-info img {
+    height: 1.3rem; /* 30% larger than previous 1rem */
+    margin-top: 0.1rem; /* Small adjustment for alignment */
+}
+
+.license-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    flex: 1; /* Take remaining space */
+}
+
+.license-text p {
+    margin: 0;
+    margin-bottom: 0.1rem; /* Small gap between lines */
+}
+
+.license-text p:last-child {
+    margin-bottom: 0;
+}
+
+.license-text a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    display: inline;
+}
+
+.license-text a:hover {
+    text-decoration: underline;
+}
+
 footer {
     position: fixed;
     bottom: 0;
@@ -448,31 +492,24 @@ footer .footer-content {
     width: 100%;
     max-width: 500px; /* Same max-width as #game-content */
     display: flex;
-    align-items: flex-start; /* Align to top of container */
-    gap: 0.7rem; /* Adjusted gap */
+    align-items: center;
+    gap: 0.5rem;
     font-size: 0.6rem; /* Made smaller */
     padding: 0.25rem 0;
 }
 
 footer img {
-    height: 1.3rem; /* 30% larger than previous 1rem */
-    margin-top: 0.1rem; /* Small adjustment for alignment */
+    height: 1rem; /* Standard size */
 }
 
 footer .footer-text {
     display: flex;
     flex-direction: column;
     line-height: 1.1;
-    flex: 1; /* Take remaining space */
 }
 
 footer .footer-text p {
     margin: 0;
-    margin-bottom: 0.1rem; /* Small gap between lines */
-}
-
-footer .footer-text p:last-child {
-    margin-bottom: 0;
 }
 
 footer .footer-text a {
