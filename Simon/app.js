@@ -327,9 +327,9 @@ function showRanking() {
             // Sort ranking by score descending
             ranking.sort((a, b) => b.score - a.score);
             
-            let rankingContent = '<div class="ranking-header"><h2>🏆 Rànquing Global</h2><div class="ranking-columns"><span>Jugador</span><span>Nivell</span></div></div><ol class="ranking-list">';
+            let rankingContent = '<div class="ranking-header"><h2>🏆 Rànquing global</h2><div class="ranking-columns"><span class="col-player">Jugador</span><span class="col-score">Nivell</span></div></div><ol class="ranking-list">';
             if (ranking.length > 0) {
-                ranking.slice(0, 10).forEach((player, index) => {
+                ranking.slice(0, 20).forEach((player, index) => { // Show top 20 instead of 10
                     // Highlight current player if in ranking
                     const isCurrentPlayer = player.name === playerName;
                     const playerClass = isCurrentPlayer ? ' current-player' : '';
@@ -343,7 +343,7 @@ function showRanking() {
                     // Add special class for top 3
                     const topClass = index < 3 ? ' top-player' : '';
                     
-                    rankingContent += `<li class="${playerClass}${topClass}">${medal} <span class="player-name">${player.name}</span><span class="player-score">${player.score}</span></li>`;
+                    rankingContent += `<li class="${playerClass}${topClass}"><span class="rank-number">${index + 1}.</span><span class="player-name">${player.name}</span><span class="player-score">${player.score}</span></li>`;
                 });
             } else {
                 rankingContent += '<li class="no-scores">No hi ha puntuacions encara</li>';

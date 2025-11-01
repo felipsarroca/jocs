@@ -509,41 +509,56 @@ footer .footer-content a:hover {
 #ranking-modal .modal-content .ranking-header {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 #ranking-modal .modal-content .ranking-columns {
     display: flex;
-    justify-content: space-between;
     padding: 0.5rem 1rem;
     background: rgba(31, 41, 55, 0.7);
     border-radius: 0.5rem;
-    margin: 0.5rem 0;
+    margin: 0 0 0.5rem 0;
     font-weight: 600;
     color: var(--accent-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+#ranking-modal .modal-content .ranking-columns .col-player {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#ranking-modal .modal-content .ranking-columns .col-score {
+    background: var(--secondary-bg);
+    color: var(--accent-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    min-width: 3rem;
+    text-align: center;
+    font-weight: bold;
 }
 
 #ranking-modal .modal-content ol {
     list-style-type: none;
     padding-left: 0;
     text-align: left;
-    max-height: 300px;
+    max-height: 400px; /* Increased height for 20 entries */
     overflow-y: auto;
     margin: 0;
     padding-right: 1rem;
-    counter-reset: ranking-counter;
 }
 
 #ranking-modal .modal-content ol.ranking-list li {
-    counter-increment: ranking-counter;
-    position: relative;
-    margin-bottom: 0.75rem;
-    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0.7rem 1rem;
     background: rgba(31, 41, 55, 0.5);
     border-radius: 0.75rem;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     transition: transform 0.2s ease;
     min-height: 2.5rem;
@@ -569,11 +584,20 @@ footer .footer-content a:hover {
     text-align: center;
 }
 
+#ranking-modal .modal-content ol.ranking-list li .rank-number {
+    color: var(--text-secondary);
+    margin-right: 0.5rem;
+    font-weight: 500;
+    min-width: 2rem;
+    flex-shrink: 0;
+}
+
 #ranking-modal .modal-content ol.ranking-list li .player-name {
     flex: 1;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 0; /* Allows flex item to shrink below content size */
 }
 
 #ranking-modal .modal-content ol.ranking-list li .player-score {
@@ -584,27 +608,7 @@ footer .footer-content a:hover {
     min-width: 3rem;
     text-align: center;
     font-weight: bold;
-}
-
-#ranking-modal .modal-content ol.ranking-list li::before {
-    content: counter(ranking-counter);
-    background: var(--accent-color);
-    color: var(--primary-bg-color);
-    width: 1.8rem;
-    height: 1.8rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 0.8rem;
-    margin-right: 0.5rem;
     flex-shrink: 0;
-}
-
-#ranking-modal .modal-content ol.ranking-list li.top-player::before {
-    background: var(--accent-color);
-    color: var(--primary-bg-color);
 }
 
 /* Scrollbar styling */
