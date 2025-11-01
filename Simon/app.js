@@ -165,8 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    rankingButton.addEventListener('click', showRanking);
-
     function sendScore(name, score) {
         fetch('https://script.google.com/macros/s/AKfycbyTnaRWXneulJ2E3w2t_lx7GDslA_2NtN9-o4cR6WUal3m9q3op8KNf-FtQIoAOV_wbFg/exec', {
             method: 'POST',
@@ -197,6 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
     }
+
+    rankingButton.addEventListener('click', showRanking);
 
     initializeNameEntry();
 });
