@@ -93,6 +93,8 @@ function initializeNameEntry() {
       localStorage.removeItem('rememberPreference');
     }
 
+    bestScore = Number(localStorage.getItem('simonBestScore') || 0);
+
     gameTitleEl.textContent = 'Simon';
     nameModal.classList.add('hidden');
     gameContent.classList.remove('hidden');
@@ -205,24 +207,35 @@ function endGame() {
   startButton.disabled = false;
   startButton.textContent = 'Torna a Jugar';
 
-  if (level > bestScore) {
-    bestScore = level;
+  const finalLevel = level - 1; // nivell real assolit
+  if (finalLevel > bestScore) {
+    bestScore = finalLevel;
     localStorage.setItem('simonBestScore', String(bestScore));
-    // Removed message as message element no longer exists
-    showSendScoreDialog();
+    showSendScoreDialog(finalLevel, true);
+  } else if (bestScore === 0) {
+    // Nou jugador: enviem directament el primer resultat (recomanat)
+    bestScore = finalLevel;
+    localStorage.setItem('simonBestScore', String(bestScore));
+    sendScore(playerName, bestScore);
   }
 }
 
 // --- Diàleg d'enviament de marca ---
-function showSendScoreDialog() {
+function showSendScoreDialog(score, isRecord = false) {
   const confirmModal = document.createElement('div');
   confirmModal.id = 'confirm-modal';
+
+  const title = isRecord ? '🏆 Nova marca personal!' : '🎉 Primer resultat registrat!';
+  const message = isRecord 
+    ? `Has arribat al nivell ${score}. Vols enviar el teu rècord al rànquing global?`
+    : `Has arribat al nivell ${score}. Vols enviar aquest resultat al rànquing global?`;
+
   confirmModal.innerHTML = `
     <div class="modal-content">
-      <h2>🏆 Nova Marca Personal!</h2>
-      <p>Vols enviar el teu rècord al rànquing global?</p>
+      <h2>${title}</h2>
+      <p>${message}</p>
       <div class="modal-buttons">
-        <button id="send-score-yes"><span class="send-icon">📤</span> Sí, enviar</button>
+        <button id="send-score-yes"><span class="send-icon">📤</span> Envia</button>
         <button id="send-score-no">No, gràcies</button>
       </div>
     </div>
@@ -262,7 +275,7 @@ function showSendScoreDialog() {
   };
 
   document.getElementById('send-score-yes').addEventListener('click', () => {
-    sendScore(playerName, bestScore);
+    sendScore(playerName, score);
     close();
   });
   document.getElementById('send-score-no').addEventListener('click', close);
