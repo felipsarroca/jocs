@@ -5,6 +5,9 @@ console.log('app.js loaded');
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded event fired');
     const nameModal = document.getElementById('name-modal');
+    const gameContent = document.getElementById('game-content');
+    console.log('nameModal:', nameModal);
+    console.log('gameContent:', gameContent);
     const nameInput = document.getElementById('name-input');
     const rememberCheckbox = document.getElementById('remember-checkbox');
     const submitNameButton = document.getElementById('submit-name-button');
@@ -50,13 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         submitNameButton.addEventListener('click', () => {
-            alert('Botó Comença clicat!');
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
         });
 
         submitNameButton.addEventListener('touchstart', () => {
-            alert('Botó Comença tocat!');
             nameModal.classList.add('hidden');
             gameContent.classList.remove('hidden');
         });
