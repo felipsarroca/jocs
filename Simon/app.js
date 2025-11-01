@@ -123,6 +123,7 @@ function showSequence() {
             gameState = 'playing';
             playerSequenceIndex = 0;
             messageEl.textContent = 'El teu torn!';
+            startButton.disabled = false; // Enable the button after showing the sequence
         }
     }, 700);
 }
