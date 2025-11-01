@@ -373,10 +373,8 @@ body::before {
 }
 
 .level-label {
-    font-size: 0.9rem; /* Reduced from 1.125rem */
-    color: var(--text-secondary);
-    margin-bottom: 0; /* Remove space completely to bring closer to level number */
-    font-weight: 500;
+    margin-bottom: -0.2rem; /* Abans: 0; ara negatiu per acostar el text al número */
+    font-size: 0.85rem;     /* lleugerament més petit per mantenir proporció */
 }
 
 #level {
@@ -384,6 +382,8 @@ body::before {
     font-size: 2.8rem; /* Reduced from 3.5rem */
     color: var(--accent-color);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    top: -0.1rem;           /* L'aixeca lleugerament per centrar-lo millor al cercle */
 }
 
 .controls {
@@ -391,7 +391,8 @@ body::before {
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-top: 1.5rem;  /* Afegir o augmentar espai superior */
+    margin-bottom: 2.5rem; /* Opcional: mantenir espai amb peu de pàgina */
     width: 100%;
 }
 
@@ -476,51 +477,37 @@ body::before {
 }
 
 footer {
-    position: static; /* No longer fixed to bottom */
-    width: 100%;
-    padding: 0.5rem 0;
+    background: none;           /* Elimina fons especial */
+    border-top: none;           /* Sense línia superior */
+    margin-top: 1rem;           /* Espai respecte als botons */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.license-inline {
+    display: flex;
+    align-items: center;        /* Justificació vertical amb el botó Inicia */
+    gap: 0.6rem;
+    font-size: 0.65rem;
     color: var(--text-secondary);
-    background: var(--primary-bg-color);
-    border-top: 1px solid rgba(245, 158, 11, 0.1);
-    z-index: 10;
-    display: flex;
-    justify-content: flex-start; /* Left align instead of center */
-    margin-top: 1.5rem; /* Space above the footer */
-    padding-left: 1.5rem; /* Position it slightly to the right */
 }
 
-footer .footer-content {
-    width: 100%;
-    max-width: 500px; /* Same max-width as #game-content */
-    display: flex;
-    align-items: flex-start; /* Align to top of container */
-    gap: 0.7rem; /* Adjusted gap */
-    font-size: 0.6rem; /* Made smaller */
-    padding: 0.25rem 0;
+.license-inline img {
+    height: 1.2rem;
 }
 
-footer img {
-    height: 1rem; /* Standard size */
-}
-
-footer .footer-text {
+.license-inline-text {
     display: flex;
     flex-direction: column;
-    line-height: 1.1;
+    line-height: 1.2;
 }
 
-footer .footer-text p {
-    margin: 0;
-}
-
-footer .footer-text a {
+.license-inline-text a {
     color: var(--accent-color);
     text-decoration: none;
-    font-weight: 500;
-    display: inline;
 }
-
-footer .footer-text a:hover {
+.license-inline-text a:hover {
     text-decoration: underline;
 }
 
