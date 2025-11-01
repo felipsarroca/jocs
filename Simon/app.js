@@ -141,7 +141,7 @@ function startGame() {
     level = 1;
     sequence = [];
     gameState = 'waiting';
-    startButton.textContent = 'Inicia';
+    // Don't change button text here - it should be handled based on game state
     messageEl.textContent = "Concentra't...";
     levelEl.textContent = level;
 
