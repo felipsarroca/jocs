@@ -19,18 +19,6 @@
     --button-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  background-color: #0f172a; /* mateix fons per integrar el marc */
-}
-
 * {
     box-sizing: border-box;
 }
@@ -273,26 +261,27 @@ body::before {
     width: 100%;
 }
 
-/* --- Contenidor exterior: el marc lila --- */
+/* --- Contenidor exterior: el quadrat lila --- */
 .simon-container {
-  position: relative;
-  width: 90vw;             /* ocupa el 90% de l'amplada del dispositiu */
-  aspect-ratio: 1 / 1;     /* assegura que sempre sigui quadrat */
-  margin: 0 auto;
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.5);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-  border: 2px solid rgba(245, 158, 11, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: relative;
+    width: 100%;
+    max-width: 329px; /* o la mida que vulguis del marc */
+    aspect-ratio: 1 / 1;
+    margin: 0.5rem auto;
+    border-radius: 16px;
+    background: rgba(15, 23, 42, 0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(245, 158, 11, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* --- Contenidor interior: el cercle del Simon --- */
+/* --- Contenidor intern: el cercle amb els quadrants --- */
 .simon-inner {
-  position: relative;
-  width: 95%;              /* ocupa quasi tot el contenidor */
-  aspect-ratio: 1 / 1;
+    position: relative;
+    width: 90%;           /* controla la mida del cercle respecte al contenidor */
+    aspect-ratio: 1 / 1;  /* obliga a ser sempre un cercle perfecte */
 }
 
 /* --- Els quadrants de color --- */
@@ -965,21 +954,26 @@ body.mobile-device .controls {
     gap: 1.5rem;
 }
 
-/* --- Versió mòbil: redueix encara més el marge --- */
+/* --- Versió mòbil: reduir el marge entre el cercle i el marc --- */
 @media (max-width: 768px) {
-  .simon-container {
-    width: 95vw;       /* ocupa gairebé tota la pantalla */
-  }
   .simon-inner {
-    width: 98%;        /* redueix encara més el marge lila interior */
+    width: 98%;      /* abans probablement 90% o 92% */
+    max-width: none; /* assegura que no hi hagi límits */
+  }
+
+  .simon-container {
+    padding: 0;      /* elimina qualsevol espai intern si n’hi havia */
+    border-radius: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .simon-container {
-    width: 96vw;
-  }
   .simon-inner {
-    width: 99%;
+    width: 99%;      /* encara més gran en mòbils petits */
+  }
+
+  .simon-container {
+    padding: 0;
+    border-radius: 10px;
   }
 }
