@@ -282,104 +282,10 @@ body::before {
     position: relative;
     width: 90%;           /* controla la mida del cercle respecte al contenidor */
     aspect-ratio: 1 / 1;  /* obliga a ser sempre un cercle perfecte */
+    overflow: hidden;     /* Ensures rounded corners are properly visible */
 }
 
 /* --- Els quadrants de color --- */
-.simon-button {
-    position: absolute;
-    width: 50%;
-    height: 50%;
-    box-sizing: border-box;
-    border: 3px solid var(--border-color);
-    transition: all 0.15s ease;
-    cursor: pointer;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-/* --- Posicionament dels quatre colors --- */
-#green { top: 0; left: 0; border-top-left-radius: 100%; background: #166534; }
-#red { top: 0; right: 0; border-top-right-radius: 100%; background: #b91c1c; }
-#yellow { bottom: 0; left: 0; border-bottom-left-radius: 100%; background: #b45309; }
-#blue { bottom: 0; right: 0; border-bottom-right-radius: 100%; background: #1e3a8a; }
-
-/* --- Centre --- */
-.center-circle {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 35%;
-    aspect-ratio: 1 / 1;
-    background: #0f172a;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #f59e0b;
-    font-weight: 700;
-}
-
-.level-label {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    margin-bottom: -0.2rem;
-    font-weight: 500;
-}
-
-#level {
-    font-weight: 700;
-    font-size: 2.8rem;
-    color: var(--accent-color);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    position: relative;
-    top: -0.1rem;
-}
-
-/* Mobile-specific adjustments */
-@media (max-width: 768px) {
-    .simon-container {
-        max-width: 85vw; /* Use 85% of viewport width */
-        max-height: 85vw; /* Maintain square aspect ratio */
-        margin: 1rem auto;
-    }
-    
-    .simon-inner {
-        width: 95%; /* Use more of the container width */
-    }
-    
-    .center-circle {
-        width: 40%; /* Slightly larger center circle */
-    }
-    
-    .level-label {
-        font-size: 1rem; /* Larger text for mobile */
-    }
-    
-    #level {
-        font-size: 3.5rem; /* Larger level number for mobile */
-    }
-}
-
-@media (max-width: 480px) {
-    .simon-container {
-        max-width: 90vw; /* Use more of the viewport width on very small screens */
-        max-height: 90vw;
-    }
-    
-    .center-circle {
-        width: 45%; /* Larger center circle on very small screens */
-    }
-    
-    .level-label {
-        font-size: 1.1rem; /* Even larger text for very small screens */
-    }
-    
-    #level {
-        font-size: 4rem; /* Larger level number for very small screens */
-    }
-}
-
 .simon-button {
     position: absolute;
     width: calc(50% - 3px); /* Account for borders */
@@ -390,15 +296,12 @@ body::before {
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.simon-button:active {
-    transform: scale(0.98);
-}
-
-#green {
-    top: 0;
-    left: 0;
+/* --- Posicionament dels quatre colors --- */
+#green { 
+    top: 0; 
+    left: 0; 
+    border-top-left-radius: 100%; 
     background-color: var(--green);
-    border-top-left-radius: 100%;
     z-index: 1;
     border-right: 2px solid var(--border-color);
     border-bottom: 2px solid var(--border-color);
@@ -410,11 +313,11 @@ body::before {
     transform: scale(0.98);
 }
 
-#red {
-    top: 0;
-    right: 0;
+#red { 
+    top: 0; 
+    right: 0; 
+    border-top-right-radius: 100%; 
     background-color: var(--red);
-    border-top-right-radius: 100%;
     z-index: 2;
     border-left: 2px solid var(--border-color);
     border-bottom: 2px solid var(--border-color);
@@ -426,11 +329,11 @@ body::before {
     transform: scale(0.98);
 }
 
-#yellow {
-    bottom: 0;
-    left: 0;
+#yellow { 
+    bottom: 0; 
+    left: 0; 
+    border-bottom-left-radius: 100%; 
     background-color: var(--yellow);
-    border-bottom-left-radius: 100%;
     z-index: 3;
     border-right: 2px solid var(--border-color);
     border-top: 2px solid var(--border-color);
@@ -442,11 +345,11 @@ body::before {
     transform: scale(0.98);
 }
 
-#blue {
-    bottom: 0;
-    right: 0;
+#blue { 
+    bottom: 0; 
+    right: 0; 
+    border-bottom-right-radius: 100%; 
     background-color: var(--blue);
-    border-bottom-right-radius: 100%;
     z-index: 4;
     border-left: 2px solid var(--border-color);
     border-top: 2px solid var(--border-color);
@@ -458,6 +361,7 @@ body::before {
     transform: scale(0.98);
 }
 
+/* --- Centre --- */
 .center-circle {
     position: absolute;
     top: 50%;
@@ -489,6 +393,60 @@ body::before {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     position: relative;
     top: -0.1rem;           /* L'aixeca lleugerament per centrar-lo millor al cercle */
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    .simon-container {
+        max-width: 85vw; /* Use 85% of viewport width */
+        max-height: 85vw; /* Maintain square aspect ratio */
+        margin: 1rem auto;
+    }
+    
+    .simon-inner {
+        width: 98%; /* Use more of the container width */
+    }
+    
+    .center-circle {
+        width: 38%; /* Slightly larger center circle */
+        height: 38%; /* Keep aspect ratio */
+    }
+    
+    .level-label {
+        font-size: 1rem; /* Larger text for mobile */
+    }
+    
+    #level {
+        font-size: 3.5rem; /* Larger level number for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .simon-container {
+        max-width: 90vw; /* Use more of the viewport width on very small screens */
+        max-height: 90vw;
+    }
+    
+    .simon-inner {
+        width: 99%; /* Use almost full container width */
+    }
+    
+    .center-circle {
+        width: 42%; /* Larger center circle on very small screens */
+        height: 42%; /* Keep aspect ratio */
+    }
+    
+    .level-label {
+        font-size: 1.1rem; /* Even larger text for very small screens */
+    }
+    
+    #level {
+        font-size: 4rem; /* Larger level number for very small screens */
+    }
+}
+
+.simon-button:active {
+    transform: scale(0.98);
 }
 
 .controls {
@@ -929,7 +887,6 @@ body.mobile-device .simon-container {
     width: 100%;
     max-width: 320px; /* Larger for mobile */
     height: 320px;    /* Larger for mobile */
-    padding: 2.5rem;  /* Adjusted padding */
 }
 
 body.mobile-device #game-title {
@@ -954,7 +911,7 @@ body.mobile-device .controls {
     gap: 1.5rem;
 }
 
-/* --- Versió mòbil: reduir el marge entre el cercle i el marc --- */
+/* --- Versió mòbil: ajustar el disseny per pantalla petita --- */
 @media (max-width: 768px) {
   .simon-inner {
     width: 98%;      /* abans probablement 90% o 92% */
@@ -962,7 +919,6 @@ body.mobile-device .controls {
   }
 
   .simon-container {
-    padding: 0;      /* elimina qualsevol espai intern si n’hi havia */
     border-radius: 12px;
   }
 }
@@ -973,7 +929,6 @@ body.mobile-device .controls {
   }
 
   .simon-container {
-    padding: 0;
     border-radius: 10px;
   }
 }
