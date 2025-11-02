@@ -105,7 +105,7 @@ function initializeNameEntry() {
   function submitName() {
     const name = nameInput.value.trim();
     if (!name) {
-      nameInput.placeholder = "¡Por favor, escribe un nombre!";
+      nameInput.placeholder = "Si us plau, introduïu un nom";
       nameInput.classList.add('placeholder-error');
       setTimeout(() => {
         nameInput.placeholder = "Escriu el teu nom";
