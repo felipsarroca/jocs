@@ -76,14 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const col = document.createElement('div');
             col.className = 'col d-flex';
             
-            // Intenta trobar un favicon, si no, mostra una inicial
-            const faviconSrc = `${app.path}favicon.svg`;
+            // Intenta trobar un favicon SVG, si no, prova PNG, si tampoc, mostra una inicial
+            const faviconSvgSrc = `${app.path}favicon.svg`;
+            const faviconPngSrc = `${app.path}favicon.png`;
             const fallbackIcon = `https://via.placeholder.com/64/3498db/ffffff?text=${app.name.charAt(0)}`;
 
             col.innerHTML = `
                 <a href="${app.path}" class="card-link" target="_blank" rel="noopener noreferrer">
                     <div class="card h-100">
-                        <img src="${faviconSrc}" class="card-img-top" alt="Icona de ${app.name}" onerror="this.onerror=null;this.src='${fallbackIcon}';">
+                        <img src="${faviconSvgSrc}" class="card-img-top" alt="Icona de ${app.name}" onerror="this.onerror=null;this.src='${faviconPngSrc}'" onload="this.onload=null;this.onerror=function(){this.onerror=null;this.src='${fallbackIcon}';};">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">${app.name}</h5>
                             <p class="card-text flex-grow-1">${app.description}</p>
