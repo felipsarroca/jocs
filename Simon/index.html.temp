@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simon de Colors</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-192.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.webmanifest">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="name-modal">
+        <div class="modal-content">
+            <h2>Com et dius?</h2>
+            <input type="text" id="name-input" placeholder="Escriu el teu nom" maxlength="30">
+            <div class="remember-me">
+                <input type="checkbox" id="remember-checkbox">
+                <label for="remember-checkbox">Recorda'm en aquest dispositiu</label>
+            </div>
+            <button id="submit-name-button">Comença</button>
+        </div>
+    </div>
+
+    <div id="game-content" class="hidden">
+        <div class="game-header">
+            <h1 id="game-title">Simon</h1>
+        </div>
+
+        <div class="simon-container">
+  <div class="simon-inner">
+      <div id="green" class="simon-button" data-color="green"></div>
+      <div id="red" class="simon-button" data-color="red"></div>
+      <div id="yellow" class="simon-button" data-color="yellow"></div>
+      <div id="blue" class="simon-button" data-color="blue"></div>
+      <div class="center-circle">
+          <span class="level-label">NIVELL</span>
+          <span id="level">1</span>
+      </div>
+  </div>
+</div>
+        
+        <div class="controls">
+            <button id="start-button">Inicia</button>
+            <button id="ranking-button">🏆 Rànquing</button>
+        </div>
+    </div>
+
+    <footer>
+  <div class="license-inline">
+    <img src="CC_BY-NC-SA.svg" alt="Llicència Creative Commons">
+    <div class="license-inline-text">
+      <p>Joc creat per Felip Sarroca amb l'assistència de la IA</p>
+      <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank">CC BY-NC-SA 4.0</a></p>
+    </div>
+  </div>
+</footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
