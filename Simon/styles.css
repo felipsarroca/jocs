@@ -954,15 +954,26 @@ body.mobile-device .controls {
     gap: 1.5rem;
 }
 
-/* --- Optimització per a mòbils: augmentar la mida del cercle dins del marc --- */
+/* --- Versió mòbil: reduir el marge entre el cercle i el marc --- */
 @media (max-width: 768px) {
   .simon-inner {
-    width: 96%;  /* Abans 90% o 95%, ara ocupa gairebé tot el marc */
+    width: 98%;      /* abans probablement 90% o 92% */
+    max-width: none; /* assegura que no hi hagi límits */
+  }
+
+  .simon-container {
+    padding: 0;      /* elimina qualsevol espai intern si n’hi havia */
+    border-radius: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .simon-inner {
-    width: 98%;  /* En mòbils petits, encara més gran */
+    width: 99%;      /* encara més gran en mòbils petits */
+  }
+
+  .simon-container {
+    padding: 0;
+    border-radius: 10px;
   }
 }
