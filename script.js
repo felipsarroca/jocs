@@ -32,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         path: 'Sudoku/',
                         category: 'Jocs de lògica i nombres',
                         description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3."
+                    },
+                    {
+                        name: "Simon",
+                        path: 'Simon/',
+                        category: 'Jocs de lògica i nombres',
+                        description: "Posa a prova la teva memòria. Repeteix la seqüència de colors i sons que et mostra el joc."
                     }    ];
 
     const mainContainer = document.getElementById('apps-container');
