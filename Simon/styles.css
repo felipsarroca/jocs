@@ -953,3 +953,16 @@ body.mobile-device .controls {
     margin-top: 2rem; /* Ensure adequate spacing on mobile */
     gap: 1.5rem;
 }
+
+/* --- Optimització per a mòbils: augmentar la mida del cercle dins del marc --- */
+@media (max-width: 768px) {
+  .simon-inner {
+    width: 96%;  /* Abans 90% o 95%, ara ocupa gairebé tot el marc */
+  }
+}
+
+@media (max-width: 480px) {
+  .simon-inner {
+    width: 98%;  /* En mòbils petits, encara més gran */
+  }
+}
