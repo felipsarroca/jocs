@@ -336,6 +336,50 @@ body::before {
     top: -0.1rem;
 }
 
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+    .simon-container {
+        max-width: 85vw; /* Use 85% of viewport width */
+        max-height: 85vw; /* Maintain square aspect ratio */
+        margin: 1rem auto;
+    }
+    
+    .simon-inner {
+        width: 95%; /* Use more of the container width */
+    }
+    
+    .center-circle {
+        width: 40%; /* Slightly larger center circle */
+    }
+    
+    .level-label {
+        font-size: 1rem; /* Larger text for mobile */
+    }
+    
+    #level {
+        font-size: 3.5rem; /* Larger level number for mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .simon-container {
+        max-width: 90vw; /* Use more of the viewport width on very small screens */
+        max-height: 90vw;
+    }
+    
+    .center-circle {
+        width: 45%; /* Larger center circle on very small screens */
+    }
+    
+    .level-label {
+        font-size: 1.1rem; /* Even larger text for very small screens */
+    }
+    
+    #level {
+        font-size: 4rem; /* Larger level number for very small screens */
+    }
+}
+
 .simon-button {
     position: absolute;
     width: calc(50% - 3px); /* Account for borders */
