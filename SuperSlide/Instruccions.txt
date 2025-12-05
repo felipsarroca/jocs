@@ -1,0 +1,63 @@
+1. Visió general
+Super Slide és un trencaclosques interactiu en línia on l’objectiu de cada nivell és fer lliscar una peça vermella 2×2 fins a la posició de sortida centred al final del taulell. El joc està dissenyat per a públic de totes les edats i ofereix 1 000 nivells de dificultat creixent, tots ells garantits com a solucionables.
+
+
+2. Elements del joc
+Taulell
+
+Quadrícula de 5 files × 4 columnes.
+20 caselles, de les quals 2 sempre queden buides i 18 estan ocupades per peces.
+
+Peces
+
+Peça vermella (2×2): element principal; decorada amb una fletxa o símbol gravat apuntant cap avall.
+
+Peces rectangles (2×1):
+
+Verticals: tons blaus.
+Horitzontals: tons verds.
+
+Peces quadrades (1×1): grogues.
+
+Espais buits (1×1): zones on es poden desplaçar les peces.
+
+
+3. Mecànica i funcionalitats bàsics
+Drag & drop: arrossega una peça per moure-la en línia recta cap a posicions lliures.
+Validació de moviment: només es permet moure una peça si tots els espais del recorregut estan lliures.
+Cronòmetre: mostra el temps transcorregut (mm:ss) des del primer moviment.
+Comptador de moviments (opcional): segueix el nombre d’accions realitzades.
+Desfer l’últim moviment.
+
+
+4. Pantalles i feedback
+Instruccions inicials: modal amb explicació breu i botó “Començar”.
+
+Pantalla de felicitació al superar un nivell:
+
+Missatge “🎉 Nivell X superat!”
+Temps emprat i moviments.
+Botó “Següent nivell” per progressar.
+Opcional: “Repetir nivell” i “Tornar al menú”.
+
+Confetti i efectes de so al guanyar, per reforçar la satisfacció.
+
+
+5. Progressió i garantia de solució
+1 000 nivells: generats o definits amb dificultat progressiva.
+Generador o barrejador: parteix de la configuració final (peça vermella a la sortida) i aplica n moviments inversos per crear cada nivell.
+Solucionador intern (opcional): comprova la solvibilitat mínima (BFS o DFS amb límit de profunditat) per ajustar la dificultat.
+
+
+6. Disseny i experiència d’usuari
+Responsive: funcioni en mòbil, tablet i escriptori.
+Estètica 3D suau: gradients, ombres suaus, animacions d’entrada i hover.
+Paleta moderna i tipografia clara.
+Transicions fluides al moure peces (transform, transition).
+
+
+7. Requisits tècnics
+Stack: HTML5, CSS3 (Grid/Flex/variables), JavaScript pur (sense framework).
+Estructura de fitxers clara: index.html, styles.css, game.js, levels.json, assets (SVG, so).
+Modularitat: codi organitzat en funcions i classes (per a la lògica de nivells, moviment, UI, controls).
+Persistència (localStorage): сохраняе el nivell més alt i millor temps.

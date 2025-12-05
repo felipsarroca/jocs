@@ -1,0 +1,16 @@
+{
+  "levelCount": 1000,
+  "basePieces": [
+    { "id": "R", "type": "red", "row": 3, "col": 1, "width": 2, "height": 2 },
+    { "id": "V1", "type": "vertical", "row": 0, "col": 0, "width": 1, "height": 2 },
+    { "id": "V2", "type": "vertical", "row": 0, "col": 3, "width": 1, "height": 2 },
+    { "id": "V3", "type": "vertical", "row": 1, "col": 1, "width": 1, "height": 2 },
+    { "id": "V4", "type": "vertical", "row": 1, "col": 2, "width": 1, "height": 2 },
+    { "id": "H1", "type": "horizontal", "row": 0, "col": 1, "width": 2, "height": 1 },
+    { "id": "S1", "type": "square", "row": 2, "col": 0, "width": 1, "height": 1 },
+    { "id": "S2", "type": "square", "row": 2, "col": 3, "width": 1, "height": 1 },
+    { "id": "S3", "type": "square", "row": 3, "col": 0, "width": 1, "height": 1 },
+    { "id": "S4", "type": "square", "row": 4, "col": 3, "width": 1, "height": 1 }
+  ],
+  "goal": { "row": 3, "col": 1 }
+}

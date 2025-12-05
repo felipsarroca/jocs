@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Slide</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <div class="hero__text">
+        <p class="eyebrow">Trencaclosques 5x4</p>
+        <h1>Super Slide</h1>
+        <p class="lede">Mou les peces amb fluïdesa fins que la peça vermella arribi a la sortida central. 1.000 nivells garantits com a solucionables.</p>
+        <div class="actions">
+          <button class="btn ghost" id="btn-howto">Instruccions</button>
+          <button class="btn" id="btn-new">Nou nivell</button>
+        </div>
+      </div>
+      <div class="stat-block">
+        <div class="stat">
+          <span class="label">Nivell</span>
+          <span class="value" id="level-label">1 / 1000</span>
+        </div>
+        <div class="stat">
+          <span class="label">Temps</span>
+          <span class="value" id="timer">00:00</span>
+        </div>
+        <div class="stat">
+          <span class="label">Moviments</span>
+          <span class="value" id="moves">0</span>
+        </div>
+        <div class="stat">
+          <span class="label">Millor</span>
+          <span class="value" id="best">--</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="board-shell">
+        <div class="goal-label">Sortida</div>
+        <div id="board" class="board"></div>
+        <div class="exit-slot"></div>
+      </div>
+      <div class="panel">
+        <div class="panel__row">
+          <button class="btn" id="btn-undo">Desfer</button>
+          <button class="btn ghost" id="btn-reset">Reinicia nivell</button>
+        </div>
+        <p class="hint">Arrossega una peça en línia recta. Pots desfer l'últim moviment. El cronòmetre s'activa en el primer moviment.</p>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="modal-howto" aria-hidden="true">
+    <div class="modal__card">
+      <h2>Com es juga</h2>
+      <ol>
+        <li>Hi ha una quadrícula de 5 files × 4 columnes amb dues caselles lliures.</li>
+        <li>Mou les peces amb arrossegar i deixar anar. Només es pot moure en línia recta i sense travessar altres peces.</li>
+        <li>Objectiu: porta la peça vermella 2×2 fins a la sortida central de la fila inferior.</li>
+        <li>Pots desfer l'últim moviment i veure el temps i els moviments fets.</li>
+      </ol>
+      <div class="modal__actions">
+        <button class="btn" id="btn-start">Començar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal-win" aria-hidden="true">
+    <div class="modal__card">
+      <h2 id="win-title">Nivell superat!</h2>
+      <p class="win-time" id="win-time"></p>
+      <p class="win-moves" id="win-moves"></p>
+      <div class="modal__actions">
+        <button class="btn" id="btn-next">Següent nivell</button>
+        <button class="btn ghost" id="btn-replay">Repetir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confetti"></div>
+
+  <script src="game.js" defer></script>
+</body>
+</html>
