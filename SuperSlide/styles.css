@@ -1,17 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap');
 
 :root {
-  --bg: radial-gradient(circle at 20% 20%, #0f172a 0%, #0b1224 42%, #0a0f1f 100%);
-  --panel: rgba(255, 255, 255, 0.03);
-  --card: rgba(255, 255, 255, 0.05);
-  --accent: #ff7f6e;
-  --green: #7de3b2;
-  --blue: #6cb5ff;
+  --bg: radial-gradient(circle at 16% 20%, #1a1f35 0%, #0d1225 32%, #0a0f1f 60%, #080c16 100%);
+  --panel: rgba(255, 255, 255, 0.04);
+  --card: rgba(255, 255, 255, 0.07);
+  --accent: #ff8ba7;
+  --accent-2: #7bdff2;
+  --accent-3: #c084fc;
+  --green: #84f3bc;
+  --blue: #7dc3ff;
   --yellow: #ffd166;
   --text: #e8eefc;
-  --muted: #9db0cf;
-  --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 14px 48px rgba(0, 0, 0, 0.32);
+  --muted: #a4b6d6;
+  --border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 16px 52px rgba(0, 0, 0, 0.38);
 }
 
 * {
@@ -28,7 +30,43 @@ body {
 
 .page {
   width: min(1040px, 92vw);
-  margin: 24px auto 56px;
+  margin: 28px auto 64px;
+  position: relative;
+  z-index: 1;
+}
+
+.bg-shape {
+  position: fixed;
+  filter: blur(40px);
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.bg-shape.s1 {
+  width: 320px;
+  height: 320px;
+  top: -60px;
+  left: -40px;
+  background: radial-gradient(circle, rgba(255, 140, 122, 0.7), transparent 70%);
+  animation: float 12s ease-in-out infinite;
+}
+
+.bg-shape.s2 {
+  width: 260px;
+  height: 260px;
+  bottom: 10%;
+  right: 8%;
+  background: radial-gradient(circle, rgba(126, 223, 242, 0.7), transparent 70%);
+  animation: float 10s ease-in-out infinite reverse;
+}
+
+.bg-shape.s3 {
+  width: 220px;
+  height: 220px;
+  top: 30%;
+  right: 50%;
+  background: radial-gradient(circle, rgba(192, 132, 252, 0.5), transparent 70%);
+  animation: float 14s ease-in-out infinite;
 }
 
 .hero {
@@ -36,9 +74,9 @@ body {
   grid-template-columns: 1.2fr 1fr;
   gap: 20px;
   align-items: start;
-  padding: 18px 18px 14px;
+  padding: 20px 20px 16px;
   border-radius: 16px;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -71,7 +109,7 @@ body {
 
 .btn {
   border: none;
-  background: linear-gradient(120deg, #ff9d7a, #ff5f8a);
+  background: linear-gradient(120deg, #ffb085, #ff6f9c);
   color: #0b0f17;
   padding: 10px 16px;
   border-radius: 10px;
@@ -124,7 +162,7 @@ body {
 }
 
 main {
-  margin-top: 28px;
+  margin-top: 24px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
@@ -134,7 +172,7 @@ main {
 .board-shell {
   position: relative;
   width: min(420px, 88vw);
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.24));
   border-radius: 14px;
   padding: 14px;
   border: 1px solid var(--border);
@@ -145,7 +183,7 @@ main {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 5;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -209,7 +247,7 @@ main {
 .piece {
   position: absolute;
   border-radius: 12px;
-  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 0.16s ease;
   touch-action: none;
@@ -221,7 +259,7 @@ main {
 }
 
 .piece.red {
-  background: linear-gradient(135deg, #ff8275, #ff3c74);
+  background: radial-gradient(circle at 25% 25%, rgba(255, 230, 230, 0.35), transparent 50%), linear-gradient(135deg, #ff8c8c, #ff477e);
 }
 
 .piece.red::after {
@@ -248,15 +286,15 @@ main {
 }
 
 .piece.vertical {
-  background: linear-gradient(135deg, #72b9ff, #4479f2);
+  background: linear-gradient(135deg, #7fc4ff, #3f7af6);
 }
 
 .piece.horizontal {
-  background: linear-gradient(135deg, #6cf2b0, #1fbd83);
+  background: linear-gradient(135deg, #7ff5be, #26c98d);
 }
 
 .piece.square {
-  background: linear-gradient(135deg, #ffd166, #f39c1f);
+  background: linear-gradient(135deg, #ffe08a, #f7ae2b);
 }
 
 .modal {
@@ -337,6 +375,15 @@ main {
   100% {
     transform: translate3d(0, 110vh, 0) rotateZ(300deg);
     opacity: 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(24px) scale(1.04);
   }
 }
 

@@ -14,6 +14,7 @@ const state = {
   level: 1,
   variant: 1,
   seed: 0,
+  minDistance: null,
   timerId: null,
   startTime: null,
   elapsed: 0,
@@ -63,6 +64,10 @@ function newSeed() {
     return buf[0];
   }
   return Math.floor(Math.random() * 1e9);
+}
+
+function calcTargetMoves(level) {
+  return Math.min(50, 6 + Math.floor(level * 0.8));
 }
 
 function loadProgress() {
@@ -175,20 +180,18 @@ function applySlide(piece, dir, steps) {
 function generator(level, seed) {
   const rng = mulberry32(seed || (1337 + level * 97));
   const pieces = clonePieces(basePieces);
-  const mix = Math.min(200, 28 + Math.floor(level * 1.5));
+  const mix = Math.min(240, 40 + Math.floor(level * 2));
   for (let i = 0; i < mix; i++) {
-    const piece = pieces[Math.floor(rng() * pieces.length)];
-    const dirs = [];
-    const horiz = piece.width > piece.height && piece.height === 1;
-    const vert = piece.height > piece.width && piece.width === 1;
-    if (horiz || piece.width === piece.height) dirs.push('left', 'right');
-    if (vert || piece.width === piece.height) dirs.push('up', 'down');
-    if (dirs.length === 0) continue;
-    const dir = dirs[Math.floor(rng() * dirs.length)];
-    const possible = maxSteps(piece, dir, pieces);
-    if (possible === 0) continue;
-    const steps = 1 + Math.floor(rng() * possible);
-    applySlide(piece, dir, steps);
+    randomMove(rng, pieces);
+  }
+  const target = calcTargetMoves(level);
+  let attempts = 0;
+  let distance = minSolutionMoves(pieces);
+  // Si el camí mínim és massa curt, seguim barrejant (determinista amb la mateixa llavor)
+  while (distance !== null && distance < target && attempts < 200) {
+    randomMove(rng, pieces);
+    distance = minSolutionMoves(pieces);
+    attempts++;
   }
   const red = pieces.find(p => p.id === 'R');
   if (red && red.row === goal.row && red.col === goal.col) {
@@ -197,11 +200,71 @@ function generator(level, seed) {
       const possible = maxSteps(red, d, pieces);
       if (possible > 0) {
         applySlide(red, d, 1);
+        distance = minSolutionMoves(pieces);
         break;
       }
     }
   }
-  return pieces;
+  return { pieces, distance };
+}
+
+function randomMove(rng, pieces) {
+  const piece = pieces[Math.floor(rng() * pieces.length)];
+  const dirs = [];
+  const horiz = piece.width > piece.height && piece.height === 1;
+  const vert = piece.height > piece.width && piece.width === 1;
+  if (horiz || piece.width === piece.height) dirs.push('left', 'right');
+  if (vert || piece.width === piece.height) dirs.push('up', 'down');
+  if (dirs.length === 0) return;
+  const dir = dirs[Math.floor(rng() * dirs.length)];
+  const possible = maxSteps(piece, dir, pieces);
+  if (possible === 0) return;
+  const steps = 1 + Math.floor(rng() * possible);
+  applySlide(piece, dir, steps);
+}
+
+function serialize(pieces) {
+  return pieces
+    .map(p => `${p.id}:${p.row},${p.col}`)
+    .sort()
+    .join('|');
+}
+
+function minSolutionMoves(pieces) {
+  const startKey = serialize(pieces);
+  const queue = [{ pieces: clonePieces(pieces), dist: 0 }];
+  const seen = new Set([startKey]);
+  const maxStates = 120000;
+  let idx = 0;
+  while (idx < queue.length && idx < maxStates) {
+    const { pieces: current, dist } = queue[idx++];
+    const red = current.find(p => p.id === 'R');
+    if (red && red.row === goal.row && red.col === goal.col) return dist;
+    for (const move of generateMoves(current)) {
+      const key = serialize(move);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      queue.push({ pieces: move, dist: dist + 1 });
+    }
+  }
+  return null;
+}
+
+function generateMoves(pieces) {
+  const result = [];
+  for (const piece of pieces) {
+    const dirs = ['left', 'right', 'up', 'down'];
+    for (const dir of dirs) {
+      const steps = maxSteps(piece, dir, pieces);
+      for (let s = 1; s <= steps; s++) {
+        const copy = clonePieces(pieces);
+        const target = copy.find(p => p.id === piece.id);
+        applySlide(target, dir, s);
+        result.push(copy);
+      }
+    }
+  }
+  return result;
 }
 
 function renderPieces() {
@@ -336,8 +399,10 @@ function resetLevel(nextLevel = null, seedOverride = null, newVariant = false) {
   if (nextLevel) state.level = Math.min(nextLevel, levelCount);
   if (newVariant) state.variant += 1;
   state.seed = seedOverride ?? state.seed ?? newSeed();
-  state.pieces = generator(state.level, state.seed);
+  const generated = generator(state.level, state.seed);
+  state.pieces = generated.pieces;
   state.initialPieces = clonePieces(state.pieces);
+  state.minDistance = generated.distance;
   state.history = [];
   state.moves = 0;
   state.startTime = null;
@@ -382,7 +447,10 @@ function undo() {
 }
 
 function replayLevel() {
-  state.pieces = generator(state.level, state.seed);
+  const generated = generator(state.level, state.seed);
+  state.pieces = generated.pieces;
+  state.initialPieces = clonePieces(state.pieces);
+  state.minDistance = generated.distance;
   state.history = [];
   state.moves = 0;
   state.startTime = null;
