@@ -1,17 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&display=swap');
 
 :root {
-  --bg: radial-gradient(circle at 20% 20%, #1a1f2f 0%, #0d111c 35%, #0b0f17 100%);
-  --panel: rgba(255, 255, 255, 0.04);
-  --card: rgba(255, 255, 255, 0.06);
-  --accent: #ff6b6b;
-  --green: #5ed39a;
+  --bg: radial-gradient(circle at 20% 20%, #0f172a 0%, #0b1224 42%, #0a0f1f 100%);
+  --panel: rgba(255, 255, 255, 0.03);
+  --card: rgba(255, 255, 255, 0.05);
+  --accent: #ff7f6e;
+  --green: #7de3b2;
   --blue: #6cb5ff;
   --yellow: #ffd166;
   --text: #e8eefc;
-  --muted: #93a4c0;
+  --muted: #9db0cf;
   --border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  --shadow: 0 14px 48px rgba(0, 0, 0, 0.32);
 }
 
 * {
@@ -27,25 +27,25 @@ body {
 }
 
 .page {
-  width: min(1100px, 92vw);
-  margin: 32px auto 64px;
+  width: min(1040px, 92vw);
+  margin: 24px auto 56px;
 }
 
 .hero {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
-  gap: 24px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
   align-items: start;
-  padding: 24px;
-  border-radius: 20px;
-  background: linear-gradient(140deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  padding: 18px 18px 14px;
+  border-radius: 16px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
 
 .hero__text h1 {
   margin: 8px 0 4px;
-  font-size: clamp(32px, 6vw, 44px);
+  font-size: clamp(30px, 6vw, 40px);
   letter-spacing: -0.5px;
 }
 
@@ -71,10 +71,10 @@ body {
 
 .btn {
   border: none;
-  background: linear-gradient(120deg, #ff8b7b, #ff5f8a);
+  background: linear-gradient(120deg, #ff9d7a, #ff5f8a);
   color: #0b0f17;
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
@@ -99,8 +99,8 @@ body {
 
 .stat-block {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
 }
 
 .stat {
@@ -133,10 +133,10 @@ main {
 
 .board-shell {
   position: relative;
-  width: min(480px, 92vw);
+  width: min(420px, 88vw);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25));
-  border-radius: 18px;
-  padding: 18px;
+  border-radius: 14px;
+  padding: 14px;
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
@@ -187,8 +187,8 @@ main {
   width: 100%;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 12px 14px;
   color: #cbd5f3;
 }
 
@@ -209,7 +209,7 @@ main {
 .piece {
   position: absolute;
   border-radius: 12px;
-  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: transform 0.16s ease;
   touch-action: none;
@@ -221,7 +221,7 @@ main {
 }
 
 .piece.red {
-  background: linear-gradient(135deg, #ff6868, #ff2c64);
+  background: linear-gradient(135deg, #ff8275, #ff3c74);
 }
 
 .piece.red::after {
@@ -248,15 +248,15 @@ main {
 }
 
 .piece.vertical {
-  background: linear-gradient(135deg, #79b3ff, #4f7df5);
+  background: linear-gradient(135deg, #72b9ff, #4479f2);
 }
 
 .piece.horizontal {
-  background: linear-gradient(135deg, #72f5a1, #24c68a);
+  background: linear-gradient(135deg, #6cf2b0, #1fbd83);
 }
 
 .piece.square {
-  background: linear-gradient(135deg, #ffd166, #f6a621);
+  background: linear-gradient(135deg, #ffd166, #f39c1f);
 }
 
 .modal {

@@ -12,6 +12,8 @@ const state = {
   history: [],
   moves: 0,
   level: 1,
+  variant: 1,
+  seed: 0,
   timerId: null,
   startTime: null,
   elapsed: 0,
@@ -23,6 +25,7 @@ const ui = {
   timer: document.getElementById('timer'),
   moves: document.getElementById('moves'),
   level: document.getElementById('level-label'),
+  variant: document.getElementById('variant-label'),
   best: document.getElementById('best'),
   modalHow: document.getElementById('modal-howto'),
   modalWin: document.getElementById('modal-win'),
@@ -34,6 +37,7 @@ const ui = {
   btnNew: document.getElementById('btn-new'),
   btnReset: document.getElementById('btn-reset'),
   btnUndo: document.getElementById('btn-undo'),
+  btnShuffle: document.getElementById('btn-shuffle'),
   btnNext: document.getElementById('btn-next'),
   btnReplay: document.getElementById('btn-replay'),
   confetti: document.getElementById('confetti'),
@@ -50,6 +54,15 @@ function mulberry32(seed) {
     t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
     return ((t ^ t >>> 14) >>> 0) / 4294967296;
   };
+}
+
+function newSeed() {
+  if (window.crypto && crypto.getRandomValues) {
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return buf[0];
+  }
+  return Math.floor(Math.random() * 1e9);
 }
 
 function loadProgress() {
@@ -159,8 +172,8 @@ function applySlide(piece, dir, steps) {
   if (dir === 'down') piece.row += steps;
 }
 
-function generator(level) {
-  const rng = mulberry32(1337 + level * 97);
+function generator(level, seed) {
+  const rng = mulberry32(seed || (1337 + level * 97));
   const pieces = clonePieces(basePieces);
   const mix = Math.min(200, 28 + Math.floor(level * 1.5));
   for (let i = 0; i < mix; i++) {
@@ -319,9 +332,11 @@ function isComplete() {
   return red && red.row === goal.row && red.col === goal.col;
 }
 
-function resetLevel(nextLevel = null) {
+function resetLevel(nextLevel = null, seedOverride = null, newVariant = false) {
   if (nextLevel) state.level = Math.min(nextLevel, levelCount);
-  state.pieces = generator(state.level);
+  if (newVariant) state.variant += 1;
+  state.seed = seedOverride ?? state.seed ?? newSeed();
+  state.pieces = generator(state.level, state.seed);
   state.initialPieces = clonePieces(state.pieces);
   state.history = [];
   state.moves = 0;
@@ -367,7 +382,7 @@ function undo() {
 }
 
 function replayLevel() {
-  state.pieces = clonePieces(state.initialPieces);
+  state.pieces = generator(state.level, state.seed);
   state.history = [];
   state.moves = 0;
   state.startTime = null;
@@ -380,6 +395,7 @@ function replayLevel() {
 function updateUI() {
   const progress = loadProgress();
   ui.level.textContent = `${state.level} / ${levelCount}`;
+  ui.variant.textContent = `${state.variant}`;
   ui.moves.textContent = state.moves;
   ui.timer.textContent = formatTime(state.elapsed);
   const bestMs = progress.best[state.level];
@@ -451,14 +467,22 @@ function bindUI() {
   ui.btnNew.addEventListener('click', () => {
     const progress = loadProgress();
     const target = Math.min(progress.highest || 1, levelCount);
+    state.variant = 1;
+    state.seed = newSeed();
     resetLevel(target);
   });
 
   ui.btnReset.addEventListener('click', replayLevel);
   ui.btnUndo.addEventListener('click', undo);
+  ui.btnShuffle.addEventListener('click', () => {
+    state.seed = newSeed();
+    resetLevel(state.level, state.seed, true);
+  });
   ui.btnNext.addEventListener('click', () => {
     hideWin();
     const next = Math.min(state.level + 1, levelCount);
+    state.seed = newSeed();
+    state.variant = 1;
     resetLevel(next);
   });
   ui.btnReplay.addEventListener('click', () => {
@@ -482,6 +506,7 @@ async function init() {
   bindUI();
   const progress = loadProgress();
   state.level = Math.min(progress.highest || 1, levelCount);
+  state.seed = newSeed();
   resetLevel(state.level);
   showHowto();
 }
