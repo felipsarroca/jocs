@@ -93,8 +93,8 @@ footer {
 }
 
 .license-icon {
-    height: 31px; /* Mida estàndard per a la imatge de llicència */
-    width: 88px;
+    height: 34px; /* Augmentat un 10% */
+    width: 97px;
     margin-right: 5px;
     vertical-align: middle;
     opacity: 0.8;
@@ -112,4 +112,9 @@ footer {
 .footer-text {
     display: flex;
     flex-direction: column;
+}
+
+.footer-author {
+    color: var(--primary-color);
+    text-decoration: none;
 }
