@@ -89,6 +89,7 @@ h1 {
 footer {
     font-size: 0.9rem;
     color: #6c757d;
+    text-align: center;
 }
 
 .license-icon {
@@ -97,4 +98,18 @@ footer {
     margin-right: 5px;
     vertical-align: middle;
     opacity: 0.8;
+}
+
+.footer-license {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    text-align: left;
+}
+
+.footer-text {
+    display: flex;
+    flex-direction: column;
 }
