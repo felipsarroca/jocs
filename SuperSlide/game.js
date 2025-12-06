@@ -57,17 +57,15 @@ function mulberry32(seed) {
   };
 }
 
-function newSeed() {
-  if (window.crypto && crypto.getRandomValues) {
-    const buf = new Uint32Array(1);
-    crypto.getRandomValues(buf);
-    return buf[0];
-  }
-  return Math.floor(Math.random() * 1e9);
+function levelSeed(level, variant) {
+  // Determinista per nivell/variant perquè cada nivell tingui identitat pròpia
+  return (level * 10007 + variant * 7919) >>> 0;
 }
 
-function calcTargetMoves(level) {
-  return Math.min(50, 6 + Math.floor(level * 0.8));
+function targetRange(level) {
+  const min = Math.min(32, Math.max(3, Math.round(4 + level * 0.08)));
+  const max = Math.min(48, min + 8 + Math.floor(level / 60));
+  return { min, max };
 }
 
 function loadProgress() {
@@ -178,21 +176,31 @@ function applySlide(piece, dir, steps) {
 }
 
 function generator(level, seed) {
-  const rng = mulberry32(seed || (1337 + level * 97));
+  const range = targetRange(level);
+  const maxAttempts = 120;
+  let best = null;
+  let bestGap = Infinity;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const rng = mulberry32((seed >>> 0) + attempt * 13);
+    const pieces = buildLayout(rng, level);
+    let distance = minSolutionMoves(pieces);
+    if (distance === null) continue;
+    const gap = distance < range.min ? range.min - distance : distance > range.max ? distance - range.max : 0;
+    if (gap === 0) return { pieces, distance };
+    if (gap < bestGap) {
+      bestGap = gap;
+      best = { pieces, distance };
+    }
+  }
+  if (best) return best;
+  return { pieces: buildLayout(mulberry32((seed >>> 0) ^ 0x9e3779b9), level), distance: null };
+}
+
+function buildLayout(rng, level) {
   const pieces = clonePieces(basePieces);
-  const mix = Math.min(240, 40 + Math.floor(level * 2));
-  for (let i = 0; i < mix; i++) {
-    randomMove(rng, pieces);
-  }
-  const target = calcTargetMoves(level);
-  let attempts = 0;
-  let distance = minSolutionMoves(pieces);
-  // Si el camí mínim és massa curt, seguim barrejant (determinista amb la mateixa llavor)
-  while (distance !== null && distance < target && attempts < 200) {
-    randomMove(rng, pieces);
-    distance = minSolutionMoves(pieces);
-    attempts++;
-  }
+  const mix = Math.min(300, 50 + Math.floor(level * 2.2));
+  for (let i = 0; i < mix; i++) randomMove(rng, pieces);
   const red = pieces.find(p => p.id === 'R');
   if (red && red.row === goal.row && red.col === goal.col) {
     const opts = ['left', 'up', 'right', 'down'];
@@ -200,12 +208,11 @@ function generator(level, seed) {
       const possible = maxSteps(red, d, pieces);
       if (possible > 0) {
         applySlide(red, d, 1);
-        distance = minSolutionMoves(pieces);
         break;
       }
     }
   }
-  return { pieces, distance };
+  return pieces;
 }
 
 function randomMove(rng, pieces) {
@@ -234,7 +241,7 @@ function minSolutionMoves(pieces) {
   const startKey = serialize(pieces);
   const queue = [{ pieces: clonePieces(pieces), dist: 0 }];
   const seen = new Set([startKey]);
-  const maxStates = 120000;
+  const maxStates = 200000;
   let idx = 0;
   while (idx < queue.length && idx < maxStates) {
     const { pieces: current, dist } = queue[idx++];
@@ -396,9 +403,12 @@ function isComplete() {
 }
 
 function resetLevel(nextLevel = null, seedOverride = null, newVariant = false) {
-  if (nextLevel) state.level = Math.min(nextLevel, levelCount);
+  if (nextLevel) {
+    state.level = Math.min(nextLevel, levelCount);
+    state.variant = 1;
+  }
   if (newVariant) state.variant += 1;
-  state.seed = seedOverride ?? state.seed ?? newSeed();
+  state.seed = seedOverride ?? levelSeed(state.level, state.variant);
   const generated = generator(state.level, state.seed);
   state.pieces = generated.pieces;
   state.initialPieces = clonePieces(state.pieces);
@@ -536,20 +546,17 @@ function bindUI() {
     const progress = loadProgress();
     const target = Math.min(progress.highest || 1, levelCount);
     state.variant = 1;
-    state.seed = newSeed();
     resetLevel(target);
   });
 
   ui.btnReset.addEventListener('click', replayLevel);
   ui.btnUndo.addEventListener('click', undo);
   ui.btnShuffle.addEventListener('click', () => {
-    state.seed = newSeed();
-    resetLevel(state.level, state.seed, true);
+    resetLevel(state.level, null, true);
   });
   ui.btnNext.addEventListener('click', () => {
     hideWin();
     const next = Math.min(state.level + 1, levelCount);
-    state.seed = newSeed();
     state.variant = 1;
     resetLevel(next);
   });
@@ -574,7 +581,7 @@ async function init() {
   bindUI();
   const progress = loadProgress();
   state.level = Math.min(progress.highest || 1, levelCount);
-  state.seed = newSeed();
+  state.seed = levelSeed(state.level, state.variant);
   resetLevel(state.level);
   showHowto();
 }
