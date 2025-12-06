@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ca">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Puzzle de Klotski</title>
+  <meta name="description"
+    content="Joc de trencaclosques Klotski amb 1000 nivells únics. Mou les peces per fer arribar la peça vermella a la sortida.">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="page">
+    <main class="game-wrapper">
+      <header class="header">
+        <h1>Puzzle de Klotski</h1>
+        <div class="stats-row">
+          <div class="stat">
+            <span class="label">Nivell</span>
+            <button class="value clickable" id="level-btn" title="Escollir nivell">1</button>
+          </div>
+          <div class="stat">
+            <span class="label">Temps</span>
+            <span class="value" id="timer">00:00</span>
+          </div>
+          <div class="stat">
+            <span class="label">Moviments</span>
+            <span class="value" id="moves">0</span>
+          </div>
+          <button class="btn-icon" id="btn-howto" title="Instruccions">❓</button>
+        </div>
+      </header>
+
+      <div class="board-container">
+        <div id="board" class="board"></div>
+        <div class="exit-zone">
+          <span class="exit-label">▼ SORTIDA ▼</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="btn-undo">↶ Desfer</button>
+        <button class="btn ghost" id="btn-reset">⟳ Reinicia</button>
+      </div>
+    </main>
+
+    <footer class="credits">
+      <img src="cc-license.png" alt="Creative Commons BY-NC-SA" class="credits__icon">
+      <div class="credits__text">
+        <p>Joc creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener">Felip Sarroca</a> amb
+          l'assistència de la IA.</p>
+        <p>Obra sota llicència <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank"
+            rel="noopener">CC BY-NC-SA 4.0</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal instruccions -->
+  <div class="modal" id="modal-howto" aria-hidden="true">
+    <div class="modal__card">
+      <h2>Com es juga</h2>
+      <ol>
+        <li>Mou les peces <strong>arrossegant-les</strong> en línia recta.</li>
+        <li>L'objectiu és portar la <strong>peça vermella</strong> fins a la sortida inferior.</li>
+        <li>Només hi ha 2 espais lliures - planifica bé!</li>
+      </ol>
+      <div class="modal__actions">
+        <button class="btn" id="btn-start">Entesos!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal selector de nivell -->
+  <div class="modal" id="modal-levels" aria-hidden="true">
+    <div class="modal__card modal__card--wide">
+      <h2>Escull un nivell</h2>
+      <div class="level-nav">
+        <button class="btn-nav" id="prev-page">◀</button>
+        <span id="page-indicator">1 / 20</span>
+        <button class="btn-nav" id="next-page">▶</button>
+      </div>
+      <div class="level-grid" id="level-grid"></div>
+      <div class="level-difficulty" id="level-difficulty">
+        <span class="diff-badge">⭐ Fàcil</span>
+      </div>
+      <div class="modal__actions">
+        <button class="btn ghost" id="btn-close-levels">Tanca</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal victòria -->
+  <div class="modal" id="modal-win" aria-hidden="true">
+    <div class="modal__card">
+      <h2 id="win-title">🎉 Superat!</h2>
+      <p class="win-stats">
+        <span id="win-time">⏱️ 00:00</span>
+        <span id="win-moves">📊 0 mov.</span>
+      </p>
+      <div class="modal__actions">
+        <button class="btn" id="btn-next">Següent ▶</button>
+        <button class="btn ghost" id="btn-replay">Repetir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="confetti"></div>
+
+  <script src="levels-data.js"></script>
+  <script src="game.js" defer></script>
+</body>
+
+</html>
