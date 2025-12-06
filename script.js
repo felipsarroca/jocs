@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3."
                     },
                     {
+                        name: "Puzzle de Klotski",
+                        path: 'Klotski/',
+                        category: 'Jocs de lògica i nombres',
+                        description: "Mou les peces lliscants per alliberar la peça vermella fins a la sortida. Inclou 400 nivells amb dificultat progressiva."
+                    },
+                    {
                         name: "Simon",
                         path: 'Simon/',
                         category: 'Jocs de lògica i nombres',
