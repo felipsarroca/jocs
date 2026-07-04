@@ -3,47 +3,54 @@ document.addEventListener('DOMContentLoaded', () => {
         // Jocs de lletres i paraules
         { 
             name: "Joc del Penjat", 
-            path: 'Penjat/', 
+            path: 'https://ja.cat/penjat', 
             category: 'Jocs de lletres i paraules', 
-            description: "Endevina la paraula oculta abans que es completi la figura del penjat." 
+            description: "Endevina la paraula oculta abans que es completi la figura del penjat.",
+            icon: 'Penjat/favicon.svg'
         },
         { 
             name: "Tutti Frutti", 
-            path: 'Tutifruti/', 
+            path: 'https://ja.cat/tutifruti', 
             category: 'Jocs de lletres i paraules', 
-            description: "Posa a prova el teu vocabulari. Troba paraules de diferents categories que comencin amb la mateixa lletra." 
+            description: "Posa a prova el teu vocabulari. Troba paraules de diferents categories que comencin amb la mateixa lletra.",
+            icon: 'Tutifruti/favicon.svg'
         },
 
         // Jocs de lògica i nombres
         { 
             name: "2048", 
-            path: '2048/', 
+            path: 'https://ja.cat/2048', 
             category: 'Jocs de lògica i nombres', 
-            description: "Combina les fitxes numèriques per arribar a la xifra 2048. Un repte d'estratègia." 
+            description: "Combina les fitxes numèriques per arribar a la xifra 2048. Un repte d'estratègia.",
+            icon: '2048/favicon.svg'
         },
         { 
                         name: "SlitherLink",
-                        path: 'SlitherLink/',
+                        path: 'https://ja.cat/slither',
                         category: 'Jocs de lògica i nombres',
-                        description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques."
+                        description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques.",
+                        icon: 'SlitherLink/favicon.svg'
                     },
                     {
                         name: "Sudoku",
-                        path: 'Sudoku/',
+                        path: 'https://ja.cat/sudoku',
                         category: 'Jocs de lògica i nombres',
-                        description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3."
+                        description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3.",
+                        icon: 'Sudoku/favicon.svg'
                     },
                     {
                         name: "Puzzle de Klotski",
-                        path: 'Klotski/',
+                        path: 'https://ja.cat/klotski',
                         category: 'Jocs de lògica i nombres',
-                        description: "Mou les peces lliscants per alliberar la peça vermella fins a la sortida. Inclou 400 nivells amb dificultat progressiva."
+                        description: "Mou les peces lliscants per alliberar la peça vermella fins a la sortida. Inclou 400 nivells amb dificultat progressiva.",
+                        icon: 'Klotski/favicon.png'
                     },
                     {
                         name: "Simon",
-                        path: 'Simon/',
+                        path: 'https://ja.cat/jocsimon',
                         category: 'Jocs de lògica i nombres',
-                        description: "Posa a prova la teva memòria. Repeteix la seqüència de colors i sons que et mostra el joc."
+                        description: "Posa a prova la teva memòria. Repeteix la seqüència de colors i sons que et mostra el joc.",
+                        icon: 'Simon/favicon.png'
                     }    ];
 
     const mainContainer = document.getElementById('apps-container');
