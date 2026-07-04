@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             col.className = 'col d-flex';
             
             // Intenta trobar un favicon SVG, si no, prova PNG, si tampoc, mostra una inicial
-            const faviconSvgSrc = `${app.path}favicon.svg`;
+            const faviconSvgSrc = app.icon || `${app.path}favicon.svg`;
             const faviconPngSrc = `${app.path}favicon.png`;
             const fallbackIcon = `https://via.placeholder.com/64/3498db/ffffff?text=${app.name.charAt(0)}`;
 
