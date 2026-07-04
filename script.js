@@ -88,16 +88,18 @@ document.addEventListener('DOMContentLoaded', () => {
         appsByCategory[category].forEach(app => {
             const col = document.createElement('div');
             col.className = 'col d-flex';
-            
-            // Intenta trobar un favicon SVG, si no, prova PNG, si tampoc, mostra una inicial
-            const faviconSvgSrc = app.icon || `${app.path}favicon.svg`;
-            const faviconPngSrc = `${app.path}favicon.png`;
-            const fallbackIcon = `https://via.placeholder.com/64/3498db/ffffff?text=${app.name.charAt(0)}`;
+            const faviconSrc = app.icon || `${app.path}favicon.svg`;
+            const fallbackIcon = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+                    <rect width="64" height="64" rx="10" fill="#3498db"></rect>
+                    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" fill="#ffffff">${app.name.charAt(0)}</text>
+                </svg>
+            `)}`;
 
             col.innerHTML = `
                 <a href="${app.path}" class="card-link" target="_blank" rel="noopener noreferrer">
                     <div class="card h-100">
-                        <img src="${faviconSvgSrc}" class="card-img-top" alt="Icona de ${app.name}" onerror="this.onerror=null;this.src='${faviconPngSrc}'" onload="this.onload=null;this.onerror=function(){this.onerror=null;this.src='${fallbackIcon}';};">
+                        <img src="${faviconSrc}" class="card-img-top" alt="Icona de ${app.name}" onerror="this.onerror=null;this.src='${fallbackIcon}';">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title">${app.name}</h5>
                             <p class="card-text flex-grow-1">${app.description}</p>
