@@ -16,46 +16,46 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: 'Tutifruti/favicon.svg'
         },
 
-        // Jocs de lògica i nombres
+        // Jocs de lògica, nombres i memòria
         { 
             name: "2048", 
             path: 'https://ja.cat/2048', 
-            category: 'Jocs de lògica i nombres', 
+            category: 'Jocs de nombres',
             description: "Combina les fitxes numèriques per arribar a la xifra 2048. Un repte d'estratègia.",
             icon: '2048/favicon.svg'
         },
         { 
                         name: "SlitherLink",
                         path: 'https://ja.cat/slither',
-                        category: 'Jocs de lògica i nombres',
+                        category: 'Jocs de lògica',
                         description: "Tanca el bucle. Un trencaclosques on has de crear una única línia contínua seguint les pistes numèriques.",
                         icon: 'SlitherLink/favicon.svg'
                     },
                     {
                         name: "Sudoku",
                         path: 'https://ja.cat/sudoku',
-                        category: 'Jocs de lògica i nombres',
+                        category: 'Jocs de nombres',
                         description: "Un clàssic trencaclosques de lògica numèrica. Omple la graella amb números de l'1 al 9 sense repetir-los en cap fila, columna o bloc de 3x3.",
                         icon: 'Sudoku/favicon.svg'
                     },
                     {
                         name: "Puzzle de Klotski",
                         path: 'https://ja.cat/klotski',
-                        category: 'Jocs de lògica i nombres',
+                        category: 'Jocs de lògica',
                         description: "Mou les peces lliscants per alliberar la peça vermella fins a la sortida. Inclou 400 nivells amb dificultat progressiva.",
                         icon: 'Klotski/favicon.png'
                     },
                     {
                         name: "Simon",
                         path: 'https://ja.cat/jocsimon',
-                        category: 'Jocs de lògica i nombres',
+                        category: 'Jocs de memòria',
                         description: "Posa a prova la teva memòria. Repeteix la seqüència de colors i sons que et mostra el joc.",
                         icon: 'Simon/favicon.png'
                     },
                     {
                         name: "Tantrix Discovery",
                         path: 'https://ja.cat/tantrix',
-                        category: 'Jocs de lògica i nombres',
+                        category: 'Jocs de lògica',
                         description: "Construeix circuits de colors amb les fitxes Tantrix i supera deu reptes progressius.",
                         icon: 'Tantrix/assets/favicon.svg'
                     }    ];
