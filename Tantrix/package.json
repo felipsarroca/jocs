@@ -1,0 +1,24 @@
+{
+  "name": "tantrix-discovery",
+  "version": "1.1.9",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "build:pages": "vite build && node scripts/prepare-pages.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:pwa": "node scripts/check-pwa.mjs",
+    "test:pages": "node scripts/check-pages-subpath.mjs",
+    "test:remote": "node scripts/check-remote.mjs",
+    "test:all": "npm run test && npm run build && npm run test:pwa && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "vite": "^8.2.1",
+    "vitest": "^4.1.11"
+  }
+}
