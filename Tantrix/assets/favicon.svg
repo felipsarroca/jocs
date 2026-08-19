@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Tantrix Discovery</title>
+  <desc id="desc">Fitxa hexagonal de Tantrix amb tres recorreguts de colors</desc>
+  <path d="M118 64 91 110.7654H37L10 64 37 17.2346h54z" fill="#111417"/>
+  <g fill="none" stroke-linecap="butt" stroke-linejoin="round">
+    <path d="M104.5 87.3827A81 81 0 0 1 64 17.2346" stroke="#07090a" stroke-width="21"/>
+    <path d="M104.5 87.3827A81 81 0 0 1 64 17.2346" stroke="#e50000" stroke-width="15"/>
+    <path d="M64 110.7654A81 81 0 0 0 23.5 40.6173" stroke="#07090a" stroke-width="21"/>
+    <path d="M64 110.7654A81 81 0 0 0 23.5 40.6173" stroke="#008fcc" stroke-width="15"/>
+    <path d="M23.5 87.3827 104.5 40.6173" stroke="#07090a" stroke-width="21"/>
+    <path d="M23.5 87.3827 104.5 40.6173" stroke="#f2ca00" stroke-width="15"/>
+  </g>
+  <path d="M118 64 91 110.7654H37L10 64 37 17.2346h54z" fill="none" stroke="#34393e" stroke-width="2"/>
+</svg>

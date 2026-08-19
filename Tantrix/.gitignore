@@ -1,0 +1,15 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+.vite/
+mcp_ine.log
+tmp/
+*.log
+.clasp.json
+.clasp-bootstrap/
+apps-script/
+qa/screenshots/
+*.gsheet
+Tantrix - Guía de actividades escolares.pdf
+Tantrix - Manual del GamePack (10 jocs).pdf

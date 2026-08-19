@@ -51,6 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         category: 'Jocs de lògica i nombres',
                         description: "Posa a prova la teva memòria. Repeteix la seqüència de colors i sons que et mostra el joc.",
                         icon: 'Simon/favicon.png'
+                    },
+                    {
+                        name: "Tantrix Discovery",
+                        path: 'https://ja.cat/tantrix',
+                        category: 'Jocs de lògica i nombres',
+                        description: "Construeix circuits de colors amb les fitxes Tantrix i supera deu reptes progressius.",
+                        icon: 'Tantrix/assets/favicon.svg'
                     }    ];
 
     const mainContainer = document.getElementById('apps-container');
