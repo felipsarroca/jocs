@@ -54,8 +54,8 @@ const ICON_PATHS = {
   zoomIn: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M10.5 7.5v6M7.5 10.5h6"/>',
   zoomOut: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5M7.5 10.5h6"/>',
   target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>',
-  rotateLeft: '<path d="M4 7v5h5"/><path d="M5.5 16a8 8 0 1 0 1-9L4 10"/>',
-  rotateRight: '<path d="M20 7v5h-5"/><path d="M18.5 16a8 8 0 1 1-1-9L20 10"/>',
+  rotateLeft: '<path d="m12 7 4.3 2.5v5L12 17l-4.3-2.5v-5Z"/><path d="M19.5 18.5A9.5 9.5 0 1 0 2.5 12"/><path d="m2.5 7v5h5"/>',
+  rotateRight: '<path d="m12 7 4.3 2.5v5L12 17l-4.3-2.5v-5Z"/><path d="M4.5 18.5A9.5 9.5 0 1 1 21.5 12"/><path d="m21.5 7v5h-5"/>',
   undo: '<path d="m9 7-5 5 5 5"/><path d="M5 12h8a6 6 0 0 1 6 6"/>',
   redo: '<path d="m15 7 5 5-5 5"/><path d="M19 12h-8a6 6 0 0 0-6 6"/>',
   tray: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
@@ -286,14 +286,11 @@ function renderGame() {
       <aside class="game-sidebar game-control-sidebar ${controlPanelDensity}" aria-label="Fitxes i accions">
         <div><div class="tray-title"><h3>Fitxes</h3><span>${challenge.pieceCount - boardCount} disponibles</span></div><div class="tile-tray" id="tile-tray"></div></div>
         <div class="game-action-stack">
-          <button class="primary-button check-solution-button" type="button" data-game-action="check">${iconSvg("check", "control-icon")}<span>Comprova</span></button>
           <p class="control-group-label">Gira la fitxa</p>
-          <div class="rotation-actions"><button class="secondary-button control-button" type="button" data-game-action="rotate-left" aria-label="Gira a l’esquerra" ${selected ? "" : "disabled"}>${iconSvg("rotateLeft", "control-icon")}<span>Esquerra</span></button><button class="secondary-button control-button" type="button" data-game-action="rotate-right" aria-label="Gira a la dreta" ${selected ? "" : "disabled"}>${iconSvg("rotateRight", "control-icon")}<span>Dreta</span></button></div>
-          <div class="game-actions">
-            <button class="secondary-button control-button" type="button" data-game-action="undo" ${state.game.history.length ? "" : "disabled"}>${iconSvg("undo", "control-icon")}<span>Desfés</span></button>
-            <button class="secondary-button control-button" type="button" data-game-action="redo" ${state.game.future.length ? "" : "disabled"}>${iconSvg("redo", "control-icon")}<span>Refés</span></button>
-            <button class="secondary-button control-button" type="button" data-game-action="remove" aria-label="Torna la fitxa a la safata" ${selected?.location === "BOARD" ? "" : "disabled"}>${iconSvg("tray", "control-icon")}<span>A la safata</span></button>
-            <button class="secondary-button control-button" type="button" data-game-action="reset">${iconSvg("reset", "control-icon")}<span>Reinicia</span></button>
+          <div class="rotation-actions"><button class="secondary-button control-button rotate-left-button" type="button" data-game-action="rotate-left" aria-label="Gira a l’esquerra" ${selected ? "" : "disabled"}>${iconSvg("rotateLeft", "control-icon")}<span>Esquerra</span></button><button class="secondary-button control-button rotate-right-button" type="button" data-game-action="rotate-right" aria-label="Gira a la dreta" ${selected ? "" : "disabled"}>${iconSvg("rotateRight", "control-icon")}<span>Dreta</span></button></div>
+          <div class="game-primary-actions">
+            <button class="primary-button check-solution-button" type="button" data-game-action="check">${iconSvg("check", "control-icon")}<span>Comprova</span></button>
+            <button class="secondary-button reset-game-button" type="button" data-game-action="reset">${iconSvg("reset", "control-icon")}<span>Reinicia</span></button>
           </div>
         </div>
       </aside>
@@ -423,6 +420,7 @@ function bindTrayDrag(button, tileId) {
       ghost.removeAttribute("data-tray-tile");
       ghost.setAttribute("aria-hidden", "true");
       ghost.className = "tray-tile tray-drag-ghost";
+      if (event.pointerType === "touch") ghost.classList.add("is-touch-drag");
       document.body.append(ghost);
     }
     if (!drag.active) return;
@@ -756,7 +754,7 @@ async function renderRanking(refreshRemote = false) {
   app.innerHTML = pageTemplate(`<section class="ranking-page" aria-labelledby="ranking-title">
     <div class="ranking-hero">
       <div class="ranking-intro"><p class="eyebrow">Progrés compartit</p><h1 id="ranking-title">Rànquing</h1><p>Cada jugador apareix al grup del seu progrés. No hi ha cronòmetre ni desempats: aquí compta arribar cada vegada més lluny.</p></div>
-      <div class="ranking-own-progress" style="--own-progress:${currentProgress * 10}%"><span>El teu recorregut</span><strong>${currentProgress}<small>/10</small></strong><p>${escapeHtml(levelLabel(currentProgress))}</p></div>
+      <div class="ranking-own-progress" style="--own-progress:${currentProgress * 10}%"><span>El teu recorregut</span><strong>${currentProgress}<small>/10</small></strong></div>
     </div>
     <div class="ranking-summary" aria-label="Resum del rànquing">
       <article><strong>${totalPlayers}</strong><span>${totalPlayers === 1 ? "jugador" : "jugadors"}</span></article>
@@ -785,7 +783,7 @@ function rankingMarkup(players) {
     return `<section class="ranking-group ${group.count === 10 ? "is-finished" : ""}" style="--tier-progress:${group.count * 10}%;--tier-accent:${accent}">
       <header class="ranking-group-header">
         <div class="ranking-medallion" aria-hidden="true"><span><strong>${group.count}</strong><small>/10</small></span></div>
-        <div class="ranking-group-copy"><h3>${escapeHtml(group.label)}</h3><p>${group.count}/10 reptes completats</p><span>${escapeHtml(group.levelLabel)}</span></div>
+        <div class="ranking-group-copy"><h3>${escapeHtml(group.label)}</h3></div>
         <strong class="ranking-player-count">${group.players.length} ${group.players.length === 1 ? "jugador" : "jugadors"}</strong>
       </header>
       <ul class="ranking-players">${playersMarkup}</ul>

@@ -1,7 +1,7 @@
 # Informe final de qualitat — Tantrix Discovery
 
 Data de la revisió: 19 d’agost de 2026
-Versió: 1.1.9
+Versió: 1.2.0
 
 ## Resultat
 
@@ -124,12 +124,18 @@ Les sis targetes de `Com es juga` han deixat d’utilitzar una fitxa genèrica. 
 
 La capçalera de `Com es juga`, `Tutorial`, `Rànquing` i `Configuració` mostra ara `Torna` amb fletxa i retorna al menú. `Inici` queda reservat al menú principal i continua portant a la portada d’accés. La navegació diferencial es comprova per rol i etiqueta accessible.
 
+### Cicle 25 — Precisió tàctil, controls i rànquing compacte
+
+En mòbil, la previsualització d’una fitxa arrossegada des de la safata s’ha reduït a 68 × 68 px perquè el dit no tapi la cel·la de destí; les fitxes ja col·locades conserven la mida còmoda del tauler. Les icones de gir mostren ara una fitxa hexagonal i una fletxa circular ben orientada, amb violeta per `Esquerra` i blau per `Dreta`. S’han retirat els botons visibles `Desfés`, `Refés` i `A la safata`, mentre que `Comprova` i `Reinicia` comparteixen l’última fila amb dimensions idèntiques.
+
+El rànquing mostra una sola frase de progrés per grup, sense repetir `n/10 reptes completats` ni el darrer circuit superat —tampoc al resum superior—, i situa el recompte de jugadors a l’extrem dret. També s’han regenerat les icones PWA perquè el símbol ocupi més superfície útil tant en la versió normal com en la `maskable`.
+
 ## Avaluació de jugabilitat experta
 
 | Àmbit | Valoració | Evidència |
 |---|---:|---|
 | Fidelitat al Discovery | 10/10 | Deu reptes, 30 camins circulars verificats peça per peça, circuit objectiu únic i cap pista parcial. |
-| Manipulació | 9,8/10 | Drag, tap-to-move, rotació, teclat, undo/redo, pan, zoom i retorn a safata. |
+| Manipulació | 9,9/10 | Drag tàctil precís, tap-to-move, rotació diferenciada, dreceres de teclat, pan, zoom i retorn a safata per arrossegament. |
 | Geometria i lectura | 10/10 | Radis de corba oficials, costats i coordenades flat-top alineats; contactes visualment inequívocs. |
 | Progressió | 10/10 | Desbloqueig estricte i selecció lliure només després del 10/10. |
 | Responsive | 10/10 | Controls visibles i sense overflow als cinc formats provats. |
