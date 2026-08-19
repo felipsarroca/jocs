@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, readdirSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
@@ -9,7 +9,9 @@ const publicAssets = path.join(projectRoot, "assets");
 mkdirSync(publicAssets, { recursive: true });
 
 for (const filename of ["index.html", "sw.js"]) {
-  copyFileSync(path.join(buildRoot, filename), path.join(projectRoot, filename));
+  const target = path.join(projectRoot, filename);
+  copyFileSync(path.join(buildRoot, filename), target);
+  writeFileSync(target, readFileSync(target, "utf8").replace(/\r\n/g, "\n"));
 }
 
 for (const filename of readdirSync(buildAssets)) {

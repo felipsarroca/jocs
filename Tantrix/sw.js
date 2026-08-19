@@ -1,4 +1,4 @@
-const CACHE_NAME = "tantrix-discovery-v1.1.9";
+const CACHE_NAME = "tantrix-discovery-v1.2.0";
 const APP_SHELL = [
   "./",
   "./index.html",

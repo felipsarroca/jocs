@@ -199,21 +199,24 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
 .game-control-sidebar.is-max-density .tray-tile .tile-svg { width: min(100%, 68px); }
 .tray-tile.is-dragging { opacity: .38; }
 .tray-drag-ghost { position: fixed; z-index: 80; width: 104px; height: 104px; min-height: 104px; margin: -52px 0 0 -52px; pointer-events: none; border-color: var(--focus); background: rgba(255,253,248,.96); box-shadow: 0 18px 40px rgba(0,0,0,.26); transform: scale(1.04); }
+.tray-drag-ghost.is-touch-drag { width: 68px; height: 68px; min-height: 68px; margin: -34px 0 0 -34px; border-radius: 12px; box-shadow: 0 12px 24px rgba(0,0,0,.24); transform: none; }
+.tray-drag-ghost.is-touch-drag .tile-svg { width: 62px; }
 .game-action-stack { min-width: 0; }
-.check-solution-button { width: 100%; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; border-color: #175d39; color: #fff; background: linear-gradient(145deg, #2c8a58, #17613b); box-shadow: 0 6px 0 #0e4428; }
-.check-solution-button:hover { box-shadow: 0 8px 0 #0e4428; }
+.game-primary-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+.game-primary-actions button { min-width: 0; min-height: 54px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 10px; font-weight: 850; }
+.check-solution-button { width: auto; margin: 0; border-color: #175d39; color: #fff; background: linear-gradient(145deg, #2c8a58, #17613b); box-shadow: 0 4px 0 #0e4428; }
+.check-solution-button:hover { box-shadow: 0 6px 0 #0e4428; }
 .check-solution-button .control-icon { width: 22px; height: 22px; }
+.reset-game-button { border-color: #d98f86; color: #8d3028; background: #fff0ed; box-shadow: 0 4px 0 #c57970; }
 .control-group-label { margin: 0 0 7px; color: #55459e; font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
-.game-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
-.game-actions .secondary-button { min-width: 0; padding: 8px; }
 .control-button { display: flex; align-items: center; justify-content: flex-start; gap: 7px; text-align: left; }
 .control-button > span:last-child { min-width: 0; font-size: .75rem; line-height: 1.08; }
 .rotation-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .rotation-actions button { min-height: 54px; padding: 8px 10px; }
-.rotation-actions .control-button { border-color: #b4a9e5; color: #51419d; background: #f1eeff; box-shadow: 0 3px 0 #b4a9e5; }
-.game-actions [data-game-action="undo"], .game-actions [data-game-action="redo"] { border-color: #9fc6df; color: #185b7d; background: #edf8ff; box-shadow: 0 3px 0 #9fc6df; }
-.game-actions [data-game-action="remove"] { border-color: #dfbd61; color: #765500; background: #fff7d8; box-shadow: 0 3px 0 #dfbd61; }
-.game-actions [data-game-action="reset"] { border-color: #dda29a; color: #8d3028; background: #fff0ed; box-shadow: 0 3px 0 #dda29a; }
+.rotation-actions .control-button { justify-content: center; border-color: #b4a9e5; color: #51419d; background: #f1eeff; box-shadow: 0 3px 0 #b4a9e5; font-weight: 850; }
+.rotation-actions .control-icon { width: 28px; height: 28px; padding: 2px; border-radius: 50%; color: #fff; background: #6658c9; }
+.rotation-actions .rotate-right-button { border-color: #8cc3df; color: #145d83; background: #e8f6fd; box-shadow-color: #8cc3df; }
+.rotation-actions .rotate-right-button .control-icon { background: #1479a8; }
 .control-button:disabled { filter: grayscale(.35); }
 .refresh-button { border-color: #9fc6df; color: #185b7d; background: #edf8ff; box-shadow: 0 3px 0 #9fc6df; }
 .settings-button { border-color: #a8cdb6; color: #225f3c; background: #edf8f0; box-shadow: 0 3px 0 #a8cdb6; }
@@ -252,7 +255,6 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
 .ranking-own-progress > span { color: #d4d8dc; font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
 .ranking-own-progress > strong { margin: 6px 0 2px; color: #fff; font-size: 3.3rem; line-height: 1; letter-spacing: -.07em; }
 .ranking-own-progress small { color: #aeb4ba; font-size: 1.05rem; letter-spacing: 0; }
-.ranking-own-progress p { margin: 4px 12px 0; color: #f2ca00; font-size: .8rem; font-weight: 750; }
 .ranking-summary { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 14px 0 30px; }
 .ranking-summary article { min-height: 78px; display: flex; align-items: baseline; gap: 9px; padding: 17px 20px; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,253,248,.82); }
 .ranking-summary strong { font-size: 1.55rem; }
@@ -262,15 +264,14 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
 .ranking-list, .guide-grid { display: grid; gap: 14px; }
 .ranking-group { overflow: hidden; border-left: 6px solid var(--tier-accent); }
 .ranking-group.is-finished { background: linear-gradient(120deg, rgba(232,247,236,.95), rgba(255,253,248,.95)); }
-.ranking-group-header { min-height: 110px; display: grid; grid-template-columns: 74px minmax(0,1fr) auto; align-items: center; gap: 16px; padding: 18px 20px; }
+.ranking-group-header { min-height: 92px; display: grid; grid-template-columns: 74px minmax(0,1fr) auto; align-items: center; gap: 16px; padding: 14px 20px; }
 .ranking-medallion { width: 68px; height: 68px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--tier-accent) var(--tier-progress), #e4ddd1 0); }
 .ranking-medallion::before { content: ""; grid-area: 1/1; width: 52px; height: 52px; border-radius: 50%; background: var(--surface); }
 .ranking-medallion span { z-index: 1; grid-area: 1/1; display: flex; align-items: baseline; }
 .ranking-medallion strong { font-size: 1.38rem; }
 .ranking-medallion small { color: var(--muted); font-size: .68rem; font-weight: 800; }
 .ranking-group-copy h3 { font-size: 1.18rem; }
-.ranking-group-copy p { margin: 4px 0 2px; font-size: .84rem; font-weight: 790; }
-.ranking-group-copy > span { color: var(--muted); font-size: .78rem; }
+.ranking-group-copy h3 { margin: 0; }
 .ranking-player-count { padding: 7px 10px; border-radius: 999px; color: var(--tier-accent); background: color-mix(in srgb, var(--tier-accent) 10%, white); font-size: .75rem; white-space: nowrap; }
 .ranking-players { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 9px; margin: 0; padding: 0 20px 20px; list-style: none; }
 .ranking-players li { min-height: 64px; display: grid; grid-template-columns: 38px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 9px 11px; border: 1px solid #e2dbcf; border-radius: 14px; background: rgba(255,255,255,.72); }
@@ -368,11 +369,9 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
   .tray-title { display: none; }
   .game-action-stack { width: 300px; }
   .control-group-label { display: none; }
-  .check-solution-button { min-height: 46px; margin-bottom: 12px; }
+  .game-primary-actions button { min-height: 46px; }
   .rotation-actions { margin-bottom: 7px; }
   .rotation-actions button { min-height: 46px; }
-  .game-actions { grid-template-columns: repeat(2, 1fr); }
-  .game-actions .secondary-button { min-height: 44px; }
 }
 
 @media (max-width: 700px) {
@@ -436,13 +435,16 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
   .game-control-sidebar.is-dense .tray-tile, .game-control-sidebar.is-max-density .tray-tile { min-height: 48px; }
   .game-control-sidebar.is-dense .tray-tile .tile-svg, .game-control-sidebar.is-max-density .tray-tile .tile-svg { width: min(100%, 54px); }
   .game-action-stack { width: 178px; }
-  .check-solution-button { min-height: 44px; margin-bottom: 11px; padding: 7px 10px; }
   .rotation-actions { gap: 6px; margin-bottom: 6px; }
   .rotation-actions button { min-height: 43px; padding: 4px 6px; }
-  .game-actions { gap: 5px; }
-  .game-actions .secondary-button { min-height: 40px; padding: 4px 5px; }
+  .rotation-actions .control-icon { width: 25px; height: 25px; }
+  .game-primary-actions { gap: 6px; margin-top: 8px; }
+  .game-primary-actions button { min-height: 44px; padding: 6px 7px; }
+  .game-primary-actions .control-icon { width: 18px; height: 18px; }
+  .game-primary-actions span:last-child { font-size: .66rem; }
   .control-button { gap: 4px; }
   .control-button .control-icon { width: 16px; height: 16px; }
+  .rotation-actions .control-icon { width: 25px; height: 25px; }
   .control-button > span:last-child { font-size: .64rem; }
   .success-overlay { padding: 10px; }
   .success-card { padding: 18px 16px 16px; border-radius: 24px; }
@@ -464,12 +466,12 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
   .ranking-summary span { font-size: .67rem; }
   .ranking-toolbar { align-items: center; }
   .ranking-toolbar .secondary-button { min-height: 44px; padding: 9px 12px; }
-  .ranking-group-header { grid-template-columns: 58px minmax(0,1fr); gap: 12px; padding: 14px; }
+  .ranking-group-header { min-height: 78px; grid-template-columns: 58px minmax(0,1fr) auto; gap: 10px; padding: 10px 14px; }
   .ranking-medallion { width: 56px; height: 56px; }
   .ranking-medallion::before { width: 43px; height: 43px; }
   .ranking-medallion strong { font-size: 1.15rem; }
   .ranking-group-copy h3 { font-size: 1rem; }
-  .ranking-player-count { grid-column: 2; justify-self: start; }
+  .ranking-player-count { grid-column: 3; justify-self: end; }
   .ranking-players { grid-template-columns: 1fr; padding: 0 14px 14px; }
   .section-heading { align-items: start; flex-direction: column; }
 }
@@ -500,11 +502,10 @@ button.challenge-node:hover { transform: translateY(-2px); filter: saturate(1.1)
   .tray-tile { min-height: 64px; }
   .game-action-stack { width: auto; }
   .control-group-label { display: none; }
-  .check-solution-button { min-height: 42px; margin-bottom: 10px; }
   .rotation-actions { margin-bottom: 6px; }
   .rotation-actions button { min-height: 42px; }
-  .game-actions { gap: 6px; }
-  .game-actions .secondary-button { min-height: 40px; }
+  .game-primary-actions { gap: 6px; margin-top: 7px; }
+  .game-primary-actions button { min-height: 42px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

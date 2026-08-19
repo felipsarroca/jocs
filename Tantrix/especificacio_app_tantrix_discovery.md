@@ -1,6 +1,6 @@
 # Especificació completa per desenvolupar una app de Tantrix Discovery individual
 
-**Versió del document:** 1.1.9
+**Versió del document:** 1.2.0
 **Data:** 19 d’agost de 2026
 **Públic destinatari:** programació, disseny UX/UI, il·lustració vectorial, proves i administració del Google Sheets
 **Estat:** especificació funcional i tècnica preparada per implementar
@@ -50,7 +50,7 @@ La qualitat del projecte es mesurarà sobretot per:
 - Guia visual consultable en qualsevol moment.
 - Joc autèntic sense pistes, atenuació de colors, col·locació automàtica ni indicacions de proximitat a la solució.
 - Selecció, rotació, arrossegament, encaix magnètic i moviment sense arrossegar.
-- Desfer, refer, reiniciar, centrar i zoom.
+- Historial intern amb dreceres de teclat per desfer i refer, més reinici, centrat i zoom; `Desfés` i `Refés` no ocupen espai a la interfície visible.
 - Detecció automàtica d’una solució correcta.
 - Desat local automàtic després de cada moviment.
 - Funcionament PWA i suport bàsic fora de línia.
@@ -513,6 +513,8 @@ Durant l’arrossegament:
 - si la cel·la està ocupada, es mostra el símbol de bloqueig i la fitxa torna al lloc anterior;
 - si la cel·la és lliure, s’hi encaixa exactament.
 
+Quan l’arrossegament comença a la safata amb un punter tàctil, la previsualització flotant ha de ser compacta —aproximadament 68 × 68 CSS px— i clarament més petita que la fitxa ja situada al tauler. No pot tapar la cel·la candidata ni impedir veure amb precisió on s’alliberarà.
+
 Les connexions cromàtiques incorrectes **no han d’impedir provisionalment** deixar una fitxa i **no s’han de marcar visualment**. L’app només valida la composició completa quan totes les fitxes són al tauler, automàticament o mitjançant el botó visible `✓ Comprova`; si no és vàlida, mostra el missatge neutre “Encara no està resolt”. Això permet experimentar com amb les peces físiques sense convertir la interfície en una pista.
 
 ### 8.5. Moviment sense arrossegar
@@ -531,7 +533,7 @@ La cel·la ha de tenir una hit area generosa, encara que la quadrícula sigui in
 - Cada gir és de 60°.
 - La rotació ha de durar entre 120 i 180 ms.
 - Ha de respectar `prefers-reduced-motion`.
-- Els botons de gir `Esquerra` i `Dreta` han de ser com a mínim de 48 × 48 CSS px, mostrar text visible i compartir icones SVG de la mateixa família.
+- Els botons de gir `Esquerra` i `Dreta` han de ser com a mínim de 48 × 48 CSS px, mostrar text visible i tenir icones SVG inequívocament diferents: una fitxa hexagonal amb una fletxa circular cap al costat corresponent. `Esquerra` usa violeta i `Dreta` blau per facilitar-ne la identificació immediata.
 - En mòbil han d’estar fixos a la barra inferior.
 - En tauleta i ordinador poden ser a la barra lateral, però no s’han d’amagar.
 - El clic dret només s’ha d’interceptar sobre les fitxes, no a tota l’app.
@@ -556,11 +558,12 @@ La cel·la ha de tenir una hit area generosa, encara que la quadrícula sigui in
 - En ordinador pot ser una graella lateral.
 - Les fitxes s’inicien en ordre aleatori i amb rotació aleatòria, però mai en una solució completa.
 - Seleccionar una fitxa de la safata i tocar el tauler l’hi col·loca.
-- Una fitxa del tauler pot tornar a la safata arrossegant-la o prement `A la safata`.
+- Una fitxa del tauler pot tornar a la safata arrossegant-la. `Reinicia` retorna totes les fitxes de cop.
 
 ### 8.9. Desfer i refer
 
 - Historial local mínim de 100 accions.
+- L’historial es conserva com a mecanisme intern i és accessible amb les dreceres de teclat, però no mostra botons `Desfés` ni `Refés` al panell de joc.
 - Una acció és: moure, girar, retornar a safata o reiniciar.
 - Un arrossegament complet és una sola acció.
 - El zoom i el desplaçament de càmera no entren a l’historial del joc.
@@ -569,6 +572,7 @@ La cel·la ha de tenir una hit area generosa, encara que la quadrícula sigui in
 ### 8.10. Comprovació i sortida
 
 - `✓ Comprova` és sempre visible i és l’acció principal del panell de controls.
+- `Comprova` i `Reinicia` ocupen junts l’última fila del panell, tenen exactament la mateixa mida i una separació clara respecte dels controls de gir.
 - Si falten fitxes, només indica quantes falten per col·locar.
 - Si la composició completa no és vàlida, mostra `Encara no està resolt` sense pistes parcials.
 - Si és vàlida, mostra immediatament `Repte superat!` i el botó `Següent repte`.
@@ -1004,24 +1008,20 @@ Hi ha deu fites. `completedChallengeCount` va de 0 a 10.
 
 ### 16.2. Agrupació visual
 
-El rànquing no és una classificació avaluativa ni ha de destacar una posició ordinal. Agrupa els jugadors pel nombre de reptes superats, de 10 a 0. Els grups buits no es mostren i cada capçalera indica el nombre de persones:
+El rànquing no és una classificació avaluativa ni ha de destacar una posició ordinal. Agrupa els jugadors pel nombre de reptes superats, de 10 a 0. Els grups buits no es mostren i cada capçalera conté una sola frase de progrés i el nombre de persones alineat a la dreta:
 
-- `Discovery completat · 10/10 · 12 jugadors`;
-- `9 nivells superats · 9/10 · 5 jugadors`;
-- `2 nivells superats · 2/10 · 14 jugadors`;
-- `Començant · 0/10 · 3 jugadors`.
+- `Discovery completat` — `12 jugadors`;
+- `9 nivells superats` — `5 jugadors`;
+- `2 nivells superats` — `14 jugadors`;
+- `Començant` — `3 jugadors`.
 
-Cada grup es presenta com una targeta visual amb medalló de progrés, recompte de jugadors i noms en ordre alfabètic català. El jugador actual queda ressaltat dins del seu grup. No usar temps, dates, intents ni cap altre criteri de desempat.
+Cada grup es presenta com una targeta visual amb medalló de progrés, recompte de jugadors a l’extrem dret i noms en ordre alfabètic català. Ni els grups ni el resum superior mostren una segona línia `n/10 reptes completats` o el nom del darrer circuit superat. El jugador actual queda ressaltat dins del seu grup. No usar temps, dates, intents ni cap altre criteri de desempat.
 
 El rànquing és una vista pròpia de l’app: no pot incrustar, imitar ni mostrar en cap cas la graella de Google Sheets, taules administratives, iframes o columnes internes. Sheets només és la persistència remota en segon pla.
 
 Cap pantalla de l’app no pot mostrar ni permetre editar l’URL del full, l’endpoint d’Apps Script o cap altre identificador administratiu. La configuració només mostra un estat comprensible i, opcionalment, l’acció `Sincronitza ara`; el desat habitual és automàtic.
 
-Els tres darrers grups han de conservar la informació distintiva:
-
-- `8/10 · 10 fitxes · vermell`;
-- `9/10 · 10 fitxes · vermell i blau`;
-- `10/10 · Discovery completat`.
+La distinció entre grups queda expressada únicament pel medalló i el títol de progrés; no s’hi afegeixen subtítols de circuit, color o recompte fraccionari.
 
 ### 16.3. Informació pública
 
@@ -1149,6 +1149,7 @@ El manifest ha d’incloure:
 - `display: standalone`;
 - colors de tema i fons;
 - icones 192, 512 i maskable;
+- el símbol de Tantrix ha d’ocupar visualment la major part del requadre de la icona, amb el marge de seguretat necessari per a la variant `maskable`, sense quedar petit ni perdut dins del fons;
 - orientació no bloquejada;
 - descripció en català.
 

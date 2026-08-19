@@ -83,6 +83,28 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.getByRole("button", { name: "Allunya", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Centra", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Apropa", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Desfés", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Refés", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Torna la fitxa a la safata", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reinicia", exact: true })).toBeVisible();
+  const primaryActionGeometry = await page.locator('.game-primary-actions button').evaluateAll(buttons => buttons.map(button => {
+    const rect = button.getBoundingClientRect();
+    return { width: rect.width, height: rect.height, top: rect.top };
+  }));
+  expect(primaryActionGeometry).toHaveLength(2);
+  expect(Math.abs(primaryActionGeometry[0].width - primaryActionGeometry[1].width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(primaryActionGeometry[0].height - primaryActionGeometry[1].height)).toBeLessThanOrEqual(1);
+  const rotationBottom = await page.locator('.rotation-actions').evaluate(element => element.getBoundingClientRect().bottom);
+  expect(primaryActionGeometry[0].top).toBeGreaterThanOrEqual(rotationBottom);
+  const touchGhostSize = await page.evaluate(() => {
+    const probe = document.createElement("div");
+    probe.className = "tray-tile tray-drag-ghost is-touch-drag";
+    document.body.append(probe);
+    const rect = probe.getBoundingClientRect();
+    probe.remove();
+    return { width: rect.width, height: rect.height };
+  });
+  expect(touchGhostSize).toEqual({ width: 68, height: 68 });
   await page.getByRole("button", { name: "Comprova", exact: true }).click();
   await expect(page.locator("#game-status")).toHaveText("Falten col·locar 3 fitxes.");
   await assertNoOverflow(page);
@@ -129,6 +151,13 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.getByRole("heading", { name: "1 nivell superat", level: 3 })).toBeVisible();
   await expect(page.locator(".ranking-players li")).toContainText(`Pro ${testInfo.project.name}`);
   await expect(page.locator(".ranking-medallion")).toHaveCount(1);
+  await expect(page.locator(".ranking-own-progress p")).toHaveCount(0);
+  await expect(page.locator(".ranking-group-copy p, .ranking-group-copy > span")).toHaveCount(0);
+  expect(await page.locator(".ranking-group-header").evaluateAll(headers => headers.every(header => {
+    const card = header.getBoundingClientRect();
+    const count = header.querySelector(".ranking-player-count").getBoundingClientRect();
+    return card.right - count.right <= 21;
+  }))).toBe(true);
   await expect(page.locator("table, iframe")).toHaveCount(0);
   await expect(page.getByText(/Google Sheets/i)).toHaveCount(0);
   await assertNoOverflow(page);
