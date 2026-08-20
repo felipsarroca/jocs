@@ -1,6 +1,6 @@
 # Especificació completa per desenvolupar una app de Tantrix Discovery individual
 
-**Versió del document:** 1.2.0
+**Versió del document:** 1.2.1
 **Data:** 19 d’agost de 2026
 **Públic destinatari:** programació, disseny UX/UI, il·lustració vectorial, proves i administració del Google Sheets
 **Estat:** especificació funcional i tècnica preparada per implementar
@@ -1156,10 +1156,13 @@ El manifest ha d’incloure:
 Estratègies de cache:
 
 - fitxers versionats: cache-first;
+- `app.js` i `app.css`: network-first amb còpia local de reserva, perquè cap dispositiu quedi atrapat en una interfície anterior;
 - HTML: stale-while-revalidate o network-first amb fallback;
 - API de sincronització: network-only, sempre fora del camí crític de joc;
 - rànquing: lectura sota demanda amb darrera còpia local i marca visible de l’última actualització;
 - mai servir un rànquing antic sense indicar “Dades desades”.
+
+En instal·lar-se una versió nova, el precache ha de demanar els actius amb `cache: reload`. En activar-se, s’han d’eliminar les memòries cau anteriors, reclamar les pestanyes obertes i recarregar-les una única vegada. El registre ha de forçar la comprovació del fitxer `sw.js` sense reutilitzar la memòria cau HTTP.
 
 ### 17.4. Persistència local-first i sincronització
 

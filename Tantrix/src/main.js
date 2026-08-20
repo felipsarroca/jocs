@@ -1126,7 +1126,14 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has("test")) {
 }
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+      await registration.update();
+    } catch {
+      // L’app continua operativa encara que el navegador no permeti actualitzar la PWA.
+    }
+  });
 }
 
 initialize();
