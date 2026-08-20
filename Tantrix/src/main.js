@@ -16,6 +16,18 @@ const ACTIVE_PLAYER_KEY = "tantrix-active-player";
 const PATTERNS_KEY = "tantrix-color-patterns";
 const TUTORIAL_KEY = "tantrix-tutorial-complete";
 const BOARD_RADIUS = 54;
+const skipLink = document.querySelector(".skip-link");
+let keyboardNavigation = false;
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Tab") keyboardNavigation = true;
+}, true);
+document.addEventListener("pointerdown", () => {
+  keyboardNavigation = false;
+  skipLink?.classList.remove("is-visible");
+}, true);
+skipLink?.addEventListener("focus", () => skipLink.classList.toggle("is-visible", keyboardNavigation));
+skipLink?.addEventListener("blur", () => skipLink.classList.remove("is-visible"));
 
 const state = {
   route: "login",
@@ -27,6 +39,7 @@ const state = {
   ranking: null,
   rankingUpdatedAt: null,
   tutorialStep: 0,
+  tutorialPractice: null,
   deferredInstallPrompt: null,
   solving: false,
   success: null
@@ -71,7 +84,7 @@ const ICON_PATHS = {
   install: '<path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 20h14"/>',
   lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-  sync: '<path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 8a7 7 0 0 1 12-2l2 2M4 16l2 2a7 7 0 0 0 12-2"/>'
+  sync: '<path d="M4 8h13"/><path d="m14 5 3 3-3 3"/><path d="M20 16H7"/><path d="m10 13-3 3 3 3"/>'
 };
 
 function iconSvg(name, className = "button-icon") {
@@ -187,6 +200,7 @@ async function handleLogin(event) {
   await savePlayer();
   localStorage.setItem(ACTIVE_PLAYER_KEY, validation.normalizedName);
   state.route = localStorage.getItem(TUTORIAL_KEY) ? "home" : "tutorial";
+  if (state.route === "tutorial") state.tutorialPractice = createTutorialPractice();
   render();
   void mergeRemoteProgress();
 }
@@ -315,7 +329,6 @@ function renderBoard() {
   applyCameraTransform(camera);
   const grid = document.createElementNS(SVG_NS, "g");
   grid.classList.add("board-grid");
-  const occupied = new Set(state.game.boardLayout().map(item => `${item.q},${item.r}`));
   const gridExtent = boardGridExtent();
   for (let q = -gridExtent; q <= gridExtent; q += 1) {
     for (let r = -gridExtent; r <= gridExtent; r += 1) {
@@ -324,7 +337,7 @@ function renderBoard() {
       const cell = document.createElementNS(SVG_NS, "polygon");
       cell.setAttribute("points", hexPoints(BOARD_RADIUS - 2));
       cell.setAttribute("transform", `translate(${x} ${y})`);
-      cell.setAttribute("class", `board-cell${state.game.selectedTileId && !occupied.has(`${q},${r}`) ? " is-candidate" : ""}`);
+      cell.setAttribute("class", "board-cell");
       cell.dataset.q = q;
       cell.dataset.r = r;
       grid.append(cell);
@@ -859,11 +872,33 @@ function guideSvg(label) {
 function guideTile(svg, tileId, x, y, scale, rotation = 0, selected = false) {
   const wrapper = document.createElementNS(SVG_NS, "g");
   wrapper.setAttribute("transform", `translate(${x} ${y}) scale(${scale})`);
+  wrapper.classList.add("guide-rendered-tile");
   const tile = createTileGroup(tileId, { rotation, selected, patterns: state.patterns, tabindex: -1 });
   tile.removeAttribute("role");
   tile.removeAttribute("aria-label");
   wrapper.append(tile);
   svg.append(wrapper);
+}
+
+function guideTileAtAxial(svg, tileId, originX, originY, scale, q, r, rotation = 0, selected = false) {
+  const offset = axialToPixel(q, r, BOARD_RADIUS);
+  guideTile(svg, tileId, originX + offset.x * scale, originY + offset.y * scale, scale, rotation, selected);
+  const wrapper = svg.lastElementChild;
+  wrapper.dataset.q = q;
+  wrapper.dataset.r = r;
+  return wrapper;
+}
+
+function guideCell(svg, originX, originY, scale, q, r, className = "guide-board-cell") {
+  const offset = axialToPixel(q, r, BOARD_RADIUS);
+  const cell = document.createElementNS(SVG_NS, "polygon");
+  cell.setAttribute("points", hexPoints((BOARD_RADIUS - 2) * scale));
+  cell.setAttribute("transform", `translate(${originX + offset.x * scale} ${originY + offset.y * scale})`);
+  cell.setAttribute("class", className);
+  cell.dataset.q = q;
+  cell.dataset.r = r;
+  svg.append(cell);
+  return cell;
 }
 
 function guideMarkup(svg, markup) {
@@ -882,69 +917,183 @@ function renderGuideDiagram(container, index) {
       <path d="M127 111H151" class="guide-callout-line guide-yellow-stroke"/><circle cx="162" cy="111" r="6" class="guide-yellow-fill"/><text x="174" y="116">groc</text>
     </g>`);
   } else if (index === 1) {
-    guideMarkup(svg, `<path d="M117 74l17 9" class="guide-contact-glow"/>`);
-    guideTile(svg, 7, 91, 59, .56, 0);
-    guideTile(svg, 8, 142, 88, .56, 3);
-    guideMarkup(svg, `<circle cx="117" cy="74" r="13" class="guide-contact-ring"/><circle cx="205" cy="30" r="17" class="guide-ok-badge"/><path d="m197 30 5 5 10-12" class="guide-ok-mark"/><g class="guide-match-label"><rect x="151" y="112" width="75" height="25" rx="12.5"/><circle cx="164" cy="124.5" r="5" class="guide-blue-fill"/><text x="175" y="129">= blau</text></g>`);
+    const originX = 91;
+    const originY = 56;
+    const scale = .58;
+    const neighbor = axialToPixel(1, 0, BOARD_RADIUS);
+    const contactX = originX + neighbor.x * scale / 2;
+    const contactY = originY + neighbor.y * scale / 2;
+    guideMarkup(svg, `<circle cx="${contactX}" cy="${contactY}" r="15" class="guide-contact-glow"/>`);
+    guideTileAtAxial(svg, 7, originX, originY, scale, 0, 0, 0);
+    guideTileAtAxial(svg, 8, originX, originY, scale, 1, 0, 3);
+    guideMarkup(svg, `<circle cx="${contactX}" cy="${contactY}" r="11" class="guide-contact-ring"/><circle cx="205" cy="30" r="17" class="guide-ok-badge"/><path d="m197 30 5 5 10-12" class="guide-ok-mark"/><g class="guide-match-label"><rect x="147" y="116" width="79" height="25" rx="12.5"/><circle cx="161" cy="128.5" r="5" class="guide-blue-fill"/><text x="172" y="133">blau = blau</text></g>`);
   } else if (index === 2) {
-    guideMarkup(svg, `<path d="M91 77C119 49 140 52 158 70" class="guide-move-path"/><path d="m151 62 10 10-13 5" class="guide-move-arrow"/><polygon points="210,75 195,101 165,101 150,75 165,49 195,49" class="guide-target-cell"/><circle cx="180" cy="75" r="17" class="guide-touch-ring outer"/><circle cx="180" cy="75" r="7" class="guide-touch-ring inner"/><path d="M181 82v29m0-18 10 4 8 15m-18-12-9 8" class="guide-hand"/><g class="guide-rotate-badges"><circle cx="31" cy="29" r="18"/><text x="31" y="36">↶</text><circle cx="76" cy="29" r="18"/><text x="76" y="36">↷</text></g>`);
-    guideTile(svg, 6, 57, 84, .55, 1, true);
-    guideMarkup(svg, `<g class="guide-tap-label"><rect x="153" y="119" width="54" height="23" rx="11.5"/><text x="180" y="135">TOCA</text></g>`);
+    const originX = 53;
+    const originY = 77;
+    const scale = .52;
+    const target = axialToPixel(2, -1, BOARD_RADIUS);
+    guideCell(svg, originX, originY, scale, 0, 0, "guide-board-cell is-origin");
+    guideCell(svg, originX, originY, scale, 1, 0);
+    guideCell(svg, originX, originY, scale, 2, -1, "guide-board-cell is-target");
+    guideMarkup(svg, `<path d="M86 77H${originX + target.x * scale - 13}" class="guide-move-path"/><path d="m${originX + target.x * scale - 19} 69 10 8-10 8" class="guide-move-arrow"/><circle cx="${originX + target.x * scale}" cy="${originY + target.y * scale}" r="18" class="guide-touch-ring outer"/><circle cx="${originX + target.x * scale}" cy="${originY + target.y * scale}" r="7" class="guide-touch-ring inner"/><path d="M${originX + target.x * scale + 1} 85v29m0-18 10 4 8 15m-18-12-9 8" class="guide-hand"/>`);
+    guideTileAtAxial(svg, 6, originX, originY, scale, 0, 0, 1, true);
+    guideMarkup(svg, `<g class="guide-rotate-badges"><circle cx="31" cy="27" r="18"/><g transform="translate(19 15)">${ICON_PATHS.rotateLeft}</g><circle cx="76" cy="27" r="18"/><g transform="translate(64 15)">${ICON_PATHS.rotateRight}</g></g><g class="guide-tap-label"><rect x="153" y="119" width="54" height="23" rx="11.5"/><text x="180" y="135">TOCA</text></g>`);
   } else if (index === 3) {
-    guideMarkup(svg, `<g class="guide-schematic-tiles">
-      <polygon points="120,20 145,34 145,62 120,76 95,62 95,34"/>
-      <polygon points="82,84 107,98 107,126 82,140 57,126 57,98"/>
-      <polygon points="158,84 183,98 183,126 158,140 133,126 133,98"/>
-    </g><path d="M120 48C96 60 84 79 82 112C108 124 133 124 158 112C156 79 144 60 120 48Z" class="guide-loop-outline"/><path d="M120 48C96 60 84 79 82 112C108 124 133 124 158 112C156 79 144 60 120 48Z" class="guide-loop-color"/><circle cx="120" cy="48" r="5" class="guide-start-dot"/><g class="guide-circuit-label"><rect x="11" y="14" width="70" height="25" rx="12.5"/><path d="m24 27 5 5 10-12"/><text x="45" y="31">CIRCUIT</text></g>`);
+    const originX = 94;
+    const originY = 49;
+    const scale = .48;
+    guideTileAtAxial(svg, 1, originX, originY, scale, 0, 0, 0);
+    guideTileAtAxial(svg, 2, originX, originY, scale, 1, 0, 2);
+    guideTileAtAxial(svg, 5, originX, originY, scale, 0, 1, 4);
+    guideMarkup(svg, `<path d="M117 62 117 88 140 75Z" class="guide-loop-guide"/><g class="guide-circuit-label"><rect x="11" y="14" width="77" height="25" rx="12.5"/><path d="m24 27 5 5 10-12"/><text x="47" y="31">TANCAT</text></g><g class="guide-eye-label"><path d="M166 120c14-14 32-14 46 0-14 14-32 14-46 0Z"/><circle cx="189" cy="120" r="5"/><text x="189" y="146">SEGUEIX EL GROC</text></g>`);
   } else if (index === 4) {
-    guideMarkup(svg, `<g class="guide-schematic-tiles guide-all-tiles">
-      <polygon points="87,18 112,32 112,60 87,74 62,60 62,32"/><polygon points="137,47 162,61 162,89 137,103 112,89 112,61"/>
-      <polygon points="87,76 112,90 112,118 87,132 62,118 62,90"/><polygon points="37,47 62,61 62,89 37,103 12,89 12,61"/>
-    </g><g class="guide-tile-numbers"><text x="87" y="53">1</text><text x="137" y="82">2</text><text x="87" y="111">3</text><text x="37" y="82">4</text></g><path d="M184 35v56m-10-10 10 10 10-10" class="guide-to-tray-arrow"/><g class="guide-empty-tray"><path d="M155 105h58l-6 29h-46Z"/><text x="184" y="128">0</text></g><circle cx="215" cy="25" r="16" class="guide-ok-badge"/><path d="m207 25 5 5 10-12" class="guide-ok-mark"/>`);
+    const originX = 75;
+    const originY = 47;
+    const scale = .42;
+    [[1, 0, 0, 0], [2, 1, 0, 1], [3, 0, 1, 2], [4, -1, 1, 3]].forEach(([tileId, q, r, rotation]) => guideTileAtAxial(svg, tileId, originX, originY, scale, q, r, rotation));
+    guideMarkup(svg, `<path d="M157 48v45m-9-9 9 9 9-9" class="guide-to-tray-arrow"/><g class="guide-empty-tray"><path d="M176 62h50l-6 36h-38Z"/><text x="201" y="88">0</text></g><g class="guide-all-label"><rect x="163" y="108" width="70" height="27" rx="13.5"/><text x="198" y="126">TOTES ✓</text></g>`);
   } else {
-    guideMarkup(svg, `<text x="60" y="18" class="guide-compare-label bad">AMB FORAT</text><text x="180" y="18" class="guide-compare-label good">COMPACTA</text>
-      <g class="guide-hole-shape"><polygon points="60,28 78,38 78,59 60,69 42,59 42,38"/><polygon points="96,49 114,59 114,80 96,90 78,80 78,59"/><polygon points="96,90 114,100 114,121 96,131 78,121 78,100"/><polygon points="60,111 78,121 78,142 60,152 42,142 42,121"/><polygon points="24,90 42,100 42,121 24,131 6,121 6,100"/><polygon points="24,49 42,59 42,80 24,90 6,80 6,59"/></g>
-      <circle cx="60" cy="90" r="17" class="guide-hole-warning"/><path d="m52 82 16 16m0-16-16 16" class="guide-bad-mark"/>
-      <g class="guide-compact-shape"><polygon points="180,31 198,41 198,62 180,72 162,62 162,41"/><polygon points="144,52 162,62 162,83 144,93 126,83 126,62"/><polygon points="180,72 198,82 198,103 180,113 162,103 162,82"/><polygon points="216,52 234,62 234,83 216,93 198,83 198,62"/><polygon points="144,93 162,103 162,124 144,134 126,124 126,103"/><polygon points="216,93 234,103 234,124 216,134 198,124 198,103"/></g>
-      <circle cx="180" cy="132" r="15" class="guide-ok-badge"/><path d="m173 132 5 5 9-11" class="guide-ok-mark"/>`);
+    const scale = .25;
+    const ringOrigin = { x: 59, y: 78 };
+    HEX_DIRECTIONS.forEach(([q, r], tileIndex) => guideTileAtAxial(svg, tileIndex + 1, ringOrigin.x, ringOrigin.y, scale, q, r, tileIndex));
+    const compactOrigin = { x: 176, y: 67 };
+    [[0, 0], [1, 0], [0, 1], [1, -1], [-1, 1], [0, -1]].forEach(([q, r], tileIndex) => guideTileAtAxial(svg, tileIndex + 5, compactOrigin.x, compactOrigin.y, scale, q, r, tileIndex));
+    guideMarkup(svg, `<text x="59" y="16" class="guide-compare-label bad">AMB FORAT</text><text x="181" y="16" class="guide-compare-label good">COMPACTA</text><circle cx="59" cy="78" r="13" class="guide-hole-warning"/><path d="m52 71 14 14m0-14-14 14" class="guide-bad-mark"/><circle cx="181" cy="128" r="15" class="guide-ok-badge"/><path d="m174 128 5 5 9-11" class="guide-ok-mark"/>`);
   }
 }
 
+function createTutorialPractice() {
+  return { selected: false, rotation: 0, rotated: false, moveSelected: false, moved: false, contactChoice: null };
+}
+
+function tutorialStepComplete(step = state.tutorialStep) {
+  const practice = state.tutorialPractice;
+  return [practice.selected, practice.rotated, practice.moved, practice.contactChoice === "correct"][step];
+}
+
+function rerenderTutorial() {
+  renderTutorial();
+  bindGlobalActions();
+  skipLink?.classList.remove("is-visible");
+  const complete = tutorialStepComplete();
+  const focusTarget = complete
+    ? document.querySelector("#tutorial-next")
+    : state.tutorialStep === 2 && state.tutorialPractice.moveSelected
+      ? document.querySelector('.tutorial-move-cell[data-q="2"]')
+      : state.tutorialStep === 3 && state.tutorialPractice.contactChoice === "wrong"
+        ? document.querySelector('[data-contact="correct"]')
+        : document.querySelector("#tutorial-stage button, #tutorial-stage [role='button']");
+  focusTarget?.focus({ preventScroll: true });
+}
+
 function renderTutorial() {
+  if (!state.tutorialPractice) state.tutorialPractice = createTutorialPractice();
   const steps = [
-    { title: "Selecciona", text: "Toca una fitxa per seleccionar-la.", action: "Selecciona la fitxa" },
-    { title: "Gira", text: "Utilitza els botons visibles per girar 60 graus en qualsevol direcció.", action: "Gira a la dreta" },
-    { title: "Mou", text: "Pots arrossegar o seleccionar la fitxa i tocar una cel·la buida.", action: "Practica el moviment" },
-    { title: "Connecta", text: "Comprova visualment que els colors dels costats en contacte coincideixen.", action: "Ho tinc" }
+    { title: "Selecciona una fitxa", text: "Toca directament la fitxa de la safata. Quan quedi marcada amb un contorn violeta, estarà preparada per girar o moure.", instruction: "Toca la fitxa negra de la demostració." },
+    { title: "Gira-la 60 graus", text: "Cada toc gira exactament una sisena part de volta. Prova els dos sentits i observa com canvien els colors que arriben a cada costat.", instruction: "Prem Esquerra o Dreta com ho faries durant la partida." },
+    { title: "Mou-la sense arrossegar", text: "En una pantalla petita pots seleccionar una fitxa i després tocar una cel·la buida. És més precís que arrossegar-la.", instruction: "Toca la fitxa i, després, la cel·la verda." },
+    { title: "Revisa el contacte", text: "Dues fitxes només encaixen cromàticament quan els dos costats que es toquen tenen el mateix color.", instruction: "Tria quin dels dos contactes és correcte." }
   ];
   const step = steps[state.tutorialStep];
-  app.innerHTML = pageTemplate(`<section class="tutorial-panel" aria-labelledby="tutorial-title"><p class="tutorial-progress">Pas ${state.tutorialStep + 1} de ${steps.length}</p><p class="eyebrow">Tutorial de controls</p><h1 id="tutorial-title">${step.title}</h1><p>${step.text}</p><div class="tutorial-stage" id="tutorial-stage"></div><div class="tutorial-actions"><button class="primary-button has-icon" type="button" id="tutorial-next">${iconSvg("tutorial")}<span>${step.action}</span></button><button class="quiet-button" type="button" data-action="skip-tutorial">Omet el tutorial</button></div></section>`, { back: true });
-  const stage = document.querySelector("#tutorial-stage");
-  const tile = createTileSvg(4, { rotation: state.tutorialStep, selected: state.tutorialStep > 0, patterns: state.patterns, decorative: true });
-  tile.classList.add("tutorial-tile");
-  stage.append(tile);
+  const complete = tutorialStepComplete();
+  const progressDots = steps.map((_, index) => `<span class="tutorial-step-dot${index < state.tutorialStep ? " is-done" : index === state.tutorialStep ? " is-current" : ""}" aria-hidden="true">${index < state.tutorialStep ? "✓" : index + 1}</span>`).join("");
+  app.innerHTML = pageTemplate(`<section class="tutorial-panel" aria-labelledby="tutorial-title">
+    <div class="tutorial-progress"><span>Pas ${state.tutorialStep + 1} de ${steps.length}</span><div class="tutorial-stepper">${progressDots}</div></div>
+    <p class="eyebrow">Tutorial pràctic</p><h1 id="tutorial-title">${step.title}</h1><p class="tutorial-explanation">${step.text}</p>
+    <div class="tutorial-stage" id="tutorial-stage" data-step="${state.tutorialStep}"></div>
+    <p class="tutorial-task${complete ? " is-complete" : ""}" id="tutorial-task" aria-live="polite">${complete ? `✓ Molt bé. ${state.tutorialStep === 3 ? "Ja saps identificar un contacte correcte." : "Pots continuar."}` : step.instruction}</p>
+    <div class="tutorial-actions"><button class="primary-button has-icon" type="button" id="tutorial-next" ${complete ? "" : "disabled"}><span>${state.tutorialStep === steps.length - 1 ? "Acaba el tutorial" : "Continua"}</span>${iconSvg("next")}</button><button class="quiet-button" type="button" data-action="skip-tutorial">Omet el tutorial</button></div>
+  </section>`, { back: true });
+  renderTutorialStage(document.querySelector("#tutorial-stage"));
   document.querySelector("#tutorial-next").addEventListener("click", () => {
+    if (!tutorialStepComplete()) return;
     if (state.tutorialStep < steps.length - 1) {
       state.tutorialStep += 1;
-      renderTutorial();
-      bindGlobalActions();
+      rerenderTutorial();
     } else finishTutorial();
   });
+}
+
+function renderTutorialStage(stage) {
+  const practice = state.tutorialPractice;
+  if (state.tutorialStep === 0) {
+    stage.innerHTML = `<div class="tutorial-tray-demo"><span class="tutorial-stage-label">Safata</span><button type="button" class="tutorial-piece-button${practice.selected ? " is-selected" : ""}" aria-label="Selecciona la fitxa de pràctica"><span class="tutorial-tap-callout">TOCA</span></button></div><div class="tutorial-stage-note">${practice.selected ? "Seleccionada" : "Encara no seleccionada"}</div>`;
+    document.querySelector(".tutorial-piece-button").append(createTileSvg(4, { rotation: 0, selected: practice.selected, patterns: state.patterns, decorative: true }));
+    document.querySelector(".tutorial-piece-button").addEventListener("click", () => { practice.selected = true; rerenderTutorial(); });
+  } else if (state.tutorialStep === 1) {
+    stage.innerHTML = `<div class="tutorial-rotate-demo"><div class="tutorial-rotating-tile"></div><div class="tutorial-rotation-controls"><button class="secondary-button has-icon tutorial-turn-left" type="button">${iconSvg("rotateLeft")}<span>Esquerra</span></button><button class="secondary-button has-icon tutorial-turn-right" type="button"><span>Dreta</span>${iconSvg("rotateRight")}</button></div><span class="tutorial-angle">${practice.rotation * 60}°</span></div>`;
+    document.querySelector(".tutorial-rotating-tile").append(createTileSvg(4, { rotation: practice.rotation, selected: true, patterns: state.patterns, decorative: true }));
+    document.querySelector(".tutorial-turn-left").addEventListener("click", () => { practice.rotation = (practice.rotation + 5) % 6; practice.rotated = true; rerenderTutorial(); });
+    document.querySelector(".tutorial-turn-right").addEventListener("click", () => { practice.rotation = (practice.rotation + 1) % 6; practice.rotated = true; rerenderTutorial(); });
+  } else if (state.tutorialStep === 2) {
+    const svg = guideSvg("tutorial-moviment");
+    svg.setAttribute("viewBox", "0 0 300 170");
+    svg.classList.add("tutorial-move-board");
+    svg.removeAttribute("aria-hidden");
+    svg.setAttribute("role", "group");
+    svg.setAttribute("aria-label", "Pràctica per seleccionar i moure una fitxa");
+    stage.append(svg);
+    const originX = 88;
+    const originY = 84;
+    const scale = .72;
+    [[0, 0], [1, 0], [2, -1]].forEach(([q, r]) => guideCell(svg, originX, originY, scale, q, r, q === 2 ? `tutorial-move-cell${practice.moveSelected ? " is-ready" : ""}` : "tutorial-move-cell"));
+    const tilePosition = practice.moved ? [2, -1] : [0, 0];
+    const tile = guideTileAtAxial(svg, 4, originX, originY, scale, tilePosition[0], tilePosition[1], practice.rotation, practice.moveSelected || practice.moved);
+    tile.setAttribute("role", "button");
+    tile.setAttribute("tabindex", "0");
+    tile.setAttribute("aria-label", "Selecciona la fitxa de pràctica");
+    const target = svg.querySelector('.tutorial-move-cell[data-q="2"]');
+    target.setAttribute("role", "button");
+    target.setAttribute("tabindex", "0");
+    target.setAttribute("aria-label", "Mou la fitxa a la cel·la verda");
+    const activate = (element, callback) => {
+      element.addEventListener("click", callback);
+      element.addEventListener("keydown", event => { if (["Enter", " "].includes(event.key)) { event.preventDefault(); callback(); } });
+    };
+    activate(tile, () => { if (!practice.moved) { practice.moveSelected = true; rerenderTutorial(); } });
+    activate(target, () => { if (practice.moveSelected) { practice.moved = true; rerenderTutorial(); } });
+    guideMarkup(svg, practice.moved ? `<circle cx="${originX + axialToPixel(2, -1, BOARD_RADIUS).x * scale + 28}" cy="55" r="15" class="guide-ok-badge"/><path d="m${originX + axialToPixel(2, -1, BOARD_RADIUS).x * scale + 21} 55 5 5 9-11" class="guide-ok-mark"/>` : `<path d="M126 84H190" class="tutorial-move-arrow"/><path d="m183 76 9 8-9 8" class="tutorial-move-arrow"/>`);
+  } else {
+    stage.innerHTML = `<div class="tutorial-contact-options"><button type="button" class="tutorial-contact-choice" data-contact="wrong"><span>Contacte A</span><span class="tutorial-contact-svg"></span></button><button type="button" class="tutorial-contact-choice" data-contact="correct"><span>Contacte B</span><span class="tutorial-contact-svg"></span></button></div>`;
+    stage.querySelectorAll(".tutorial-contact-choice").forEach(button => {
+      button.querySelector(".tutorial-contact-svg").append(createTutorialContactDiagram(button.dataset.contact === "correct"));
+      button.classList.toggle("is-wrong", practice.contactChoice === "wrong" && button.dataset.contact === "wrong");
+      button.classList.toggle("is-correct", practice.contactChoice === "correct" && button.dataset.contact === "correct");
+      button.addEventListener("click", () => { practice.contactChoice = button.dataset.contact; rerenderTutorial(); });
+    });
+    if (practice.contactChoice === "wrong") document.querySelector("#tutorial-task").textContent = "Encara no: aquí es toquen un costat blau i un de vermell. Compara-ho amb l’altre contacte.";
+  }
+}
+
+function createTutorialContactDiagram(correct) {
+  const svg = guideSvg(correct ? "contacte-correcte" : "contacte-incorrecte");
+  svg.setAttribute("viewBox", "0 0 190 120");
+  const originX = 70;
+  const originY = 43;
+  const scale = .55;
+  guideTileAtAxial(svg, 7, originX, originY, scale, 0, 0, 0);
+  guideTileAtAxial(svg, 8, originX, originY, scale, 1, 0, correct ? 3 : 0);
+  const neighbor = axialToPixel(1, 0, BOARD_RADIUS);
+  const contactX = originX + neighbor.x * scale / 2;
+  const contactY = originY + neighbor.y * scale / 2;
+  guideMarkup(svg, `<circle cx="${contactX}" cy="${contactY}" r="10" class="tutorial-contact-ring${correct ? " is-match" : " is-mismatch"}"/>`);
+  return svg;
 }
 
 function finishTutorial() {
   localStorage.setItem(TUTORIAL_KEY, "true");
   state.tutorialStep = 0;
+  state.tutorialPractice = null;
   state.route = "home";
   render();
 }
 
 function renderSettings() {
-  app.innerHTML = pageTemplate(`<section aria-labelledby="settings-title"><div class="section-heading"><div><p class="eyebrow">Preferències</p><h1 id="settings-title">Configuració</h1></div><button class="primary-button has-icon" type="button" data-action="home">${iconSvg("check")}<span>Fet</span></button></div><div class="settings-grid">
+  app.innerHTML = pageTemplate(`<section aria-labelledby="settings-title"><div class="section-heading settings-heading"><div><p class="eyebrow">Preferències</p><h1 id="settings-title">Configuració</h1></div><button class="primary-button has-icon settings-done-button" type="button" data-action="home">${iconSvg("check")}<span>Fet</span></button></div><div class="settings-grid">
     <div class="setting-row"><div><h3>Diferencia millor els colors</h3><p>Afegeix punts al vermell i ratlles al blau.</p></div><label class="switch"><input id="patterns-setting" type="checkbox" ${state.patterns ? "checked" : ""}><span aria-hidden="true"></span><span class="sr-only">Patrons de color</span></label></div>
     <div class="setting-row"><div><h3>Instal·la l’app</h3><p>Disponible quan el navegador permet instal·lar aquesta PWA.</p></div><button class="secondary-button has-icon settings-button" type="button" id="install-app" ${state.deferredInstallPrompt ? "" : "disabled"}>${iconSvg("install")}<span>Instal·la</span></button></div>
     <div class="setting-row"><div><h3>Canvia de jugador</h3><p>El progrés d’aquest nom continuarà desat al dispositiu.</p></div><button class="secondary-button has-icon settings-button" type="button" data-action="change-player">${iconSvg("user")}<span>Canvia</span></button></div>
-    <div class="setting-row sync-setting"><div><h3>Desat del progrés</h3><p>Les fites es desen primer al dispositiu i se sincronitzen automàticament en segon pla quan hi ha connexió.</p><div class="settings-sync-state">${syncTemplate()}</div></div><button class="secondary-button has-icon settings-button" type="button" id="sync-now" ${getEndpoint() ? "" : "disabled"}>${iconSvg("sync")}<span>Sincronitza ara</span></button></div>
+    <div class="setting-row sync-setting"><div><h3>Desat del progrés</h3><p>Les fites es desen primer al dispositiu i se sincronitzen automàticament en segon pla quan hi ha connexió.</p><div class="settings-sync-state">${syncTemplate()}</div></div><button class="secondary-button has-icon settings-button sync-now-button" type="button" id="sync-now" ${getEndpoint() ? "" : "disabled"}>${iconSvg("sync")}<span>Sincronitza ara</span></button></div>
   </div></section>`, { back: true });
   document.querySelector("#patterns-setting").addEventListener("change", event => {
     state.patterns = event.currentTarget.checked;
@@ -999,6 +1148,10 @@ function bindGlobalActions() {
           document.querySelector(".challenge-path")?.scrollIntoView({ behavior: "smooth", block: "center" });
         } else void startGame(CHALLENGE_DEFINITIONS[completed].id);
       } else if (["ranking", "guide", "settings", "tutorial"].includes(action)) {
+        if (action === "tutorial") {
+          state.tutorialStep = 0;
+          state.tutorialPractice = createTutorialPractice();
+        }
         state.route = action;
         render();
       } else if (action === "skip-tutorial") finishTutorial();
@@ -1041,7 +1194,7 @@ async function attemptSync() {
     state.syncState = "pending";
     state.syncLabel = "Desat al dispositiu";
   }
-  if (["home", "game"].includes(state.route)) render();
+  if (state.route === "home" || (state.route === "game" && !state.success)) render();
 }
 
 document.addEventListener("keydown", event => {

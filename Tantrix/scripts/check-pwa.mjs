@@ -17,7 +17,7 @@ try {
   const updateViaCache = await page.evaluate(async () => (await navigator.serviceWorker.getRegistration())?.updateViaCache);
   if (updateViaCache !== "none") throw new Error("El registre del service worker no força l’actualització.");
   const workerSource = await (await page.request.get(`http://127.0.0.1:${port}/sw.js`)).text();
-  for (const expected of ["tantrix-discovery-v1.2.1", 'cache: "reload"', 'endsWith("/assets/app.js")', "client.navigate(client.url)"]) {
+  for (const expected of ["tantrix-discovery-v1.3.0", 'cache: "reload"', 'endsWith("/assets/app.js")', "client.navigate(client.url)"]) {
     if (!workerSource.includes(expected)) throw new Error(`Falta la protecció d’actualització PWA: ${expected}`);
   }
   await page.reload({ waitUntil: "networkidle" });

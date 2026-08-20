@@ -1,7 +1,7 @@
 # Informe final de qualitat — Tantrix Discovery
 
-Data de la revisió: 19 d’agost de 2026
-Versió: 1.2.1
+Data de la revisió: 20 d’agost de 2026
+Versió: 1.3.0
 
 ## Resultat
 
@@ -14,8 +14,8 @@ Resultat automatitzat final:
 - Arrencada PWA sense connexió correcta.
 - Connexió de producció amb Google Apps Script correcta des d’un navegador real.
 - Lot remot de 10/10 fites validat, escrit, reflectit al rànquing i eliminat després de la prova.
-- 30/30 fluxos E2E superats.
-- 35 captures finals revisades visualment, inclosos cinc catàlegs amb les deu fitxes, cinc celebracions, cinc rànquings i cinc pantalles de configuració.
+- 35/35 fluxos E2E superats.
+- 75 captures finals revisades visualment: quinze pantalles per cadascun dels cinc formats, inclosos els quatre passos pràctics del tutorial.
 - Cap error de consola ni desbordament horitzontal detectat.
 
 ## Cicles iteratius de revisió
@@ -133,6 +133,12 @@ El rànquing mostra una sola frase de progrés per grup, sense repetir `n/10 rep
 ### Cicle 26 — Actualització efectiva de la PWA
 
 La versió publicada ja no contenia els textos duplicats, però un dispositiu amb el service worker anterior podia continuar servint `app.js` i `app.css` des de la memòria cau. A partir de la versió 1.2.1, el precache força una lectura renovada, aquests dos actius segueixen una estratègia network-first, el registre comprova sempre si hi ha un `sw.js` nou i l’activació elimina les memòries cau anteriors. Si hi havia una versió antiga, les pestanyes obertes es recarreguen una sola vegada i passen immediatament al codi actual.
+
+### Cicle 27 — Tutorial pràctic, guia exacta i acabat visual
+
+El tutorial s’ha reconstruït en quatre accions obligatòries: seleccionar una fitxa real, girar-la 60 graus, moure-la tocant fitxa i cel·la, i distingir un contacte correcte. `Continua` no s’activa fins que l’acció s’ha executat, hi ha progrés visual i feedback específic, i les demostracions comparteixen el renderer i la geometria axial del joc.
+
+Els sis diagrames de `Com es juga` s’han tornat a dibuixar amb peces reals encaixades a distàncies axials exactes. La graella manté el mateix traç fi abans i després de col·locar la primera fitxa; `Comprova` i `Reinicia` conserven la mateixa mida amb el text un 10% més petit. A configuració, `Fet` és verd i queda centrat, i `Sincronitza ara` utilitza dues fletxes oposades inequívocament. La prova de celebració compta els muntatges del diàleg durant la sincronització i confirma que només apareix una vegada.
 
 ## Avaluació de jugabilitat experta
 

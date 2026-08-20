@@ -30,6 +30,7 @@ export default defineConfig({
     command: `npm run dev -- --port ${testPort}`,
     url: testBaseUrl,
     reuseExistingServer: true,
-    timeout: 60000
+    timeout: 60000,
+    env: { TANTRIX_DISABLE_WATCH: "true" }
   }
 });

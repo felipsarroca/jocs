@@ -1,6 +1,6 @@
 # Especificació completa per desenvolupar una app de Tantrix Discovery individual
 
-**Versió del document:** 1.2.1
+**Versió del document:** 1.3.0
 **Data:** 19 d’agost de 2026
 **Públic destinatari:** programació, disseny UX/UI, il·lustració vectorial, proves i administració del Google Sheets
 **Estat:** especificació funcional i tècnica preparada per implementar
@@ -759,11 +759,11 @@ La guia utilitza sis diagrames SVG responsius i específics, generats dins l’a
 | Targeta | Demostració visual |
 |---|---|
 | `Tres camins` | Una fitxa gran amb els camins vermell, blau i groc assenyalats individualment. |
-| `Fes coincidir els colors` | Dues peces diferents de les inicials, ben encaixades, amb el contacte blau-blau ampliat i un tic. |
+| `Fes coincidir els colors` | Dues peces diferents de les inicials, separades exactament una distància axial de veïnatge i amb el contacte blau-blau ampliat i un tic. |
 | `Gira i mou` | Fitxa seleccionada, dos controls de gir, trajecte discontinu, cel·la candidata, toc i mà. |
-| `Tanca un únic circuit` | Diverses peces esquemàtiques ben col·locades i un únic recorregut groc tancat que passa per totes. |
-| `Utilitza-les totes` | Totes les peces unides al tauler, fletxa de finalització, safata a zero i tic. |
-| `Sense forats` | Comparació simultània entre una corona amb cel·la buida i una composició compacta vàlida. |
+| `Tanca un únic circuit` | Tres peces reals en coordenades axials adjacents i un únic recorregut groc tancat que passa per totes. |
+| `Utilitza-les totes` | Peces reals unides amb la geometria del tauler, fletxa de finalització, safata a zero i tic. |
+| `Sense forats` | Comparació simultània, dibuixada amb peces reals en coordenades axials, entre una corona amb cel·la buida i una composició compacta vàlida. |
 
 ### 11.3. Text i jerarquia de la guia
 
@@ -773,21 +773,21 @@ Els controls de gir es representen amb les mateixes icones SVG de l’aplicació
 
 ### 11.4. Tutorial interactiu obligatori
 
-El tutorial ha de durar aproximadament dos minuts i tenir aquests passos:
+El tutorial ha de ser una pràctica guiada breu. No es pot avançar només prement el botó: cada pas exigeix una acció demostrable i `Continua` es manté desactivat fins que s’ha completat.
 
 | Pas | Instrucció | Acció esperada | Validació |
 |---:|---|---|---|
-| 1 | “Toca aquesta fitxa per seleccionar-la.” | seleccionar | anell visible |
-| 2 | “Fes-la girar a la dreta.” | `↷` o segon toc | rotació +1 |
-| 3 | “Ara gira-la a l’esquerra.” | `↶` | rotació −1 |
-| 4 | “Arrossega-la fins a la zona marcada.” | drag & drop | cel·la correcta |
-| 5 | “També pots moure sense arrossegar.” | seleccionar + tocar cel·la | posició correcta |
-| 6 | “Uneix blau amb blau.” | col·locar una fitxa de pràctica | costat coincident |
-| 7 | “Ja tens els controls.” | confirmar final del tutorial | tutorial complet |
+| 1 | “Selecciona una fitxa.” | tocar la fitxa real de la safata | anell violeta visible |
+| 2 | “Gira-la 60 graus.” | prémer `Esquerra` o `Dreta` | rotació exacta d’una sisena de volta |
+| 3 | “Mou-la sense arrossegar.” | seleccionar la fitxa i tocar la cel·la verda | fitxa situada a la destinació |
+| 4 | “Revisa el contacte.” | triar entre un contacte incorrecte i un de correcte | identificació del contacte amb colors iguals |
 
 Requisits:
 
 - botó `Omet el tutorial`;
+- indicador visual `Pas n de 4` i estat completat de cada pas;
+- ús del mateix `TileRenderer`, les mateixes fitxes i la mateixa geometria axial que a la partida;
+- feedback específic si es tria el contacte incorrecte, sense revelar cap solució dels reptes;
 - botó `Torna-ho a veure` a la configuració;
 - focus guiat i lectura correcta amb lector de pantalla;
 - no registrar el repte real fins que el jugador decideixi començar, llevat que es confirmi explícitament que el tutorial compta com a primer repte;
@@ -981,6 +981,8 @@ En validar-se:
 5. iniciar el desat local immediat;
 6. sincronitzar amb el servidor;
 7. mostrar `Següent repte` com a acció principal i permetre també `Torna a jugar` i `Inici`.
+
+La celebració s’ha de muntar una sola vegada. Una resposta asíncrona de sincronització no pot repintar, duplicar ni reiniciar l’animació del diàleg mentre aquest és obert.
 
 La manca de connexió no pot fer perdre el resultat: s’ha de marcar “Desat al dispositiu; pendent de sincronitzar”.
 

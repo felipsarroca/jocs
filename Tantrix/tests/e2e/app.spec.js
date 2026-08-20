@@ -63,6 +63,15 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.getByText(/se sincronitzen automàticament en segon pla/i)).toBeVisible();
   await expect(page.locator('input[type="url"], iframe, a[href*="script.google.com"]')).toHaveCount(0);
   await expect(page.getByText(/URL d’Apps Script|Connexió amb Google Sheets|script\.google\.com/i)).toHaveCount(0);
+  const settingsDone = page.getByRole("button", { name: "Fet", exact: true });
+  await expect(settingsDone).toHaveClass(/settings-done-button/);
+  expect(await settingsDone.evaluate(button => {
+    const buttonBox = button.getBoundingClientRect();
+    const content = [...button.children].map(child => child.getBoundingClientRect());
+    return content.every(box => Math.abs((box.top + box.height / 2) - (buttonBox.top + buttonBox.height / 2)) <= 1);
+  })).toBe(true);
+  const syncNow = page.getByRole("button", { name: "Sincronitza ara", exact: true });
+  await expect(syncNow.locator("svg path")).toHaveCount(4);
   await page.getByRole("button", { name: "Torna al menú", exact: true }).click();
   await expect(page.getByRole("heading", { name: "El teu recorregut" })).toBeVisible();
   await page.getByRole("button", { name: "Ves a la portada d’accés", exact: true }).click();
@@ -87,6 +96,10 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.getByRole("button", { name: "Refés", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Torna la fitxa a la safata", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Reinicia", exact: true })).toBeVisible();
+  expect(await page.locator('.game-primary-actions button').evaluateAll(buttons => buttons.every(button => {
+    const label = button.querySelector("span:last-child");
+    return parseFloat(getComputedStyle(label).fontSize) <= parseFloat(getComputedStyle(button).fontSize) * .91;
+  }))).toBe(true);
   const primaryActionGeometry = await page.locator('.game-primary-actions button').evaluateAll(buttons => buttons.map(button => {
     const rect = button.getBoundingClientRect();
     return { width: rect.width, height: rect.height, top: rect.top };
@@ -112,6 +125,7 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   const centerCell = page.locator('.board-cell[data-q="0"][data-r="0"]');
   await dragBetween(page, page.locator(".tray-tile").first(), centerCell);
   await expect(page.locator("#board-tiles [data-positioned-tile]")).toHaveCount(1);
+  await expect(page.locator(".board-cell.is-candidate")).toHaveCount(0);
   await page.getByRole("button", { name: "Surt de la partida" }).click();
   await expect(page.getByRole("heading", { name: "El teu recorregut" })).toBeVisible();
   await page.locator('button[data-action="continue"]').click();
@@ -132,8 +146,20 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.locator("#board-tiles [data-positioned-tile]")).toHaveCount(1);
   await page.evaluate(layout => window.__tantrixTest.stageLayout(layout), fixtures.D03_Y);
   await expect(page.locator("#board-tiles [data-positioned-tile]")).toHaveCount(3);
+  await page.evaluate(() => {
+    window.__successMountCount = 0;
+    window.__successObserver = new MutationObserver(records => {
+      for (const record of records) for (const node of record.addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE && (node.matches?.(".success-overlay") || node.querySelector?.(".success-overlay"))) window.__successMountCount += 1;
+      }
+    });
+    window.__successObserver.observe(document.querySelector("#app"), { childList: true, subtree: true });
+  });
   await page.getByRole("button", { name: "Comprova", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Repte superat!" })).toBeVisible();
+  await page.waitForTimeout(1200);
+  expect(await page.evaluate(() => window.__successMountCount)).toBe(1);
+  await page.evaluate(() => window.__successObserver.disconnect());
   await expect(page.getByText("Ja has desbloquejat")).toBeVisible();
   await expect(page.getByText("Repte 2: 4 fitxes · vermell")).toBeVisible();
   await expect(page.getByRole("button", { name: "Següent repte", exact: true })).toBeVisible();
@@ -169,6 +195,43 @@ test("flux complet local-first, progressió i rànquing", async ({ page }, testI
   await expect(page.locator("footer.app-footer")).toContainText("Obra sota llicència CC BY-NC-SA 4.0");
   await expect.poll(() => page.locator("footer.app-footer a").evaluateAll(links => links.every(link => getComputedStyle(link).textDecorationLine === "none"))).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test("el tutorial exigeix practicar selecció, gir, moviment i contacte", async ({ page }, testInfo) => {
+  await page.goto("/?test=1");
+  await page.getByLabel("Nom d’usuari").fill(`Tutorial ${testInfo.project.name}`);
+  await page.getByRole("button", { name: "Comença" }).click();
+
+  const next = page.locator("#tutorial-next");
+  await expect(page.getByRole("heading", { name: "Selecciona una fitxa" })).toBeVisible();
+  await expect(next).toBeDisabled();
+  await page.getByRole("button", { name: "Selecciona la fitxa de pràctica" }).click();
+  await expect(next).toBeEnabled();
+  await next.click();
+
+  await expect(page.getByRole("heading", { name: "Gira-la 60 graus" })).toBeVisible();
+  await expect(next).toBeDisabled();
+  await page.getByRole("button", { name: "Dreta", exact: true }).click();
+  await expect(page.locator(".tutorial-angle")).toHaveText("60°");
+  await expect(next).toBeEnabled();
+  await next.click();
+
+  await expect(page.getByRole("heading", { name: "Mou-la sense arrossegar" })).toBeVisible();
+  await expect(next).toBeDisabled();
+  await page.locator('.guide-rendered-tile[aria-label="Selecciona la fitxa de pràctica"]').click();
+  await page.locator('.tutorial-move-cell[aria-label="Mou la fitxa a la cel·la verda"]').click();
+  await expect(next).toBeEnabled();
+  await next.click();
+
+  await expect(page.getByRole("heading", { name: "Revisa el contacte" })).toBeVisible();
+  await expect(next).toBeDisabled();
+  await page.locator('[data-contact="wrong"]').click();
+  await expect(page.locator("#tutorial-task")).toContainText("blau i un de vermell");
+  await expect(next).toBeDisabled();
+  await page.locator('[data-contact="correct"]').click();
+  await expect(next).toBeEnabled();
+  await next.click();
+  await expect(page.getByRole("heading", { name: "El teu recorregut" })).toBeVisible();
 });
 
 test("les deu fitxes exposen tres connexions exactes i circulars", async ({ page }) => {
@@ -208,7 +271,14 @@ test("guia, configuració i zoom de text conserven el reflow", async ({ page }, 
   await expect(page.locator('.guide-visual[role="img"][aria-label]')).toHaveCount(6);
   await expect(page.locator(".guide-inline-control")).toHaveCount(3);
   await expect(page.locator(".guide-contact-ring")).toHaveCount(1);
-  await expect(page.locator(".guide-loop-color")).toHaveCount(1);
+  await expect(page.locator(".guide-loop-guide")).toHaveCount(1);
+  expect(await page.locator(".guide-visual").evaluateAll(visuals => visuals.map(visual => visual.querySelectorAll(".guide-rendered-tile").length))).toEqual([1, 2, 1, 3, 4, 12]);
+  await expect(page.locator(".guide-schematic-tiles, .guide-hole-shape, .guide-compact-shape")).toHaveCount(0);
+  expect(await page.locator('[data-guide-visual="1"] .guide-rendered-tile').evaluateAll(tiles => {
+    const matrices = tiles.map(tile => tile.transform.baseVal.consolidate().matrix);
+    const distance = Math.hypot(matrices[1].e - matrices[0].e, matrices[1].f - matrices[0].f);
+    return Math.abs(distance - 54 * Math.sqrt(3) * matrices[0].a) < .1;
+  })).toBe(true);
   await expect(page.getByRole("button", { name: "Torna al menú", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Ves a la portada d’accés", exact: true })).toHaveCount(0);
   await assertNoOverflow(page);

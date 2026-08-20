@@ -4,6 +4,11 @@ import path from "node:path";
 
 export default defineConfig({
   base: "./",
+  server: {
+    watch: {
+      ignored: process.env.TANTRIX_DISABLE_WATCH === "true" ? ["**"] : []
+    }
+  },
   plugins: [
     {
       name: "tantrix-source-entry",
