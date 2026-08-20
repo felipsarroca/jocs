@@ -51,7 +51,7 @@ export async function syncPending(displayName, normalizedName) {
     apiVersion: 1,
     action: "sync",
     displayName,
-    appVersion: "1.2.0",
+    appVersion: "1.2.1",
     completions: pending.map(({ requestId, challengeId, layout }) => ({ requestId, challengeId, layout }))
   });
   for (const item of pending) await deleteRecord("queue", item.requestId);

@@ -1,7 +1,7 @@
 # Informe final de qualitat — Tantrix Discovery
 
 Data de la revisió: 19 d’agost de 2026
-Versió: 1.2.0
+Versió: 1.2.1
 
 ## Resultat
 
@@ -129,6 +129,10 @@ La capçalera de `Com es juga`, `Tutorial`, `Rànquing` i `Configuració` mostra
 En mòbil, la previsualització d’una fitxa arrossegada des de la safata s’ha reduït a 68 × 68 px perquè el dit no tapi la cel·la de destí; les fitxes ja col·locades conserven la mida còmoda del tauler. Les icones de gir mostren ara una fitxa hexagonal i una fletxa circular ben orientada, amb violeta per `Esquerra` i blau per `Dreta`. S’han retirat els botons visibles `Desfés`, `Refés` i `A la safata`, mentre que `Comprova` i `Reinicia` comparteixen l’última fila amb dimensions idèntiques.
 
 El rànquing mostra una sola frase de progrés per grup, sense repetir `n/10 reptes completats` ni el darrer circuit superat —tampoc al resum superior—, i situa el recompte de jugadors a l’extrem dret. També s’han regenerat les icones PWA perquè el símbol ocupi més superfície útil tant en la versió normal com en la `maskable`.
+
+### Cicle 26 — Actualització efectiva de la PWA
+
+La versió publicada ja no contenia els textos duplicats, però un dispositiu amb el service worker anterior podia continuar servint `app.js` i `app.css` des de la memòria cau. A partir de la versió 1.2.1, el precache força una lectura renovada, aquests dos actius segueixen una estratègia network-first, el registre comprova sempre si hi ha un `sw.js` nou i l’activació elimina les memòries cau anteriors. Si hi havia una versió antiga, les pestanyes obertes es recarreguen una sola vegada i passen immediatament al codi actual.
 
 ## Avaluació de jugabilitat experta
 
