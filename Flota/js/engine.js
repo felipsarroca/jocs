@@ -6,11 +6,11 @@ export const ROWS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 export const COLS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export const FLEET_SPEC = [
-  { id: 'portaavions', name: 'Portaavions', size: 5 },
-  { id: 'cuirassat', name: 'Cuirassat', size: 4 },
-  { id: 'creuer', name: 'Creuer', size: 3 },
-  { id: 'submari', name: 'Submarí', size: 3 },
-  { id: 'patrullera', name: 'Patrullera', size: 2 }
+  { id: 'portaavions', name: 'Portaavions', size: 5, article: 'el' },
+  { id: 'cuirassat', name: 'Cuirassat', size: 4, article: 'el' },
+  { id: 'creuer', name: 'Creuer', size: 3, article: 'el' },
+  { id: 'submari', name: 'Submarí', size: 3, article: 'el' },
+  { id: 'patrullera', name: 'Patrullera', size: 2, article: 'la' }
 ];
 
 export function coordLabel(r, c) {

@@ -30,6 +30,21 @@ const AI_LEVEL_LABELS = {
 };
 
 const roomClient = new OnlineRoomClient();
+const CONFIRM_SHOT_KEY = 'flota:confirmShot';
+
+/** Nom del vaixell en minúscula amb l'article correcte («el creuer», «la patrullera»). */
+function shipWithArticle(ship) {
+  const spec = FLEET_SPEC.find((s) => s.id === ship?.id);
+  const name = (spec?.name || ship?.name || 'vaixell').toLowerCase();
+  return `${spec?.article || 'el'} ${name}`;
+}
+
+/** «Creuer tocat i enfonsat!» / «Patrullera tocada i enfonsada!» */
+function sunkText(ship) {
+  const spec = FLEET_SPEC.find((s) => s.id === ship?.id);
+  const name = spec?.name || ship?.name || 'Vaixell';
+  return spec?.article === 'la' ? `${name} tocada i enfonsada!` : `${name} tocat i enfonsat!`;
+}
 
 const state = {
   screen: 'home',
@@ -479,7 +494,10 @@ function renderPlacement() {
   const allPlaced = validateCompleteFleet(state.ships);
   const readyBtn = $('btn-ready');
   readyBtn.disabled = !allPlaced || state.readySubmitted;
-  readyBtn.textContent = state.readySubmitted ? 'Esperant el rival…' : 'Llesta per combatre!';
+  const missing = FLEET_SPEC.length - state.ships.length;
+  if (state.readySubmitted) readyBtn.textContent = 'Esperant el rival…';
+  else if (allPlaced) readyBtn.textContent = 'A combatre!';
+  else readyBtn.textContent = missing === 1 ? 'Falta 1 vaixell' : `Falten ${missing} vaixells`;
 
   $('btn-random-fleet').disabled = state.readySubmitted;
   $('btn-clear-fleet').disabled = state.readySubmitted;
@@ -629,7 +647,7 @@ function fireAgainstAi(r, c) {
   } else {
     soundFX.sunk();
     state.mySunkShips.push(outcome.sunkShip);
-    state.lastEventText = `Tu → ${coordLabel(r, c)}: ${outcome.sunkShip.name} tocat i enfonsat!`;
+    state.lastEventText = `Tu → ${coordLabel(r, c)}: ${sunkText(outcome.sunkShip)}`;
   }
 
   if (outcome.allSunk) {
@@ -685,7 +703,7 @@ function performAiTurn() {
   } else {
     soundFX.sunk();
     state.aiSunkShips.push(outcome.sunkShip);
-    state.lastEventText = `Màquina → ${coordLabel(pick.r, pick.c)}: T'ha enfonsat el ${outcome.sunkShip.name.toLowerCase()}!`;
+    state.lastEventText = `Màquina → ${coordLabel(pick.r, pick.c)}: T'ha enfonsat ${shipWithArticle(outcome.sunkShip)}!`;
   }
 
   if (outcome.allSunk) {
@@ -740,9 +758,11 @@ function paintShotsOnGrid(gridContainer, shotsMap, sunkShips, lastShotKey) {
 
 function renderFleetStrip(container, sunkShips) {
   const sunkIds = new Set(sunkShips.map((s) => s.id));
-  container.innerHTML = FLEET_SPEC.map(
-    (s) => `<span class="fleet-chip${sunkIds.has(s.id) ? ' sunk' : ''}">${s.name} (${s.size})</span>`
-  ).join('');
+  container.innerHTML = FLEET_SPEC.map((s) => {
+    const sunk = sunkIds.has(s.id);
+    const label = `${s.name} (${s.size})${sunk ? (s.article === 'la' ? ', enfonsada' : ', enfonsat') : ''}`;
+    return `<span class="fleet-mini${sunk ? ' sunk' : ''}" title="${label}" role="img" aria-label="${label}">${'<i></i>'.repeat(s.size)}</span>`;
+  }).join('');
 }
 
 function renderBattle() {
@@ -791,6 +811,8 @@ function renderBattle() {
 
   renderFleetStrip($('fleet-status-mine'), state.aiSunkShips);
   renderFleetStrip($('fleet-status-enemy'), state.mySunkShips);
+
+  $('battle-boards').dataset.turn = state.winner ? 'done' : state.turn;
 
   const turnPill = $('turn-pill');
   const turnText = $('turn-text');
@@ -906,7 +928,7 @@ async function handleOnlineRoomUpdate(room) {
     const label = coordLabel(last.r, last.c);
     if (last.result === 'aigua') state.lastEventText = `${who} → ${label}: Aigua!`;
     else if (last.result === 'tocat') state.lastEventText = `${who} → ${label}: Tocat!`;
-    else state.lastEventText = `${who} → ${label}: ${last.sunkShip?.name || 'Vaixell'} tocat i enfonsat!`;
+    else state.lastEventText = `${who} → ${label}: ${sunkText(last.sunkShip)}`;
 
     if (last.seq > state.lastHandledShotSeq) {
       state.lastHandledShotSeq = last.seq;
@@ -991,7 +1013,7 @@ async function createOnlineGame() {
       <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 5v14M5 12h14"/>
       </svg>
-      Crea una sala i genera codi
+      Crea una sala
     `;
   }
 }
@@ -1223,6 +1245,20 @@ function init() {
     $('qr-container').innerHTML = renderQrSvg(url);
     $('btn-qr-share').hidden = typeof navigator.share !== 'function';
     $('modal-qr').showModal();
+  });
+
+  // Doble toc per confirmar el tret (mòbil), recordat entre partides
+  const chkConfirm = $('chk-confirm-shot');
+  try {
+    chkConfirm.checked = localStorage.getItem(CONFIRM_SHOT_KEY) === '1';
+  } catch (_) {}
+  chkConfirm.addEventListener('change', () => {
+    try {
+      localStorage.setItem(CONFIRM_SHOT_KEY, chkConfirm.checked ? '1' : '0');
+    } catch (_) {}
+    state.pendingAim = null;
+    if (state.screen === 'battle') renderBattle();
+    showToast(chkConfirm.checked ? 'Doble toc activat: 1r toc apunta, 2n dispara' : 'Doble toc desactivat');
   });
 
   // Tabs mòbils de combat

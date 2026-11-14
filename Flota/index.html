@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0d6896">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Flota">
@@ -13,8 +14,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.6">
-  <script type="module" src="js/app.js?v=1.2.6"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.7">
+  <script type="module" src="js/app.js?v=1.2.7"></script>
 </head>
 <body>
   <header class="topbar">
@@ -106,7 +107,7 @@
             <div class="divider-or"><span>o bé</span></div>
 
             <form id="form-join-room" class="online-block">
-              <label for="input-room-code" class="block-title">Codi de sala</label>
+              <label for="input-room-code" class="sr-only">Codi de sala</label>
               <div class="join-row">
                 <input id="input-room-code" type="text" maxlength="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="a3t5" aria-label="Codi de la sala">
                 <button type="submit" class="btn btn-secondary" id="btn-join-room">Entra-hi</button>
@@ -187,7 +188,6 @@
         <div class="board-card">
           <div class="board-card-head">
             <h2>La teva flota</h2>
-            <span class="hint-text" id="place-hint">Deixa sempre 1 casella d'aigua al voltant de cada vaixell</span>
           </div>
           <div id="board-place" class="board-wrap" aria-label="Tauler de col·locació de la teva flota"></div>
         </div>
@@ -207,6 +207,7 @@
                 <path d="M21 3v6h-6"/>
               </svg>
               <span>Gira: <strong id="rotate-label">Horitzontal</strong></span>
+              <kbd class="kbd-hint" title="Drecera de teclat">R</kbd>
             </button>
             <button type="button" class="btn btn-ghost" id="btn-random-fleet">
               <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -223,7 +224,7 @@
           </div>
 
           <button type="button" class="btn btn-accent btn-full btn-ready" id="btn-ready" disabled>
-            Llesta per combatre!
+            Falten 5 vaixells
           </button>
         </aside>
       </div>
@@ -234,9 +235,10 @@
       <div class="battle-hud">
         <div class="turn-pill" id="turn-pill" data-turn="me">
           <span class="pulse-dot"></span>
-          <span id="turn-text">El teu torn · Tria una casella del mar enemic</span>
+          <span id="turn-text">El teu torn · Dispara al mar enemic</span>
         </div>
-        <div class="last-event" id="last-event">1 tret per torn · Que comenci la batalla!</div>
+        <span class="hud-sep" aria-hidden="true"></span>
+        <div class="last-event" id="last-event" aria-live="polite">1 tret per torn · Que comenci la batalla!</div>
       </div>
 
       <!-- Resultat final en línia amb estadístiques i revanxa -->
@@ -261,6 +263,15 @@
         <button type="button" class="mobile-tab" data-tab="mine" role="tab" aria-selected="false">
           La teva flota <span class="tab-badge" id="badge-mine-sunk">0/5</span>
         </button>
+        <label class="confirm-shot-toggle" id="confirm-shot-wrap" title="Doble toc per confirmar el tret (1r toc apunta, 2n toc dispara)">
+          <input type="checkbox" id="chk-confirm-shot" class="confirm-shot-input" aria-label="Doble toc per confirmar el tret">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="8"/>
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3"/>
+          </svg>
+          <span class="confirm-shot-label">2×</span>
+        </label>
       </div>
 
       <div class="battle-boards" id="battle-boards" data-mobile-view="enemy">
@@ -279,14 +290,6 @@
             <span class="board-sub" id="enemy-summary">5 vaixells per enfonsar</span>
           </div>
           <div id="board-enemy" class="board-wrap" aria-label="Tauler del mar enemic"></div>
-          <label class="confirm-shot-toggle" id="confirm-shot-wrap">
-            <input type="checkbox" id="chk-confirm-shot" class="confirm-shot-input">
-            <span class="confirm-shot-switch" aria-hidden="true"></span>
-            <span class="confirm-shot-text">
-              <strong>Doble toc per confirmar el tret</strong>
-              <small>1r toc apunta · 2n toc dispara</small>
-            </span>
-          </label>
           <div id="fleet-status-enemy" class="fleet-status-strip"></div>
         </div>
       </div>
