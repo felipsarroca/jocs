@@ -834,10 +834,6 @@ function renderBattle() {
     banner.hidden = false;
     banner.className = `gameover-banner ${state.winner === 'me' ? 'win' : 'lose'}`;
     $('gameover-title').textContent = state.winner === 'me' ? 'Victòria! Has enfonsat tota la flota!' : 'Derrota! Han enfonsat la teva flota';
-    $('gameover-subtitle').textContent =
-      state.mode === 'ai'
-        ? `Partida contra ${AI_LEVEL_LABELS[state.aiDifficulty]}.`
-        : `Sala ${roomClient.roomCode}.`;
 
     const shotsArr = Object.values(state.myShots);
     const totalShots = shotsArr.length;
@@ -845,16 +841,14 @@ function renderBattle() {
     const acc = totalShots > 0 ? Math.round((hits / totalShots) * 100) : 0;
 
     $('gameover-stats').innerHTML = `
-      <div class="stat-box"><strong>${totalShots}</strong><span>Trets fets</span></div>
+      <div class="stat-box"><strong>${totalShots}</strong><span>Trets<br>fets</span></div>
       <div class="stat-box"><strong>${acc}%</strong><span>Precisió</span></div>
-      <div class="stat-box"><strong>${myAlive}/5</strong><span>Vaixells salvats</span></div>
+      <div class="stat-box"><strong>${myAlive}/5</strong><span>Vaixells<br>salvats</span></div>
     `;
 
     const fp = $('gameover-fairplay');
-    if (state.mode === 'online' && state.fairPlayStatus === 'ok') {
-      fp.textContent = 'Flota rival verificada amb hash SHA-256 (joc net confirmat).';
-      fp.hidden = false;
-    } else if (state.mode === 'online' && state.fairPlayStatus === 'mismatch') {
+    // Només s'avisa si la flota revelada no coincideix amb l'empremta inicial
+    if (state.mode === 'online' && state.fairPlayStatus === 'mismatch') {
       fp.textContent = 'Avís: el tauler revelat no coincideix amb l’empremta inicial.';
       fp.hidden = false;
     } else {

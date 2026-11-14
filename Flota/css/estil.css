@@ -1248,6 +1248,10 @@ body {
   font-weight: 600;
 }
 
+.fairplay-warning {
+  color: #991b1b !important;
+}
+
 .gameover-stats {
   display: flex;
   gap: 0.75rem;
@@ -1269,7 +1273,9 @@ body {
 }
 
 .stat-box span {
-  font-size: 0.73rem;
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.15;
   color: var(--muted);
 }
 
@@ -1963,6 +1969,48 @@ body {
 
   .hud-sep {
     display: none;
+  }
+
+  /* Pantalla final compacta: títol a dalt, estadístiques i botons en una sola fila */
+  .gameover-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 0.5rem 0.55rem;
+    padding: 0.6rem 0.65rem;
+  }
+
+  .gameover-main {
+    grid-column: 1 / -1;
+  }
+
+  .gameover-main h2 {
+    font-size: 1rem;
+  }
+
+  .gameover-stats {
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+  }
+
+  .stat-box {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0.3rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .gameover-actions {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+
+  .gameover-actions .btn {
+    padding: 0.42rem 0.75rem;
+    font-size: 0.82rem;
   }
 
   .fleet-mini i {
