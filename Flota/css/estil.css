@@ -1,35 +1,35 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
-/* Estils «Atles Marítim i Port Mediterrani» per a Enfonsar la flota */
+/* Estils «Costa Verda» (sàlvia clar, blau oceà, ambre i terracota) per a Enfonsar la flota */
 
 :root {
-  --bg: #f3ead8;
-  --bg-grad-top: #fbf6ec;
-  --surface: #fffdf8;
-  --surface-2: #f7efe0;
-  --border: #dcccb0;
-  --border-strong: #bfa780;
-  --text: #1b3147;
-  --muted: #625645;
-  --sea-1: #1e7497;
-  --sea-2: #165b79;
-  --sea-border: rgba(255, 250, 238, 0.22);
-  --sea-frame: #e9dec8;
-  --primary: #156082;
-  --primary-hover: #0e4a66;
-  --primary-soft: rgba(21, 96, 130, 0.11);
-  --coral: #d95d39;
-  --coral-soft: rgba(217, 93, 57, 0.12);
-  --accent: #0f766e;
-  --accent-hover: #0b5a54;
+  --bg: #d7e6dd;
+  --bg-grad-top: #edf4ef;
+  --surface: #fcfefd;
+  --surface-2: #edf4ef;
+  --border: #c2d6ca;
+  --border-strong: #94b4a2;
+  --text: #16332c;
+  --muted: #4b695e;
+  --sea-1: #1179ad;
+  --sea-2: #0b5a83;
+  --sea-border: rgba(232, 247, 255, 0.24);
+  --sea-frame: #e3ede7;
+  --primary: #0d6896;
+  --primary-hover: #094e72;
+  --primary-soft: rgba(13, 104, 150, 0.11);
+  --coral: #d44d38;
+  --coral-soft: rgba(212, 77, 56, 0.11);
+  --accent: #147a5f;
+  --accent-hover: #0e5d48;
   --hit: #ea580c;
   --sunk: #dc2626;
-  --ship-wood-1: #dca167;
-  --ship-wood-2: #af6c35;
-  --ship-border: #78421a;
+  --ship-wood-1: #e0983c;
+  --ship-wood-2: #b96d1a;
+  --ship-border: #78400b;
   --cell-place: clamp(26px, min(4.3vw, 5.1dvh), 44px);
   --cell-battle: clamp(23px, min(3.05vw, 4.85dvh), 46px);
   --radius: 14px;
-  --shadow: 0 10px 26px rgba(72, 50, 22, 0.1);
+  --shadow: 0 10px 26px rgba(18, 52, 42, 0.08);
   font-size: clamp(13px, min(1.02vw, 1.82vh), 17px);
 }
 
@@ -46,8 +46,8 @@ html, body {
   padding: 0;
   min-height: 100dvh;
   background:
-    radial-gradient(circle at 18% 0%, #fffaf0 0%, transparent 45%),
-    radial-gradient(circle at 86% 12%, rgba(217, 93, 57, 0.08) 0%, transparent 42%),
+    radial-gradient(circle at 18% 0%, #f7fbf8 0%, transparent 45%),
+    radial-gradient(circle at 86% 12%, rgba(13, 104, 150, 0.08) 0%, transparent 42%),
     linear-gradient(180deg, var(--bg-grad-top), var(--bg));
   color: var(--text);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, sans-serif;
@@ -72,7 +72,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(255, 252, 245, 0.92);
+  background: rgba(247, 251, 248, 0.92);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
 }
@@ -144,24 +144,24 @@ body {
 }
 
 .btn-install-top {
-  border-color: rgba(21, 96, 130, 0.4);
-  background: rgba(21, 96, 130, 0.1);
+  border-color: rgba(13, 104, 150, 0.4);
+  background: rgba(13, 104, 150, 0.1);
   color: var(--primary);
 }
 
 .btn-install-top:hover {
-  background: rgba(21, 96, 130, 0.18);
+  background: rgba(13, 104, 150, 0.18);
 }
 
 .btn-exit {
-  border-color: rgba(217, 93, 57, 0.45);
-  color: #b53d1c;
-  background: rgba(217, 93, 57, 0.08);
+  border-color: rgba(212, 77, 56, 0.45);
+  color: #a63422;
+  background: rgba(212, 77, 56, 0.08);
 }
 
 .btn-exit:hover {
-  background: rgba(217, 93, 57, 0.16);
-  border-color: rgba(217, 93, 57, 0.7);
+  background: rgba(212, 77, 56, 0.16);
+  border-color: rgba(212, 77, 56, 0.7);
 }
 
 /* Contenidor principal */
@@ -231,7 +231,7 @@ body {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background: #ede1ca;
+  background: #dce9e1;
 }
 
 .btn-accent {
@@ -264,9 +264,9 @@ body {
   display: inline-block;
   padding: 0.22rem 0.72rem;
   border-radius: 999px;
-  border: 1px solid rgba(217, 93, 57, 0.35);
+  border: 1px solid rgba(212, 77, 56, 0.35);
   background: var(--coral-soft);
-  color: #a93c1e;
+  color: #a63422;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -278,7 +278,7 @@ body {
   font-size: clamp(1.55rem, 2.7vw, 2.25rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  color: #142a40;
+  color: #112a24;
 }
 
 .hero-sub {
@@ -293,8 +293,8 @@ body {
   max-width: 640px;
   padding: 0.55rem 0.85rem;
   border-radius: 10px;
-  border: 1px solid rgba(21, 96, 130, 0.4);
-  background: #fffaf0;
+  border: 1px solid rgba(13, 104, 150, 0.35);
+  background: #f5faf7;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -404,7 +404,7 @@ body {
   padding: 0.56rem 0.72rem;
   border-radius: 10px;
   border: 1px solid var(--border-strong);
-  background: #fffaf0;
+  background: #f5faf7;
   color: var(--text);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 1.05rem;
@@ -419,7 +419,7 @@ body {
   text-transform: none;
   font-weight: 500;
   font-size: 0.88rem;
-  color: #8b7b65;
+  color: #5c7a6f;
 }
 
 .join-row input:focus {
@@ -454,7 +454,7 @@ body {
   padding: 0.58rem 0.65rem;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #fdf9f0;
+  background: #f5faf7;
   color: var(--text);
   text-align: left;
   cursor: pointer;
@@ -489,7 +489,7 @@ body {
   padding: 0.72rem 1rem;
   border-radius: 12px;
   border: 1px solid var(--border);
-  background: linear-gradient(90deg, #fffdf8, #f7ecda);
+  background: linear-gradient(90deg, #fcfefd, #e9f2ec);
   box-shadow: var(--shadow);
 }
 
@@ -651,7 +651,7 @@ body {
   place-items: center;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #544635;
+  color: #365247;
   font-variant-numeric: tabular-nums;
 }
 
@@ -814,7 +814,7 @@ body {
   padding: 0.48rem 0.65rem;
   border-radius: 9px;
   border: 1px solid var(--border);
-  background: #fdf9f0;
+  background: #f5faf7;
   color: var(--text);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
@@ -956,7 +956,7 @@ body {
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
   border: 1px solid var(--border);
-  background: #fdf9f0;
+  background: #f5faf7;
   font-size: 0.74rem;
   font-weight: 600;
   color: var(--text);
@@ -1024,7 +1024,7 @@ body {
   padding: 0.75rem 1rem;
   border-radius: 12px;
   border: 1px solid var(--border-strong);
-  background: #fffaf0;
+  background: #f5faf7;
   box-shadow: var(--shadow);
 }
 
@@ -1179,15 +1179,15 @@ body {
   z-index: 40;
   padding: 0.52rem 0.95rem;
   border-radius: 999px;
-  background: #17324d;
-  border: 1px solid rgba(255, 250, 238, 0.35);
-  color: #fffdf8;
+  background: #16332c;
+  border: 1px solid rgba(244, 249, 246, 0.35);
+  color: #fcfefd;
   font-size: 0.86rem;
   font-weight: 600;
   box-shadow: var(--shadow);
 }
 
-/* Peu corporatiu (felip-app-footer) integrat amb la paleta càlida */
+/* Peu corporatiu (felip-app-footer) integrat amb la paleta Costa Verda */
 .felip-app-footer {
   position: fixed;
   right: 0;
@@ -1200,7 +1200,7 @@ body {
   gap: 10px;
   padding: 6px clamp(14px, 3vw, 34px) 7px;
   border-top: 1px solid var(--border);
-  background: rgba(250, 244, 232, 0.96);
+  background: rgba(244, 249, 246, 0.96);
   backdrop-filter: blur(8px);
   color: var(--muted);
   font-size: 0.78rem;
