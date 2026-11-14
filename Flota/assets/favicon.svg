@@ -6,16 +6,16 @@
     </radialGradient>
   </defs>
   <rect width="128" height="128" rx="28" fill="url(#sea)"/>
-  <!-- Costa Verda radar ring -->
-  <circle cx="64" cy="64" r="50" fill="none" stroke="#e3ede7" stroke-opacity="0.38" stroke-width="2.5"/>
-  <circle cx="64" cy="64" r="32" fill="none" stroke="#e3ede7" stroke-opacity="0.28" stroke-width="2"/>
-  <path d="M64 12v104M12 64h104" stroke="#e3ede7" stroke-opacity="0.22" stroke-width="2"/>
   <!-- Waves -->
   <path d="M22 92 Q36 86 50 92 T78 92 T106 92" fill="none" stroke="#e0f4fa" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
   <!-- Amber ship -->
   <path d="M24 72 L104 72 L94 86 L34 86 Z" fill="#e0983c" stroke="#78400b" stroke-width="2.5" stroke-linejoin="round"/>
   <path d="M44 72 L49 54 L79 54 L84 72 Z" fill="#fcfefd" stroke="#78400b" stroke-width="2.5" stroke-linejoin="round"/>
   <rect x="57" y="42" width="14" height="12" rx="2.5" fill="#d44d38" stroke="#78400b" stroke-width="2"/>
+  <!-- Diana vermella -->
+  <circle cx="64" cy="64" r="49" fill="none" stroke="#e53935" stroke-width="5"/>
+  <circle cx="64" cy="64" r="31" fill="none" stroke="#e53935" stroke-width="3.5" stroke-opacity="0.9"/>
+  <path d="M64 8v112M8 64h112" stroke="#e53935" stroke-width="3.5" stroke-linecap="round"/>
   <!-- Compass / target -->
   <circle cx="90" cy="38" r="7" fill="#f59e0b" stroke="#fff7ed" stroke-width="2"/>
   <circle cx="90" cy="38" r="13" fill="none" stroke="#fde68a" stroke-width="2" stroke-opacity="0.8"/>
