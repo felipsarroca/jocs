@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.5">
-  <script type="module" src="js/app.js?v=1.2.5"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.6">
+  <script type="module" src="js/app.js?v=1.2.6"></script>
 </head>
 <body>
   <header class="topbar">
@@ -71,23 +71,18 @@
   <main class="app-shell">
     <!-- PANTALLA 1: INICI -->
     <section id="screen-home" class="screen screen-home">
-      <div class="hero-compact">
-        <div class="hero-badge">Tauler clàssic 10×10 · 5 vaixells</div>
-        <h1>Enfonsar la flota</h1>
-        <p class="hero-sub">Desplega els teus vaixells en secret i localitza la flota rival abans que enfonsi la teva.</p>
-        <div id="resume-bar" class="resume-bar" hidden>
-          <span>Tens una partida en línia activa a la sala <strong id="resume-code"></strong></span>
-          <div class="resume-actions">
-            <button type="button" class="btn btn-primary btn-sm" id="btn-resume">Reprèn</button>
-            <button type="button" class="btn btn-ghost btn-sm" id="btn-discard-session">Descarta</button>
-          </div>
+      <div id="resume-bar" class="resume-bar" hidden>
+        <span>Partida activa a la sala <strong id="resume-code"></strong></span>
+        <div class="resume-actions">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-resume">Reprèn</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-discard-session">Descarta</button>
         </div>
       </div>
 
       <div class="home-grid">
         <!-- Opció 1 i 2: Partida en línia (Crear + Entrar amb codi) -->
         <article class="card card-online">
-          <div class="card-head">
+          <div class="card-head card-head-center">
             <span class="card-icon-wrap">
               <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="9"/>
@@ -95,31 +90,25 @@
                 <path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
               </svg>
             </span>
-            <div>
-              <h2>Partida en línia</h2>
-              <p>Juga entre dos ordinadors o mòbils en temps real.</p>
-            </div>
+            <h2>Partida en línia</h2>
           </div>
 
           <div class="online-split">
             <div class="online-block">
-              <h3>Inicia una partida nova</h3>
-              <p class="muted-sm">Genera un codi de sala i un QR per convidar l'altre jugador.</p>
               <button type="button" class="btn btn-primary btn-full" id="btn-create-room">
                 <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                   <path d="M12 5v14M5 12h14"/>
                 </svg>
-                Crea una sala i genera codi
+                Crea una sala
               </button>
             </div>
 
             <div class="divider-or"><span>o bé</span></div>
 
             <form id="form-join-room" class="online-block">
-              <label for="input-room-code" class="block-title">Entra amb un codi</label>
-              <p class="muted-sm">Escriu el codi de 4 caràcters que t'han passat.</p>
+              <label for="input-room-code" class="block-title">Codi de sala</label>
               <div class="join-row">
-                <input id="input-room-code" type="text" maxlength="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="P. ex. a3t5" aria-label="Codi de la sala">
+                <input id="input-room-code" type="text" maxlength="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="a3t5" aria-label="Codi de la sala">
                 <button type="submit" class="btn btn-secondary" id="btn-join-room">Entra-hi</button>
               </div>
             </form>
@@ -129,7 +118,7 @@
 
         <!-- Opció 3: Contra la màquina -->
         <article class="card card-ai">
-          <div class="card-head">
+          <div class="card-head card-head-center">
             <span class="card-icon-wrap">
               <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <rect x="4" y="5" width="16" height="12" rx="2"/>
@@ -137,24 +126,21 @@
                 <path d="M9 10h.01M15 10h.01M9.5 13.5h5"/>
               </svg>
             </span>
-            <div>
-              <h2>Contra la màquina</h2>
-              <p>Partida ràpida contra la IA, disponible també sense internet.</p>
-            </div>
+            <h2>Contra la màquina</h2>
           </div>
 
           <div class="ai-levels" role="radiogroup" aria-label="Nivell de dificultat">
             <button type="button" class="level-chip" data-level="grumet" aria-checked="false" role="radio">
               <strong>Grumet</strong>
-              <span>Trets aleatoris</span>
+              <span>Fàcil</span>
             </button>
             <button type="button" class="level-chip active" data-level="capita" aria-checked="true" role="radio">
               <strong>Capità</strong>
-              <span>Persegueix impactes</span>
+              <span>Mitjà</span>
             </button>
             <button type="button" class="level-chip" data-level="almirall" aria-checked="false" role="radio">
               <strong>Almirall</strong>
-              <span>Càlcul de probabilitat</span>
+              <span>Difícil</span>
             </button>
           </div>
 
@@ -167,7 +153,7 @@
         </article>
       </div>
 
-      <!-- Targeta de descàrrega/instal·lació mòbil -->
+      <!-- Targeta compacta d'instal·lació mòbil -->
       <aside id="mobile-install-card" class="install-banner">
         <div class="install-banner-text">
           <svg class="ic install-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -175,10 +161,7 @@
             <path d="M12 8v6M9.5 11.5L12 14l2.5-2.5"/>
             <path d="M10 18h4"/>
           </svg>
-          <div>
-            <strong>Desa el joc al mòbil o a l'ordinador</strong>
-            <span>Instal·la'l com una aplicació per tenir-lo sempre a mà i jugar contra la màquina sense connexió.</span>
-          </div>
+          <strong>Desa l'app per jugar sense connexió</strong>
         </div>
         <button type="button" class="btn btn-primary btn-sm" id="btn-install-card">Descarrega / Instal·la</button>
       </aside>
