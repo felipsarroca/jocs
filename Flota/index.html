@@ -1,0 +1,384 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later AND CC-BY-NC-SA-4.0 -->
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1d33">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Flota">
+  <title>Enfonsar la flota</title>
+  <meta name="description" content="Joc tradicional d'enfonsar la flota en català: juga en línia amb un codi de sala o contra la màquina des de l'ordinador o el mòbil.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/estil.css?v=1.0.0">
+  <script type="module" src="js/app.js?v=1.0.0"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button type="button" class="brand" id="btn-brand" aria-label="Enfonsar la flota, torna a l'inici">
+        <svg class="ic brand-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+          <path d="M12 12l5.2-5.2"/>
+        </svg>
+        <span class="brand-name">Enfonsar la flota</span>
+      </button>
+
+      <div class="topbar-actions">
+        <button type="button" class="btn-icon btn-install-top" id="btn-install-top" title="Instal·la l'app al dispositiu">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v12"/>
+            <path d="M7 11l5 5 5-5"/>
+            <path d="M4 19h16"/>
+          </svg>
+          <span class="btn-label">Instal·la</span>
+        </button>
+
+        <button type="button" class="btn-icon" id="btn-sound" aria-pressed="false" title="Activa o silencia el so">
+          <svg class="ic ic-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M11 5L6 9H3v6h3l5 4V5z"/>
+            <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
+            <path d="M18.5 6a8.5 8.5 0 0 1 0 12"/>
+          </svg>
+          <svg class="ic ic-sound-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" hidden>
+            <path d="M11 5L6 9H3v6h3l5 4V5z"/>
+            <path d="M22 9l-6 6M16 9l6 6"/>
+          </svg>
+        </button>
+
+        <button type="button" class="btn-icon" id="btn-rules" title="Regles del joc">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.1-2.4 3.5"/>
+            <circle cx="12" cy="17.2" r="0.6" fill="currentColor"/>
+          </svg>
+          <span class="btn-label hide-sm">Regles</span>
+        </button>
+
+        <button type="button" class="btn-icon btn-exit" id="btn-exit" hidden title="Surt de la partida">
+          <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <path d="M16 17l5-5-5-5"/>
+            <path d="M21 12H9"/>
+          </svg>
+          <span class="btn-label">Surt</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <!-- PANTALLA 1: INICI -->
+    <section id="screen-home" class="screen screen-home">
+      <div class="hero-compact">
+        <div class="hero-badge">Tauler clàssic 10×10 · 5 vaixells</div>
+        <h1>Enfonsar la flota</h1>
+        <p class="hero-sub">Desplega els teus vaixells en secret i localitza la flota rival abans que enfonsi la teva.</p>
+        <div id="resume-bar" class="resume-bar" hidden>
+          <span>Tens una partida en línia activa a la sala <strong id="resume-code"></strong></span>
+          <div class="resume-actions">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-resume">Reprèn</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-discard-session">Descarta</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <!-- Opció 1 i 2: Partida en línia (Crear + Entrar amb codi) -->
+        <article class="card card-online">
+          <div class="card-head">
+            <span class="card-icon-wrap">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M3.6 9h16.8M3.6 15h16.8"/>
+                <path d="M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+              </svg>
+            </span>
+            <div>
+              <h2>Partida en línia</h2>
+              <p>Juga entre dos ordinadors o mòbils en temps real.</p>
+            </div>
+          </div>
+
+          <div class="online-split">
+            <div class="online-block">
+              <h3>Inicia una partida nova</h3>
+              <p class="muted-sm">Genera un codi de sala i un QR per convidar l'altre jugador.</p>
+              <button type="button" class="btn btn-primary btn-full" id="btn-create-room">
+                <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Crea una sala i genera codi
+              </button>
+            </div>
+
+            <div class="divider-or"><span>o bé</span></div>
+
+            <form id="form-join-room" class="online-block">
+              <label for="input-room-code" class="block-title">Entra amb un codi</label>
+              <p class="muted-sm">Escriu el codi de 5 caràcters que t'han passat.</p>
+              <div class="join-row">
+                <input id="input-room-code" type="text" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="P. ex. 4K8NP" aria-label="Codi de la sala">
+                <button type="submit" class="btn btn-secondary" id="btn-join-room">Entra-hi</button>
+              </div>
+            </form>
+          </div>
+          <p id="home-error" class="inline-error" role="alert" hidden></p>
+        </article>
+
+        <!-- Opció 3: Contra la màquina -->
+        <article class="card card-ai">
+          <div class="card-head">
+            <span class="card-icon-wrap">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="12" rx="2"/>
+                <path d="M9 17v3M15 17v3M7 20h10"/>
+                <path d="M9 10h.01M15 10h.01M9.5 13.5h5"/>
+              </svg>
+            </span>
+            <div>
+              <h2>Contra la màquina</h2>
+              <p>Partida ràpida contra la IA, disponible també sense internet.</p>
+            </div>
+          </div>
+
+          <div class="ai-levels" role="radiogroup" aria-label="Nivell de dificultat">
+            <button type="button" class="level-chip" data-level="grumet" aria-checked="false" role="radio">
+              <strong>Grumet</strong>
+              <span>Trets aleatoris</span>
+            </button>
+            <button type="button" class="level-chip active" data-level="capita" aria-checked="true" role="radio">
+              <strong>Capità</strong>
+              <span>Persegueix impactes</span>
+            </button>
+            <button type="button" class="level-chip" data-level="almirall" aria-checked="false" role="radio">
+              <strong>Almirall</strong>
+              <span>Càlcul de probabilitat</span>
+            </button>
+          </div>
+
+          <button type="button" class="btn btn-accent btn-full" id="btn-play-ai">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="6 4 20 12 6 20 6 4"/>
+            </svg>
+            Juga contra la màquina
+          </button>
+        </article>
+      </div>
+
+      <!-- Targeta de descàrrega/instal·lació mòbil -->
+      <aside id="mobile-install-card" class="install-banner">
+        <div class="install-banner-text">
+          <svg class="ic install-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="6" y="2" width="12" height="20" rx="2.5"/>
+            <path d="M12 8v6M9.5 11.5L12 14l2.5-2.5"/>
+            <path d="M10 18h4"/>
+          </svg>
+          <div>
+            <strong>Desa el joc al mòbil o a l'ordinador</strong>
+            <span>Instal·la'l com una aplicació per tenir-lo sempre a mà i jugar contra la màquina sense connexió.</span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-install-card">Descarrega / Instal·la</button>
+      </aside>
+    </section>
+
+    <!-- PANTALLA 2: COL·LOCACIÓ DE LA FLOTA -->
+    <section id="screen-place" class="screen screen-place" hidden>
+      <div class="phase-bar">
+        <div class="phase-info">
+          <span class="phase-badge" id="place-mode-badge">Contra la màquina</span>
+          <span class="phase-status" id="place-status-text">Col·loca els 5 vaixells al teu tauler</span>
+        </div>
+
+        <div id="room-share-bar" class="room-share-bar" hidden>
+          <span class="room-code-pill">Sala <strong id="place-room-code">-----</strong></span>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-code" title="Copia el codi">Copia codi</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-link" title="Copia l'enllaç directe">Copia enllaç</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-show-qr" title="Mostra el codi QR">QR</button>
+        </div>
+      </div>
+
+      <div class="place-layout">
+        <div class="board-card">
+          <div class="board-card-head">
+            <h2>La teva flota</h2>
+            <span class="hint-text" id="place-hint">Toca un vaixell i toca una casella (o arrossega'l)</span>
+          </div>
+          <div id="board-place" class="board-wrap" aria-label="Tauler de col·locació de la teva flota"></div>
+        </div>
+
+        <aside class="dock-card">
+          <div class="dock-head">
+            <h2>Drassana</h2>
+            <span id="dock-count" class="dock-count">0 / 5</span>
+          </div>
+
+          <div id="ship-dock" class="ship-dock"></div>
+
+          <div class="dock-tools">
+            <button type="button" class="btn btn-ghost" id="btn-rotate">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+                <path d="M21 3v6h-6"/>
+              </svg>
+              <span>Gira: <strong id="rotate-label">Horitzontal</strong></span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-random-fleet">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+              </svg>
+              <span>Aleatori</span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-clear-fleet">
+              <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>
+              </svg>
+              <span>Buida</span>
+            </button>
+          </div>
+
+          <button type="button" class="btn btn-accent btn-full btn-ready" id="btn-ready" disabled>
+            Llesta per combatre!
+          </button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PANTALLA 3: COMBAT -->
+    <section id="screen-battle" class="screen screen-battle" hidden>
+      <div class="battle-hud">
+        <div class="turn-pill" id="turn-pill" data-turn="me">
+          <span class="pulse-dot"></span>
+          <span id="turn-text">El teu torn · Tria una casella del mar enemic</span>
+        </div>
+        <div class="last-event" id="last-event">1 tret per torn · Que comenci la batalla!</div>
+      </div>
+
+      <!-- Resultat final en línia amb estadístiques i revanxa -->
+      <div id="gameover-banner" class="gameover-banner" hidden>
+        <div class="gameover-main">
+          <h2 id="gameover-title">Victòria!</h2>
+          <p id="gameover-subtitle"></p>
+          <p id="gameover-fairplay" class="fairplay-note" hidden></p>
+        </div>
+        <div class="gameover-stats" id="gameover-stats"></div>
+        <div class="gameover-actions">
+          <button type="button" class="btn btn-accent" id="btn-rematch">Tornar a jugar</button>
+          <button type="button" class="btn btn-ghost" id="btn-gameover-home">Inici</button>
+        </div>
+      </div>
+
+      <!-- Selector mòbil de tauler -->
+      <div class="mobile-tabs" role="tablist" aria-label="Canvia de tauler">
+        <button type="button" class="mobile-tab active" data-tab="enemy" role="tab" aria-selected="true">
+          Mar enemic <span class="tab-badge" id="badge-enemy-sunk">0/5</span>
+        </button>
+        <button type="button" class="mobile-tab" data-tab="mine" role="tab" aria-selected="false">
+          La teva flota <span class="tab-badge" id="badge-mine-sunk">0/5</span>
+        </button>
+      </div>
+
+      <div class="battle-boards" id="battle-boards" data-mobile-view="enemy">
+        <div class="board-card board-mine">
+          <div class="board-card-head">
+            <h2>La teva flota</h2>
+            <span class="board-sub" id="mine-summary">5 vaixells operatius</span>
+          </div>
+          <div id="board-mine" class="board-wrap" aria-label="Tauler de la teva flota"></div>
+          <div id="fleet-status-mine" class="fleet-status-strip"></div>
+        </div>
+
+        <div class="board-card board-enemy">
+          <div class="board-card-head">
+            <h2>Mar enemic</h2>
+            <span class="board-sub" id="enemy-summary">5 vaixells per enfonsar</span>
+          </div>
+          <div id="board-enemy" class="board-wrap" aria-label="Tauler del mar enemic"></div>
+          <div id="fleet-status-enemy" class="fleet-status-strip"></div>
+          <label class="confirm-shot-toggle" id="confirm-shot-wrap">
+            <input type="checkbox" id="chk-confirm-shot">
+            <span>Doble toc per confirmar el tret (útil al mòbil)</span>
+          </label>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: CODI QR I ENLLAÇ -->
+  <dialog id="modal-qr" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Convida un rival</h3>
+        <button type="button" class="btn-close" data-close="modal-qr" aria-label="Tanca">✕</button>
+      </div>
+      <p class="muted-sm">Escaneja aquest QR amb el mòbil o comparteix el codi de sala:</p>
+      <div id="qr-container" class="qr-box"></div>
+      <div class="qr-code-display" id="qr-code-text">-----</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="btn-qr-copy-link">Copia l'enllaç directe</button>
+        <button type="button" class="btn btn-ghost" data-close="modal-qr">Tanca</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL: GUIA D'INSTAL·LACIÓ AL MÒBIL -->
+  <dialog id="modal-install" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Desa «Enfonsar la flota» al mòbil</h3>
+        <button type="button" class="btn-close" data-close="modal-install" aria-label="Tanca">✕</button>
+      </div>
+      <div id="install-guide-body" class="modal-body-text"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" data-close="modal-install">Entesos</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- MODAL: REGLES -->
+  <dialog id="modal-rules" class="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>Regles tradicionals</h3>
+        <button type="button" class="btn-close" data-close="modal-rules" aria-label="Tanca">✕</button>
+      </div>
+      <div class="modal-body-text">
+        <ul class="rules-list">
+          <li><strong>Tauler 10×10:</strong> files de la <strong>A</strong> a la <strong>J</strong> i columnes de l'<strong>1</strong> al <strong>10</strong>.</li>
+          <li><strong>Flota clàssica de 5 vaixells:</strong> Portaavions (5), Cuirassat (4), Creuer (3), Submarí (3) i Patrullera (2).</li>
+          <li><strong>Col·locació:</strong> en horitzontal o vertical, sense sortir del tauler ni encavalcar vaixells.</li>
+          <li><strong>Torns alterns:</strong> cada jugador fa <strong>1 tret per torn</strong>. Si toques l'última casella d'un vaixell, queda <em>tocat i enfonsat</em> i es mostra sencer al radar.</li>
+          <li><strong>En línia:</strong> les posicions es guarden en secret al navegador amb una empremta criptogràfica (SHA-256) que es verifica al final de la partida.</li>
+        </ul>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" data-close="modal-rules">A jugar!</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <footer class="felip-app-footer">
+    <a class="felip-license-image-link"
+       href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca"
+       target="_blank"
+       rel="noopener noreferrer"
+       aria-label="Llicència Creative Commons BY-NC-SA 4.0">
+      <img class="felip-license-image"
+           src="assets/CC_BY-NC-SA.png"
+           alt="Creative Commons BY-NC-SA">
+    </a>
+    <div class="felip-footer-text">
+      <p>Aplicació creada per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA</p>
+      <p>Codi: <a href="https://github.com/felipsarroca/jocs/blob/main/Flota/LICENSE" target="_blank" rel="noopener noreferrer">AGPLv3</a> · Continguts: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=flota.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a></p>
+    </div>
+  </footer>
+</body>
+</html>
