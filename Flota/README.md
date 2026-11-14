@@ -2,6 +2,8 @@
 
 Versió web i instal·lable (PWA) del joc tradicional de batalla naval, en català, pensada per jugar tant des de l'ordinador com des del mòbil.
 
+- **Enllaç directe:** https://ja.cat/flota
+
 ## Característiques principals
 
 - **Partides en línia amb codi de sala:** un jugador crea una sala i obté un codi de 5 caràcters, un enllaç directe i un codi QR per convidar el rival en segons.

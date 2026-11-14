@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     {
                         name: "Enfonsar la flota",
-                        path: 'Flota/',
+                        path: 'https://ja.cat/flota',
                         category: "Jocs d'estratègia",
                         description: "El joc tradicional de batalla naval 10×10. Juga en línia amb un codi de sala o contra la màquina, també des del mòbil.",
                         icon: 'Flota/assets/favicon.svg'
