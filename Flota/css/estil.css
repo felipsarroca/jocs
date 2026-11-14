@@ -26,7 +26,7 @@
   --ship-wood-1: #e0983c;
   --ship-wood-2: #b96d1a;
   --ship-border: #78400b;
-  --cell-place: clamp(28px, min(4.7vw, 6.2dvh), 68px);
+  --cell-place: clamp(28px, min(4.7vw, calc((100dvh - 248px) / 10)), 76px);
   --cell-battle: clamp(25px, min(4vw, calc((100dvh - 312px) / 10)), 76px);
   --shell-max: 1680px;
   --radius: 14px;
@@ -213,6 +213,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  /* Ocupa l'alçada útil i reparteix l'espai sobrant a dalt i a baix */
+  flex: 1;
+  justify-content: center;
 }
 
 /* Botons generals */
@@ -1883,8 +1886,40 @@ body {
     container-type: inline-size;
   }
 
+  /* Les distàncies creixen amb l'alçada disponible */
   .screen {
     gap: 0.5rem;
+  }
+
+  /* Combat al mòbil: l'espai sobrant es reparteix en tres parts iguals
+     (sobre el torn, entre el torn i el tauler, i sota el tauler) */
+  .screen-battle {
+    justify-content: flex-start;
+  }
+
+  .screen-battle > .battle-hud,
+  .screen-battle > .mobile-tabs {
+    margin-top: auto;
+  }
+
+  .screen-battle > .battle-boards {
+    margin-bottom: auto;
+  }
+
+  .battle-boards .board-card {
+    gap: clamp(0.38rem, 2.2dvh, 1.4rem);
+  }
+
+  .mobile-tab {
+    padding-block: clamp(0.52rem, 1.5dvh, 0.95rem);
+  }
+
+  .turn-pill {
+    padding: clamp(0.3rem, 0.9dvh, 0.5rem) 0.85rem;
+  }
+
+  .battle-hud {
+    padding-bottom: clamp(0rem, 0.8dvh, 0.5rem);
   }
 
   .card {
@@ -2014,8 +2049,8 @@ body {
   }
 
   .fleet-mini i {
-    width: 10px;
-    height: 10px;
+    width: clamp(9px, 1.7dvh, 15px);
+    height: clamp(9px, 1.7dvh, 15px);
   }
 
   .board-card-head,

@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
 /* Service Worker per a ús fora de línia i instal·lació PWA d'Enfonsar la flota */
 
-const CACHE_NAME = 'enfonsar-la-flota-v1.2.9';
+const CACHE_NAME = 'enfonsar-la-flota-v1.2.10';
 const APP_SHELL = [
   './',
   './index.html',
