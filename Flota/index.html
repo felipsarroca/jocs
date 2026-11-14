@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.0">
-  <script type="module" src="js/app.js?v=1.2.0"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.1">
+  <script type="module" src="js/app.js?v=1.2.1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -39,7 +39,7 @@
           <span class="btn-label">Instal·la</span>
         </button>
 
-        <button type="button" class="btn-icon" id="btn-sound" aria-pressed="false" title="Activa o silencia el so">
+        <button type="button" class="btn-icon btn-sound" id="btn-sound" aria-pressed="false" aria-label="Silencia el so" title="So activat (clica per silenciar)">
           <svg class="ic ic-sound-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M11 5L6 9H3v6h3l5 4V5z"/>
             <path d="M15.5 8.5a5 5 0 0 1 0 7"/>
@@ -342,23 +342,126 @@
   </dialog>
 
   <!-- MODAL: REGLES -->
-  <dialog id="modal-rules" class="modal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>Regles tradicionals</h3>
+  <dialog id="modal-rules" class="modal modal-rules">
+    <div class="modal-card modal-card-rules">
+      <div class="modal-head modal-head-rules">
+        <div class="rules-title-wrap">
+          <span class="rules-title-ic" aria-hidden="true">
+            <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5 15.5 8.5"/>
+            </svg>
+          </span>
+          <div>
+            <h3>Com es juga a «Enfonsar la flota»</h3>
+            <p class="rules-subtitle">Tauler clàssic 10×10 (files A–J, columnes 1–10) · 5 vaixells</p>
+          </div>
+        </div>
         <button type="button" class="btn-close" data-close="modal-rules" aria-label="Tanca">✕</button>
       </div>
-      <div class="modal-body-text">
-        <ul class="rules-list">
-          <li><strong>Tauler 10×10:</strong> files de la <strong>A</strong> a la <strong>J</strong> i columnes de l'<strong>1</strong> al <strong>10</strong>.</li>
-          <li><strong>Flota clàssica de 5 vaixells:</strong> Portaavions (5), Cuirassat (4), Creuer (3), Submarí (3) i Patrullera (2).</li>
-          <li><strong>Col·locació:</strong> en horitzontal o vertical, deixant sempre almenys <strong>1 casella d'aigua al voltant</strong> de cada vaixell (no es poden tocar ni de costat, ni de front, ni en diagonal).</li>
-          <li><strong>Torns alterns:</strong> cada jugador fa <strong>1 tret per torn</strong>. Si enfonses un vaixell, es marca automàticament l'aigua del voltant perquè no hi pot haver cap altre vaixell.</li>
-          <li><strong>En línia:</strong> les posicions es guarden en secret al navegador amb una empremta criptogràfica (SHA-256) que es verifica al final de la partida.</li>
-        </ul>
+
+      <div class="rules-grid">
+        <!-- Bloc 1: La flota -->
+        <section class="rule-card">
+          <div class="rule-card-head">
+            <span class="rule-step">1</span>
+            <h4>La flota clàssica (17 caselles)</h4>
+          </div>
+          <p class="rule-desc">Cada jugador desplega els mateixos 5 vaixells en horitzontal o vertical:</p>
+          <div class="rule-fleet-list">
+            <div class="rule-ship-row">
+              <span>Portaavions <strong>(5)</strong></span>
+              <span class="mini-ship mini-ship-5" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div class="rule-ship-row">
+              <span>Cuirassat <strong>(4)</strong></span>
+              <span class="mini-ship mini-ship-4" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div class="rule-ship-row">
+              <span>Creuer <strong>(3)</strong></span>
+              <span class="mini-ship mini-ship-3" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+            <div class="rule-ship-row">
+              <span>Submarí <strong>(3)</strong></span>
+              <span class="mini-ship mini-ship-3" aria-hidden="true"><i></i><i></i><i></i></span>
+            </div>
+            <div class="rule-ship-row">
+              <span>Patrullera <strong>(2)</strong></span>
+              <span class="mini-ship mini-ship-2" aria-hidden="true"><i></i><i></i></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloc 2: Separació obligatòria -->
+        <section class="rule-card">
+          <div class="rule-card-head">
+            <span class="rule-step">2</span>
+            <h4>Separació d'1 casella d'aigua</h4>
+          </div>
+          <p class="rule-desc">Els vaixells <strong>mai es poden tocar</strong>: ni de costat, ni de front, ni en diagonal.</p>
+          <div class="rule-diagram-wrap">
+            <div class="rule-mini-grid" aria-label="Exemple visual d'un vaixell envoltat d'aigua reservada">
+              <span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span>
+              <span class="rg-cell rg-halo"></span><span class="rg-cell rg-ship rg-bow-w"></span><span class="rg-cell rg-ship"></span><span class="rg-cell rg-ship rg-bow-e"></span><span class="rg-cell rg-halo"></span>
+              <span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span><span class="rg-cell rg-halo"></span>
+            </div>
+            <span class="rule-caption">Zona d'aigua lliure obligatòria al voltant</span>
+          </div>
+        </section>
+
+        <!-- Bloc 3: Torns i senyals del tauler -->
+        <section class="rule-card rule-card-wide">
+          <div class="rule-card-head">
+            <span class="rule-step">3</span>
+            <h4>Torns alterns i senyals al tauler</h4>
+          </div>
+          <p class="rule-desc">Cada jugador fa <strong>1 tret per torn</strong>. Guanya qui enfonsa primer els 5 vaixells rivals.</p>
+          <div class="rule-legend-grid">
+            <div class="rule-legend-item">
+              <span class="rg-demo rg-water" aria-hidden="true"></span>
+              <div>
+                <strong>Aigua</strong>
+                <span>Tret fallat al mar lliure.</span>
+              </div>
+            </div>
+            <div class="rule-legend-item">
+              <span class="rg-demo rg-hit" aria-hidden="true"></span>
+              <div>
+                <strong>Tocat</strong>
+                <span>Impacte directe a un vaixell.</span>
+              </div>
+            </div>
+            <div class="rule-legend-item">
+              <span class="rg-demo rg-sunk" aria-hidden="true"></span>
+              <div>
+                <strong>Enfonsat</strong>
+                <span>Vaixell complet destruït i marcat amb tot el seu contorn d'aigua.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloc 4: Modes i joc net -->
+        <section class="rule-card rule-card-wide rule-card-soft">
+          <div class="rule-card-head">
+            <span class="rule-step">4</span>
+            <h4>En línia o contra la màquina</h4>
+          </div>
+          <div class="rule-modes-row">
+            <div class="rule-mode-pill">
+              <strong>Partida en línia</strong>
+              <span>Convida amb un codi de 4 caràcters o QR. Les posicions es segellen amb <code>SHA-256</code> i es verifiquen en acabar.</span>
+            </div>
+            <div class="rule-mode-pill">
+              <strong>Contra la màquina</strong>
+              <span>Disponible fins i tot sense connexió amb 3 nivells: <em>Grumet</em>, <em>Capità</em> i <em>Almirall</em>.</span>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-primary" data-close="modal-rules">A jugar!</button>
+
+      <div class="modal-actions modal-actions-rules">
+        <button type="button" class="btn btn-primary" data-close="modal-rules">Entesos, a jugar!</button>
       </div>
     </div>
   </dialog>

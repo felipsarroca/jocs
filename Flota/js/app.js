@@ -1019,23 +1019,42 @@ function init() {
   $('btn-install-top').addEventListener('click', handleInstallClick);
   $('btn-install-card').addEventListener('click', handleInstallClick);
 
-  // So
+  // So (utilitza toggleAttribute perquè SVGElement no vincula .hidden a l'atribut)
   const syncSoundBtn = () => {
     const btn = $('btn-sound');
-    btn.setAttribute('aria-pressed', String(soundFX.muted));
-    btn.querySelector('.ic-sound-on').hidden = soundFX.muted;
-    btn.querySelector('.ic-sound-off').hidden = !soundFX.muted;
+    const isMuted = soundFX.muted;
+    btn.setAttribute('aria-pressed', String(isMuted));
+    btn.setAttribute('aria-label', isMuted ? 'Activa el so' : 'Silencia el so');
+    btn.title = isMuted ? 'So silenciat (clica per activar-lo)' : 'So activat (clica per silenciar-lo)';
+    btn.classList.toggle('is-muted', isMuted);
+    btn.querySelector('.ic-sound-on').toggleAttribute('hidden', isMuted);
+    btn.querySelector('.ic-sound-off').toggleAttribute('hidden', !isMuted);
   };
   syncSoundBtn();
+
+  // Desbloqueig automàtic de Web Audio al primer gest d'usuari
+  window.addEventListener('pointerdown', () => soundFX.unlock(), { once: true, passive: true });
+  window.addEventListener('keydown', () => soundFX.unlock(), { once: true, passive: true });
+
   $('btn-sound').addEventListener('click', () => {
     soundFX.toggleMute();
     syncSoundBtn();
-    if (!soundFX.muted) soundFX.ping(660, 0.1);
+    if (!soundFX.muted) {
+      soundFX.ping(720, 0.12);
+      showToast('So activat');
+    } else {
+      showToast('So silenciat');
+    }
   });
 
   // Modals
   document.querySelectorAll('[data-close]').forEach((btn) => {
     btn.addEventListener('click', () => $(btn.dataset.close)?.close());
+  });
+  document.querySelectorAll('dialog.modal').forEach((dlg) => {
+    dlg.addEventListener('click', (ev) => {
+      if (ev.target === dlg) dlg.close();
+    });
   });
   $('btn-rules').addEventListener('click', () => $('modal-rules').showModal());
 
