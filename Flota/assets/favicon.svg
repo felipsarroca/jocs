@@ -16,7 +16,4 @@
   <circle cx="64" cy="64" r="49" fill="none" stroke="#e53935" stroke-width="5"/>
   <circle cx="64" cy="64" r="31" fill="none" stroke="#e53935" stroke-width="3.5" stroke-opacity="0.9"/>
   <path d="M64 8v112M8 64h112" stroke="#e53935" stroke-width="3.5" stroke-linecap="round"/>
-  <!-- Compass / target -->
-  <circle cx="90" cy="38" r="7" fill="#f59e0b" stroke="#fff7ed" stroke-width="2"/>
-  <circle cx="90" cy="38" r="13" fill="none" stroke="#fde68a" stroke-width="2" stroke-opacity="0.8"/>
 </svg>
