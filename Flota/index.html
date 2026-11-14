@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.1">
-  <script type="module" src="js/app.js?v=1.2.1"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.2">
+  <script type="module" src="js/app.js?v=1.2.2"></script>
 </head>
 <body>
   <header class="topbar">
@@ -317,11 +317,13 @@
         <h3>Convida un rival</h3>
         <button type="button" class="btn-close" data-close="modal-qr" aria-label="Tanca">✕</button>
       </div>
-      <p class="muted-sm">Escaneja aquest QR amb el mòbil o comparteix el codi de sala:</p>
+      <p class="muted-sm">Escaneja aquest QR amb la càmera del mòbil per entrar directament a la sala:</p>
       <div id="qr-container" class="qr-box"></div>
       <div class="qr-code-display" id="qr-code-text">----</div>
+      <p class="qr-url-text" id="qr-url-text"></p>
       <div class="modal-actions">
-        <button type="button" class="btn btn-primary" id="btn-qr-copy-link">Copia l'enllaç directe</button>
+        <button type="button" class="btn btn-accent" id="btn-qr-share" hidden>Comparteix</button>
+        <button type="button" class="btn btn-primary" id="btn-qr-copy-link">Copia l'enllaç</button>
         <button type="button" class="btn btn-ghost" data-close="modal-qr">Tanca</button>
       </div>
     </div>

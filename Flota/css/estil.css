@@ -1148,11 +1148,11 @@ body {
 }
 
 .qr-box {
-  width: min(210px, 60vw);
-  margin: 0.7rem auto;
-  padding: 0.5rem;
+  width: min(230px, 66vw);
+  margin: 0.7rem auto 0.5rem;
+  padding: 0.35rem;
   border-radius: 12px;
-  background: #fffdf8;
+  background: #ffffff;
   border: 1px solid var(--border);
 }
 
@@ -1169,7 +1169,21 @@ body {
   font-weight: 800;
   letter-spacing: 0.2em;
   color: var(--primary);
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.25rem;
+}
+
+.qr-url-text {
+  margin: 0 0 0.7rem;
+  padding: 0.32rem 0.55rem;
+  border-radius: 8px;
+  background: #eff6f2;
+  border: 1px solid var(--border);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.74rem;
+  color: var(--muted);
+  text-align: center;
+  word-break: break-all;
+  user-select: all;
 }
 
 .modal-actions {

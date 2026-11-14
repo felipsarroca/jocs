@@ -1,12 +1,13 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
-/* Generador lleuger de codis QR en SVG (mode Byte, nivell L, versions 1-5) */
+/* Generador estàndard de codis QR en SVG (ISO/IEC 18004, mode Byte, nivell L, versions 1-6) */
 
 const QR_SPECS = [
-  { version: 1, size: 21, dataBytes: 19, ecBytes: 7, align: [] },
-  { version: 2, size: 25, dataBytes: 34, ecBytes: 10, align: [6, 18] },
-  { version: 3, size: 29, dataBytes: 55, ecBytes: 15, align: [6, 22] },
-  { version: 4, size: 33, dataBytes: 80, ecBytes: 20, align: [6, 26] },
-  { version: 5, size: 37, dataBytes: 108, ecBytes: 26, align: [6, 30] }
+  { version: 1, size: 21, blocks: [[19, 7]], align: [] },
+  { version: 2, size: 25, blocks: [[34, 10]], align: [6, 18] },
+  { version: 3, size: 29, blocks: [[55, 15]], align: [6, 22] },
+  { version: 4, size: 33, blocks: [[80, 20]], align: [6, 26] },
+  { version: 5, size: 37, blocks: [[108, 26]], align: [6, 30] },
+  { version: 6, size: 41, blocks: [[68, 18], [68, 18]], align: [6, 34] }
 ];
 
 // Taules GF(256) amb polinomi primitiu 0x11D
@@ -59,9 +60,13 @@ function rsRemainder(data, ecLen) {
 
 function encodeBytes(text) {
   const bytes = new TextEncoder().encode(text);
-  const spec = QR_SPECS.find((s) => bytes.length + 2 <= s.dataBytes);
+  const spec = QR_SPECS.find((s) => {
+    const totalData = s.blocks.reduce((sum, [d]) => sum + d, 0);
+    return bytes.length + 2 <= totalData;
+  });
   if (!spec) throw new Error('Text massa llarg per al codi QR');
 
+  const totalData = spec.blocks.reduce((sum, [d]) => sum + d, 0);
   const bits = [];
   const pushBits = (val, len) => {
     for (let i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1);
@@ -71,26 +76,48 @@ function encodeBytes(text) {
   pushBits(bytes.length, 8);
   for (const b of bytes) pushBits(b, 8);
 
-  const maxBits = spec.dataBytes * 8;
+  const maxBits = totalData * 8;
   const termLen = Math.min(4, maxBits - bits.length);
   pushBits(0, termLen);
   while (bits.length % 8 !== 0) bits.push(0);
 
-  const data = new Uint8Array(spec.dataBytes);
+  const data = new Uint8Array(totalData);
   for (let i = 0; i < bits.length / 8; i++) {
     let byte = 0;
     for (let b = 0; b < 8; b++) byte = (byte << 1) | bits[i * 8 + b];
     data[i] = byte;
   }
   const pads = [0xec, 0x11];
-  for (let i = bits.length / 8, p = 0; i < spec.dataBytes; i++, p = 1 - p) {
+  for (let i = bits.length / 8, p = 0; i < totalData; i++, p = 1 - p) {
     data[i] = pads[p];
   }
 
-  const ec = rsRemainder(data, spec.ecBytes);
-  const allBytes = new Uint8Array(data.length + ec.length);
-  allBytes.set(data);
-  allBytes.set(ec, data.length);
+  // Divideix en blocs RS i intercala dades + correcció d'errors
+  const dataBlocks = [];
+  const ecBlocks = [];
+  let offset = 0;
+  for (const [dLen, ecLen] of spec.blocks) {
+    const slice = data.slice(offset, offset + dLen);
+    offset += dLen;
+    dataBlocks.push(slice);
+    ecBlocks.push(rsRemainder(slice, ecLen));
+  }
+
+  const maxD = Math.max(...dataBlocks.map((b) => b.length));
+  const maxE = Math.max(...ecBlocks.map((b) => b.length));
+  const totalOut = dataBlocks.reduce((s, b) => s + b.length, 0) + ecBlocks.reduce((s, b) => s + b.length, 0);
+  const allBytes = new Uint8Array(totalOut);
+  let pos = 0;
+  for (let i = 0; i < maxD; i++) {
+    for (const blk of dataBlocks) {
+      if (i < blk.length) allBytes[pos++] = blk[i];
+    }
+  }
+  for (let i = 0; i < maxE; i++) {
+    for (const blk of ecBlocks) {
+      if (i < blk.length) allBytes[pos++] = blk[i];
+    }
+  }
 
   return { spec, allBytes };
 }
@@ -141,7 +168,7 @@ function buildMatrix(spec, allBytes) {
     setFn(i, 6, i % 2 === 0);
   }
 
-  // Mòdul fosc obligatori i reserva de format
+  // Mòdul fosc obligatori i reserva de les dues còpies d'informació de format
   setFn(n - 8, 8, true);
   for (let i = 0; i < 9; i++) {
     if (!fn[8][i]) fn[8][i] = 1;
@@ -149,6 +176,8 @@ function buildMatrix(spec, allBytes) {
   }
   for (let i = 0; i < 8; i++) {
     if (!fn[8][n - 1 - i]) fn[8][n - 1 - i] = 1;
+  }
+  for (let i = 0; i < 7; i++) {
     if (!fn[n - 1 - i][8]) fn[n - 1 - i][8] = 1;
   }
 
@@ -212,16 +241,22 @@ function applyMaskAndFormat(base, maskId) {
     }
   }
 
+  // Col·locació estàndard ISO/IEC 18004 dels 15 bits de format (bit 14 = MSB, bit 0 = LSB)
   const fmt = formatBits(maskId);
-  const putFmt = (r, c, bit) => { grid[r][c] = bit ? 1 : -1; };
-  for (let i = 0; i < 6; i++) putFmt(8, i, (fmt >>> i) & 1);
-  putFmt(8, 7, (fmt >>> 6) & 1);
-  putFmt(8, 8, (fmt >>> 7) & 1);
-  putFmt(7, 8, (fmt >>> 8) & 1);
-  for (let i = 9; i < 15; i++) putFmt(14 - i, 8, (fmt >>> i) & 1);
+  const putFmt = (r, c, bitPos) => {
+    grid[r][c] = ((fmt >>> bitPos) & 1) ? 1 : -1;
+  };
 
-  for (let i = 0; i < 8; i++) putFmt(n - 1 - i, 8, (fmt >>> i) & 1);
-  for (let i = 8; i < 15; i++) putFmt(8, n - 15 + i, (fmt >>> i) & 1);
+  // Còpia 1: al voltant del patró superior esquerre
+  for (let i = 0; i < 6; i++) putFmt(8, i, 14 - i);
+  putFmt(8, 7, 8);
+  putFmt(8, 8, 7);
+  putFmt(7, 8, 6);
+  for (let i = 0; i < 6; i++) putFmt(5 - i, 8, 5 - i);
+
+  // Còpia 2: inferior esquerra (bits 14..8) i superior dreta (bits 7..0)
+  for (let i = 0; i < 7; i++) putFmt(n - 1 - i, 8, 14 - i);
+  for (let i = 0; i < 8; i++) putFmt(8, n - 8 + i, 7 - i);
 
   return grid;
 }
@@ -247,10 +282,17 @@ function penaltyScore(grid, n) {
       if (v === grid[r][c + 1] && v === grid[r + 1][c] && v === grid[r + 1][c + 1]) score += 3;
     }
   }
+  // Regla 4: balanç fosc/clar proper al 50%
+  let dark = 0;
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) if (grid[r][c] === 1) dark++;
+  }
+  const pct = (dark * 100) / (n * n);
+  score += Math.floor(Math.abs(pct - 50) / 5) * 10;
   return score;
 }
 
-export function renderQrSvg(text, darkColor = '#16332c', lightColor = '#fcfefd') {
+export function renderQrSvg(text, darkColor = '#0f241f', lightColor = '#ffffff') {
   const { spec, allBytes } = encodeBytes(text);
   const base = buildMatrix(spec, allBytes);
 
@@ -266,7 +308,7 @@ export function renderQrSvg(text, darkColor = '#16332c', lightColor = '#fcfefd')
   }
 
   const n = base.n;
-  const pad = 2;
+  const pad = 4; // Quiet zone mínima estàndard de 4 mòduls
   const vb = n + pad * 2;
   let path = '';
   for (let r = 0; r < n; r++) {
@@ -277,5 +319,5 @@ export function renderQrSvg(text, darkColor = '#16332c', lightColor = '#fcfefd')
     }
   }
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vb} ${vb}" shape-rendering="crispEdges" role="img" aria-label="Codi QR de la sala"><rect width="${vb}" height="${vb}" rx="2" fill="${lightColor}"/><path d="${path}" fill="${darkColor}"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${vb} ${vb}" shape-rendering="crispEdges" role="img" aria-label="Codi QR de la sala"><rect width="${vb}" height="${vb}" fill="${lightColor}"/><path d="${path}" fill="${darkColor}"/></svg>`;
 }

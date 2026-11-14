@@ -1185,9 +1185,23 @@ function init() {
   $('btn-copy-link').addEventListener('click', copyInvite);
   $('btn-qr-copy-link').addEventListener('click', copyInvite);
 
+  $('btn-qr-share').addEventListener('click', async () => {
+    const url = inviteUrl();
+    try {
+      await navigator.share({
+        title: 'Enfonsar la flota',
+        text: `Entra a la meva sala (${roomClient.roomCode}) d'Enfonsar la flota:`,
+        url
+      });
+    } catch (_) {}
+  });
+
   $('btn-show-qr').addEventListener('click', () => {
-    $('qr-code-text').textContent = roomClient.roomCode || '-----';
-    $('qr-container').innerHTML = renderQrSvg(inviteUrl());
+    const url = inviteUrl();
+    $('qr-code-text').textContent = roomClient.roomCode || '----';
+    $('qr-url-text').textContent = url;
+    $('qr-container').innerHTML = renderQrSvg(url);
+    $('btn-qr-share').hidden = typeof navigator.share !== 'function';
     $('modal-qr').showModal();
   });
 
