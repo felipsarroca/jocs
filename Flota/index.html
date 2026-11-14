@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.0.0">
-  <script type="module" src="js/app.js?v=1.0.0"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.0.1">
+  <script type="module" src="js/app.js?v=1.0.1"></script>
 </head>
 <body>
   <header class="topbar">
@@ -121,9 +121,9 @@
 
             <form id="form-join-room" class="online-block">
               <label for="input-room-code" class="block-title">Entra amb un codi</label>
-              <p class="muted-sm">Escriu el codi de 5 caràcters que t'han passat.</p>
+              <p class="muted-sm">Escriu el codi de 4 caràcters que t'han passat.</p>
               <div class="join-row">
-                <input id="input-room-code" type="text" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="P. ex. 4K8NP" aria-label="Codi de la sala">
+                <input id="input-room-code" type="text" maxlength="4" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="P. ex. a3t5" aria-label="Codi de la sala">
                 <button type="submit" class="btn btn-secondary" id="btn-join-room">Entra-hi</button>
               </div>
             </form>
@@ -197,7 +197,7 @@
         </div>
 
         <div id="room-share-bar" class="room-share-bar" hidden>
-          <span class="room-code-pill">Sala <strong id="place-room-code">-----</strong></span>
+          <span class="room-code-pill">Sala <strong id="place-room-code">----</strong></span>
           <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-code" title="Copia el codi">Copia codi</button>
           <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-link" title="Copia l'enllaç directe">Copia enllaç</button>
           <button type="button" class="btn btn-ghost btn-sm" id="btn-show-qr" title="Mostra el codi QR">QR</button>
@@ -319,7 +319,7 @@
       </div>
       <p class="muted-sm">Escaneja aquest QR amb el mòbil o comparteix el codi de sala:</p>
       <div id="qr-container" class="qr-box"></div>
-      <div class="qr-code-display" id="qr-code-text">-----</div>
+      <div class="qr-code-display" id="qr-code-text">----</div>
       <div class="modal-actions">
         <button type="button" class="btn btn-primary" id="btn-qr-copy-link">Copia l'enllaç directe</button>
         <button type="button" class="btn btn-ghost" data-close="modal-qr">Tanca</button>

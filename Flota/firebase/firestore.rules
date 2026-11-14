@@ -2,14 +2,14 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /sales/{roomCode} {
-      allow get: if roomCode.matches('^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{5}$');
+      allow get: if roomCode.matches('^[a-z0-9]{4}$');
       allow list: if false;
-      allow create: if roomCode.matches('^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{5}$')
+      allow create: if roomCode.matches('^[a-z0-9]{4}$')
         && request.resource.data.code == roomCode
         && request.resource.data.status == 'waiting'
         && request.resource.data.p1 is map
         && request.resource.data.p1.id is string;
-      allow update: if roomCode.matches('^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{5}$')
+      allow update: if roomCode.matches('^[a-z0-9]{4}$')
         && request.resource.data.code == roomCode
         && request.resource.data.status in ['waiting', 'placing', 'playing', 'finished']
         && request.resource.data.shots is list

@@ -6,7 +6,7 @@ Versió web i instal·lable (PWA) del joc tradicional de batalla naval, en catal
 
 ## Característiques principals
 
-- **Partides en línia amb codi de sala:** un jugador crea una sala i obté un codi de 5 caràcters, un enllaç directe i un codi QR per convidar el rival en segons.
+- **Partides en línia amb codi de sala:** un jugador crea una sala i obté un codi de 4 caràcters en minúscules (p. ex. `a3t5`), un enllaç directe i un codi QR per convidar el rival en segons.
 - **Sincronització en temps real:** comunicació mitjançant Firebase Firestore (`flota-naval-cat`, regió `eur3`) amb reconnexió automàtica si es recarrega la pàgina o es bloqueja el mòbil.
 - **Joc net verificat:** les posicions dels vaixells no surten del navegador durant la partida; s'envia una empremta SHA-256 a l'inici i es verifica al final.
 - **Contra la màquina (també sense internet):** tres nivells d'IA (*Grumet*, *Capità* i *Almirall* amb càlcul de densitat probabilística).

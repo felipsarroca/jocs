@@ -20,7 +20,7 @@ import {
 import { soundFX } from './audio.js';
 import { renderQrSvg } from './qr.js';
 import { OnlineRoomClient, normalizeRoomCode } from './net.js';
-import { ONLINE_SESSION_KEY } from './config.js';
+import { ONLINE_SESSION_KEY, ROOM_CODE_LENGTH } from './config.js';
 
 const AI_LEVEL_LABELS = {
   grumet: 'Grumet (fàcil)',
@@ -1175,10 +1175,10 @@ function init() {
     }
   });
 
-  // Entrada directa per URL ?sala=XXXXX
+  // Entrada directa per URL ?sala=xxxx
   const params = new URLSearchParams(window.location.search);
   const urlCode = normalizeRoomCode(params.get('sala'));
-  if (urlCode.length === 5) {
+  if (urlCode.length === ROOM_CODE_LENGTH) {
     $('input-room-code').value = urlCode;
     const saved = loadOnlineSession();
     joinOnlineGame(urlCode, saved?.roomCode === urlCode ? saved : null);

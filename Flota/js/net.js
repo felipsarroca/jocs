@@ -41,8 +41,8 @@ export function getPlayerId() {
 
 export function normalizeRoomCode(raw) {
   return String(raw || '')
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
     .slice(0, ROOM_CODE_LENGTH);
 }
 
@@ -135,7 +135,7 @@ export class OnlineRoomClient {
   async joinRoom(rawCode, onUpdate, onError) {
     const code = normalizeRoomCode(rawCode);
     if (code.length !== ROOM_CODE_LENGTH) {
-      throw new Error('El codi ha de tenir 5 caràcters.');
+      throw new Error('El codi ha de tenir 4 caràcters.');
     }
     const { db, fs } = await loadFirebase();
     const ref = fs.doc(db, 'sales', code);
