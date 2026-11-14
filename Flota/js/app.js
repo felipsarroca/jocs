@@ -587,6 +587,7 @@ async function handleEnemyBoardClick(r, c) {
       return;
     }
     state.pendingAim = null;
+    $('toast').hidden = true;
   }
 
   if (state.mode === 'ai') {
@@ -595,9 +596,13 @@ async function handleEnemyBoardClick(r, c) {
     if (state.room?.pendingShot) return;
     try {
       state.turn = 'pending';
+      state.pendingShotKey = k;
       renderBattle();
       await roomClient.sendShot(r, c);
     } catch (err) {
+      state.pendingShotKey = null;
+      state.turn = 'me';
+      renderBattle();
       showToast('No s’ha pogut enviar el tret. Torna-ho a provar.');
     }
   }
@@ -637,10 +642,11 @@ function fireAgainstAi(r, c) {
   state.turn = 'rival';
   renderBattle();
 
+  const delayMs = outcome.result === 'aigua' ? 560 : 760;
   setTimeout(() => {
     if (state.screen !== 'battle' || state.mode !== 'ai' || state.winner) return;
     performAiTurn();
-  }, 560);
+  }, delayMs);
 }
 
 function performAiTurn() {
@@ -693,15 +699,20 @@ function performAiTurn() {
 }
 
 function paintShotsOnGrid(gridContainer, shotsMap, sunkShips, lastShotKey) {
+  const isEnemyBoard = gridContainer.id === 'board-enemy';
   gridContainer.querySelectorAll('.cell').forEach((cell) => {
-    cell.classList.remove('shot-aigua', 'shot-tocat', 'shot-enfonsat', 'shot-halo', 'last-shot', 'aim-pending', 'ship-reveal');
+    cell.classList.remove('shot-aigua', 'shot-tocat', 'shot-enfonsat', 'shot-halo', 'shot-pending', 'last-shot', 'aim-pending', 'ship-reveal');
+    if (isEnemyBoard) cell.classList.add('interactive');
   });
 
   for (const hk of getWaterHaloKeys(sunkShips)) {
     if (shotsMap[hk]) continue;
     const [hr, hc] = hk.split(',');
     const cell = gridContainer.querySelector(`.cell[data-r="${hr}"][data-c="${hc}"]`);
-    if (cell) cell.classList.add('shot-halo');
+    if (cell) {
+      cell.classList.add('shot-halo');
+      cell.classList.remove('interactive');
+    }
   }
 
   for (const [k, info] of Object.entries(shotsMap)) {
@@ -709,6 +720,7 @@ function paintShotsOnGrid(gridContainer, shotsMap, sunkShips, lastShotKey) {
     const cell = gridContainer.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
     if (!cell) continue;
     cell.classList.add(`shot-${info.result}`);
+    cell.classList.remove('interactive');
     if (k === lastShotKey) cell.classList.add('last-shot');
   }
 
@@ -718,7 +730,7 @@ function paintShotsOnGrid(gridContainer, shotsMap, sunkShips, lastShotKey) {
     cells.forEach((p, idx) => {
       const cell = gridContainer.querySelector(`.cell[data-r="${p.r}"][data-c="${p.c}"]`);
       if (!cell) return;
-      cell.classList.remove('shot-tocat');
+      cell.classList.remove('shot-tocat', 'interactive');
       cell.classList.add('shot-enfonsat', 'ship', sunk.o === 'H' ? 'ship-h' : 'ship-v');
       if (idx === 0) cell.classList.add('ship-start');
       if (idx === cells.length - 1) cell.classList.add('ship-end');
@@ -754,6 +766,11 @@ function renderBattle() {
   if (state.pendingAim) {
     const aimEl = enemyGrid.querySelector(`.cell[data-r="${state.pendingAim.r}"][data-c="${state.pendingAim.c}"]`);
     if (aimEl) aimEl.classList.add('aim-pending');
+  }
+  if (state.turn === 'pending' && state.pendingShotKey && !state.myShots[state.pendingShotKey]) {
+    const [pr, pc] = state.pendingShotKey.split(',');
+    const pEl = enemyGrid.querySelector(`.cell[data-r="${pr}"][data-c="${pc}"]`);
+    if (pEl) pEl.classList.add('shot-pending');
   }
 
   // En acabar, mostra els vaixells rivals que han quedat intactes
@@ -874,6 +891,9 @@ async function handleOnlineRoomUpdate(room) {
 
   const parsed = getShotsMapsFromOnlineRoom(room);
   state.myShots = parsed.myShots;
+  if (state.pendingShotKey && state.myShots[state.pendingShotKey]) {
+    state.pendingShotKey = null;
+  }
   state.rivalShotsOnline = parsed.rivalShots;
   state.mySunkShips = parsed.mySunkShips;
   state.aiSunkShips = parsed.rivalSunkShips;

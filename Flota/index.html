@@ -13,8 +13,8 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.2">
-  <script type="module" src="js/app.js?v=1.2.2"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.3">
+  <script type="module" src="js/app.js?v=1.2.3"></script>
 </head>
 <body>
   <header class="topbar">
@@ -300,11 +300,15 @@
             <span class="board-sub" id="enemy-summary">5 vaixells per enfonsar</span>
           </div>
           <div id="board-enemy" class="board-wrap" aria-label="Tauler del mar enemic"></div>
-          <div id="fleet-status-enemy" class="fleet-status-strip"></div>
           <label class="confirm-shot-toggle" id="confirm-shot-wrap">
-            <input type="checkbox" id="chk-confirm-shot">
-            <span>Doble toc per confirmar el tret (útil al mòbil)</span>
+            <input type="checkbox" id="chk-confirm-shot" class="confirm-shot-input">
+            <span class="confirm-shot-switch" aria-hidden="true"></span>
+            <span class="confirm-shot-text">
+              <strong>Doble toc per confirmar el tret</strong>
+              <small>1r toc apunta · 2n toc dispara</small>
+            </span>
           </label>
+          <div id="fleet-status-enemy" class="fleet-status-strip"></div>
         </div>
       </div>
     </section>
@@ -481,8 +485,8 @@
            alt="Creative Commons BY-NC-SA">
     </a>
     <div class="felip-footer-text">
-      <p>Aplicació creada per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA</p>
-      <p>Codi: <a href="https://github.com/felipsarroca/jocs/blob/main/Flota/LICENSE" target="_blank" rel="noopener noreferrer">AGPLv3</a> · Continguts: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=flota.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a></p>
+      <p>Joc creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a></p>
+      <p>Codi: <a href="https://github.com/felipsarroca/jocs/blob/main/Flota/LICENSE" target="_blank" rel="noopener noreferrer">AGPLv3</a> · Continguts: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a></p>
     </div>
   </footer>
 </body>
