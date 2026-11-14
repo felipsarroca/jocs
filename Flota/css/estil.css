@@ -1051,11 +1051,13 @@ body {
   transition: opacity 0.25s, filter 0.25s;
 }
 
-.battle-boards[data-turn="me"] .board-mine .board-grid,
-.battle-boards[data-turn="pending"] .board-mine .board-grid,
-.battle-boards[data-turn="rival"] .board-enemy .board-grid {
-  opacity: 0.68;
-  filter: saturate(0.75);
+@media (min-width: 821px) {
+  .battle-boards[data-turn="me"] .board-mine .board-grid,
+  .battle-boards[data-turn="pending"] .board-mine .board-grid,
+  .battle-boards[data-turn="rival"] .board-enemy .board-grid {
+    opacity: 0.68;
+    filter: saturate(0.75);
+  }
 }
 
 .battle-boards[data-turn="rival"] .board-enemy .cell {
@@ -1934,8 +1936,29 @@ body {
     display: none;
   }
 
+  /* Torn i últim tret sempre en dues files fixes: el tauler no es mou */
   .battle-hud {
-    gap: 0.3rem 0.6rem;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+  }
+
+  .turn-pill,
+  .last-event {
+    max-width: 100%;
+  }
+
+  #turn-text,
+  .last-event {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .last-event {
+    line-height: 1.35;
+    min-height: 1.35em;
   }
 
   .hud-sep {
