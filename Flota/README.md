@@ -13,7 +13,7 @@ Versió web i instal·lable (PWA) del joc tradicional de batalla naval, en catal
 - **Regles tradicionals:** tauler `10×10` (`A–J`, `1–10`), flota clàssica de 5 vaixells (*Portaavions* 5, *Cuirassat* 4, *Creuer* 3, *Submarí* 3 i *Patrullera* 2), separació obligatòria d'1 casella d'aigua al voltant de cada vaixell (incloent-hi les diagonals) i 1 tret per torn.
 - **Estètica «Costa Verda»:** fons sàlvia clar, targetes blanques nítides, mar blau oceà i vaixells de to ambre càlid.
 - **Instal·lable al mòbil i a l'ordinador:** botó visible per instal·lar l'app (amb prompt directe a Android/Chrome i guia visual per a Safari a iOS) i *Service Worker* per jugar contra la màquina fora de línia.
-- **Àudio tàctic sintètic:** efectes de radar, aigua, impacte i enfonsament generats per Web Audio API, amb botó de silenci.
+- **So sintètic breu:** xipoteig d'aigua, cop metàl·lic en tocar i botzina d'alarma en enfonsar, generats amb Web Audio API. Cada so nou talla l'anterior, de manera que no s'acumulen encara que es jugui de pressa. Botó de silenci.
 
 ## Captures de pantalla
 

@@ -133,16 +133,40 @@ function fitBoardsToViewport() {
     const target = FIT_TARGETS[state.screen];
     if (!target) return;
 
-    const root = document.documentElement;
     const host = $(target.host);
-    for (let i = 0; i < 5; i++) {
-      const overflow = root.scrollHeight - root.clientHeight;
+    const screen = $(`screen-${state.screen}`);
+    const shell = document.querySelector('.app-shell');
+    const px = (el, prop) => parseFloat(getComputedStyle(el)[prop]) || 0;
+
+    // Desbordament real (amb decimals): base de l'últim bloc visible de la pantalla
+    // + marges inferiors fixos, comparat amb l'alçada de la finestra. 2 px de marge.
+    const overflowPx = () => {
+      const blocks = [...screen.children].filter((el) => !el.hidden && el.getClientRects().length);
+      const last = blocks[blocks.length - 1];
+      if (!last) return 0;
+      const bottom = last.getBoundingClientRect().bottom + window.scrollY;
+      const below = px(screen, 'paddingBottom') + px(shell, 'paddingBottom') + px(document.body, 'paddingBottom');
+      return bottom + below + 2 - document.documentElement.clientHeight;
+    };
+
+    let prevValue = null;
+    let prevOverflow = Infinity;
+    for (let i = 0; i < 6; i++) {
+      const overflow = overflowPx();
       if (overflow <= 0) break;
+      // Si encongir no ajuda (el que sobresurt no és el tauler), es desfà l'últim pas
+      if (overflow >= prevOverflow - 0.5) {
+        if (prevValue === null) host.style.removeProperty(target.prop);
+        else host.style.setProperty(target.prop, prevValue);
+        break;
+      }
       const cell = document.querySelector(target.cell);
       if (!cell) break;
       const size = cell.getBoundingClientRect().height;
-      const next = Math.max(20, Math.floor(size - overflow / 10 - 1));
+      const next = Math.max(20, Math.floor((size - overflow / 10) * 2) / 2 - 0.5);
       if (next >= size) break;
+      prevValue = host.style.getPropertyValue(target.prop) || null;
+      prevOverflow = overflow;
       host.style.setProperty(target.prop, `${next}px`);
     }
   });
@@ -321,6 +345,7 @@ function paintShipsOnGrid(gridContainer, ships, extraClass = 'ship') {
 
 /* ---------- Fase 1: Col·locació ---------- */
 function enterPlacement(mode) {
+  soundFX.stopAll?.();
   state.mode = mode;
   state.ships = [];
   state.salt = randomSalt();
@@ -1135,6 +1160,7 @@ function init() {
   // Navegació i sortida
   const exitToHome = () => {
     clearTimeout(state.flashTimer);
+    soundFX.stopAll?.();
     if (state.mode === 'online') {
       roomClient.disconnect();
     }

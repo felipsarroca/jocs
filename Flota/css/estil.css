@@ -1801,11 +1801,6 @@ body {
   .install-banner {
     display: none;
   }
-
-  /* En acabar, els taulers cedeixen l'espai del bàner de resultat */
-  .screen-battle:has(> .gameover-banner:not([hidden])) {
-    --cell-battle: clamp(25px, min(4vw, calc((100dvh - 404px) / 10)), 76px);
-  }
 }
 
 /* Responsive: tauletes i mòbils */
