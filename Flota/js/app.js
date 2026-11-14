@@ -113,6 +113,39 @@ function showScreen(name) {
   $('screen-place').hidden = name !== 'place';
   $('screen-battle').hidden = name !== 'battle';
   $('btn-exit').hidden = name === 'home';
+  fitBoardsToViewport();
+}
+
+/* ---------- Ajust a la pantalla de l'ordinador ----------
+ * El CSS fa una primera estimació de la mida de casella. Aquí es mesura el
+ * resultat real i, si la pàgina sobresurt verticalment, s'encongeixen les
+ * caselles el just perquè no calgui mai desplaçar-se (només a l'ordinador). */
+const FIT_TARGETS = {
+  place: { host: 'screen-place', prop: '--cell-place', cell: '#board-place .cell' },
+  battle: { host: 'battle-boards', prop: '--cell-battle', cell: '#board-enemy .cell' }
+};
+
+function fitBoardsToViewport() {
+  cancelAnimationFrame(fitBoardsToViewport.raf);
+  fitBoardsToViewport.raf = requestAnimationFrame(() => {
+    for (const t of Object.values(FIT_TARGETS)) $(t.host).style.removeProperty(t.prop);
+    if (window.innerWidth <= 820) return;
+    const target = FIT_TARGETS[state.screen];
+    if (!target) return;
+
+    const root = document.documentElement;
+    const host = $(target.host);
+    for (let i = 0; i < 5; i++) {
+      const overflow = root.scrollHeight - root.clientHeight;
+      if (overflow <= 0) break;
+      const cell = document.querySelector(target.cell);
+      if (!cell) break;
+      const size = cell.getBoundingClientRect().height;
+      const next = Math.max(20, Math.floor(size - overflow / 10 - 1));
+      if (next >= size) break;
+      host.style.setProperty(target.prop, `${next}px`);
+    }
+  });
 }
 
 function saveOnlineSession() {
@@ -502,6 +535,7 @@ function renderPlacement() {
   $('btn-random-fleet').disabled = state.readySubmitted;
   $('btn-clear-fleet').disabled = state.readySubmitted;
   $('btn-rotate').disabled = state.readySubmitted;
+  fitBoardsToViewport();
 }
 
 /* ---------- Fase 2: Combat ---------- */
@@ -866,12 +900,15 @@ function renderBattle() {
 
     if (!state.endSoundPlayed) {
       state.endSoundPlayed = true;
+      clearTimeout(state.flashTimer);
+      setMobileBoardView('enemy');
       if (state.winner === 'me') soundFX.win();
       else soundFX.lose();
     }
   } else {
     banner.hidden = true;
   }
+  fitBoardsToViewport();
 }
 
 /* ---------- Sincronització en línia ---------- */
@@ -1052,6 +1089,7 @@ function init() {
   });
 
   updateInstallUI();
+  window.addEventListener('resize', fitBoardsToViewport);
   $('btn-install-top').addEventListener('click', handleInstallClick);
   $('btn-install-card').addEventListener('click', handleInstallClick);
 
