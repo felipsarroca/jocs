@@ -13,19 +13,14 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.2.3">
-  <script type="module" src="js/app.js?v=1.2.3"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.2.5">
+  <script type="module" src="js/app.js?v=1.2.5"></script>
 </head>
 <body>
   <header class="topbar">
     <div class="topbar-inner">
       <button type="button" class="brand" id="btn-brand" aria-label="Enfonsar la flota, torna a l'inici">
-        <svg class="ic brand-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="9"/>
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
-          <path d="M12 12l5.2-5.2"/>
-        </svg>
+        <img class="ic brand-ic" src="assets/favicon.svg" alt="" aria-hidden="true">
         <span class="brand-name">Enfonsar la flota</span>
       </button>
 
@@ -49,6 +44,7 @@
             <path d="M11 5L6 9H3v6h3l5 4V5z"/>
             <path d="M22 9l-6 6M16 9l6 6"/>
           </svg>
+          <span class="btn-label">So</span>
         </button>
 
         <button type="button" class="btn-icon" id="btn-rules" title="Regles del joc">
@@ -57,7 +53,7 @@
             <path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.8c0 1.7-2.4 2.1-2.4 3.5"/>
             <circle cx="12" cy="17.2" r="0.6" fill="currentColor"/>
           </svg>
-          <span class="btn-label hide-sm">Regles</span>
+          <span class="btn-label">Regles</span>
         </button>
 
         <button type="button" class="btn-icon btn-exit" id="btn-exit" hidden title="Surt de la partida">
