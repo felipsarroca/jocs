@@ -1,25 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Enfonsar la flota">
   <defs>
-    <radialGradient id="sea" cx="50%" cy="45%" r="65%">
-      <stop offset="0%" stop-color="#143554"/>
-      <stop offset="100%" stop-color="#071322"/>
+    <radialGradient id="sea" cx="45%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#2286ab"/>
+      <stop offset="100%" stop-color="#134e6f"/>
     </radialGradient>
-    <linearGradient id="sweep" x1="50%" y1="50%" x2="95%" y2="20%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
-    </linearGradient>
   </defs>
   <rect width="128" height="128" rx="28" fill="url(#sea)"/>
-  <circle cx="64" cy="64" r="46" fill="none" stroke="#38bdf8" stroke-opacity="0.28" stroke-width="2"/>
-  <circle cx="64" cy="64" r="30" fill="none" stroke="#38bdf8" stroke-opacity="0.28" stroke-width="2"/>
-  <circle cx="64" cy="64" r="14" fill="none" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="2"/>
-  <path d="M64 14v100M14 64h100" stroke="#38bdf8" stroke-opacity="0.22" stroke-width="2"/>
-  <path d="M64 64 L104 30 A52 52 0 0 1 112 64 Z" fill="url(#sweep)"/>
-  <!-- Ship silhouette -->
-  <path d="M26 72 L102 72 L94 86 L34 86 Z" fill="#e2e8f0"/>
-  <path d="M44 72 L48 56 L78 56 L82 72 Z" fill="#cbd5e1"/>
-  <rect x="56" y="45" width="12" height="11" rx="2" fill="#94a3b8"/>
-  <!-- Target hit dot -->
-  <circle cx="88" cy="40" r="6" fill="#f97316"/>
-  <circle cx="88" cy="40" r="10" fill="none" stroke="#f97316" stroke-width="2" stroke-opacity="0.7"/>
+  <!-- Warm parchment ring -->
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#f5ebd6" stroke-opacity="0.35" stroke-width="2.5"/>
+  <circle cx="64" cy="64" r="32" fill="none" stroke="#f5ebd6" stroke-opacity="0.28" stroke-width="2"/>
+  <path d="M64 12v104M12 64h104" stroke="#f5ebd6" stroke-opacity="0.22" stroke-width="2"/>
+  <!-- Waves -->
+  <path d="M22 92 Q36 86 50 92 T78 92 T106 92" fill="none" stroke="#e0f4fa" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round"/>
+  <!-- Warm wooden/brass ship -->
+  <path d="M24 72 L104 72 L94 86 L34 86 Z" fill="#d99b66" stroke="#7c471e" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M44 72 L49 54 L79 54 L84 72 Z" fill="#f3dfc1" stroke="#7c471e" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="57" y="42" width="14" height="12" rx="2.5" fill="#d95d39" stroke="#7c471e" stroke-width="2"/>
+  <!-- Compass / target -->
+  <circle cx="90" cy="38" r="7" fill="#f59e0b" stroke="#fff7ed" stroke-width="2"/>
+  <circle cx="90" cy="38" r="13" fill="none" stroke="#fde68a" stroke-width="2" stroke-opacity="0.8"/>
 </svg>

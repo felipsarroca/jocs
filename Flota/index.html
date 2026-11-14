@@ -4,17 +4,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b1d33">
+  <meta name="theme-color" content="#134e6f">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Flota">
   <title>Enfonsar la flota</title>
   <meta name="description" content="Joc tradicional d'enfonsar la flota en català: juga en línia amb un codi de sala o contra la màquina des de l'ordinador o el mòbil.">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="stylesheet" href="css/estil.css?v=1.0.1">
-  <script type="module" src="js/app.js?v=1.0.1"></script>
+  <link rel="stylesheet" href="css/estil.css?v=1.1.0">
+  <script type="module" src="js/app.js?v=1.1.0"></script>
 </head>
 <body>
   <header class="topbar">
@@ -208,7 +208,7 @@
         <div class="board-card">
           <div class="board-card-head">
             <h2>La teva flota</h2>
-            <span class="hint-text" id="place-hint">Toca un vaixell i toca una casella (o arrossega'l)</span>
+            <span class="hint-text" id="place-hint">Deixa sempre 1 casella d'aigua al voltant de cada vaixell</span>
           </div>
           <div id="board-place" class="board-wrap" aria-label="Tauler de col·locació de la teva flota"></div>
         </div>
@@ -352,8 +352,8 @@
         <ul class="rules-list">
           <li><strong>Tauler 10×10:</strong> files de la <strong>A</strong> a la <strong>J</strong> i columnes de l'<strong>1</strong> al <strong>10</strong>.</li>
           <li><strong>Flota clàssica de 5 vaixells:</strong> Portaavions (5), Cuirassat (4), Creuer (3), Submarí (3) i Patrullera (2).</li>
-          <li><strong>Col·locació:</strong> en horitzontal o vertical, sense sortir del tauler ni encavalcar vaixells.</li>
-          <li><strong>Torns alterns:</strong> cada jugador fa <strong>1 tret per torn</strong>. Si toques l'última casella d'un vaixell, queda <em>tocat i enfonsat</em> i es mostra sencer al radar.</li>
+          <li><strong>Col·locació:</strong> en horitzontal o vertical, deixant sempre almenys <strong>1 casella d'aigua al voltant</strong> de cada vaixell (no es poden tocar ni de costat, ni de front, ni en diagonal).</li>
+          <li><strong>Torns alterns:</strong> cada jugador fa <strong>1 tret per torn</strong>. Si enfonses un vaixell, es marca automàticament l'aigua del voltant perquè no hi pot haver cap altre vaixell.</li>
           <li><strong>En línia:</strong> les posicions es guarden en secret al navegador amb una empremta criptogràfica (SHA-256) que es verifica al final de la partida.</li>
         </ul>
       </div>

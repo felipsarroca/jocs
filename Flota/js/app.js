@@ -9,6 +9,7 @@ import {
   coordLabel,
   keyOf,
   getShipCells,
+  getWaterHaloKeys,
   canPlaceShip,
   generateRandomFleet,
   validateCompleteFleet,
@@ -407,7 +408,7 @@ function handlePlaceDrop(r, c, droppedId) {
   const id = droppedId || state.selectedShipId;
   clearPlacePreview();
   if (!placeShipAt(id, r, c, state.orientation)) {
-    showToast('Aquí no hi cap aquest vaixell.');
+    showToast('Deixa 1 casella d’aigua al voltant de cada vaixell.');
   }
 }
 
@@ -421,10 +422,15 @@ function toggleOrientation() {
 function renderPlacement() {
   const boardEl = $('board-place');
   boardEl.querySelectorAll('.cell').forEach((cell) => {
-    cell.classList.remove('ship', 'ship-h', 'ship-v', 'ship-start', 'ship-end', 'preview-ok', 'preview-bad');
+    cell.classList.remove('ship', 'ship-h', 'ship-v', 'ship-start', 'ship-end', 'ship-halo', 'preview-ok', 'preview-bad');
     cell.draggable = false;
   });
   paintShipsOnGrid(boardEl, state.ships, 'ship');
+  for (const hk of getWaterHaloKeys(state.ships)) {
+    const [hr, hc] = hk.split(',');
+    const cell = boardEl.querySelector(`.cell[data-r="${hr}"][data-c="${hc}"]`);
+    if (cell) cell.classList.add('ship-halo');
+  }
 
   // Permet arrossegar els vaixells ja col·locats
   for (const s of state.ships) {
@@ -566,6 +572,10 @@ async function handleEnemyBoardClick(r, c) {
 
   const k = keyOf(r, c);
   if (state.myShots[k]) return;
+  if (getWaterHaloKeys(state.mySunkShips).has(k)) {
+    showToast('Aquí només hi pot haver aigua.');
+    return;
+  }
 
   // Confirmació de doble toc en mòbil si està activada
   const confirmMobile = window.innerWidth <= 820 && $('chk-confirm-shot').checked;
@@ -650,7 +660,8 @@ function performAiTurn() {
 
   const sunkIds = new Set(state.aiSunkShips.map((s) => s.id));
   const remainingSizes = FLEET_SPEC.filter((s) => !sunkIds.has(s.id)).map((s) => s.size);
-  const pick = chooseAiShot(state.aiDifficulty, aiShotsSimple, remainingSizes);
+  const clearedHalo = getWaterHaloKeys(state.aiSunkShips);
+  const pick = chooseAiShot(state.aiDifficulty, aiShotsSimple, remainingSizes, clearedHalo);
   if (!pick) return;
 
   const outcome = evaluateShot(state.ships, aiHitsMap, pick.r, pick.c);
@@ -683,8 +694,15 @@ function performAiTurn() {
 
 function paintShotsOnGrid(gridContainer, shotsMap, sunkShips, lastShotKey) {
   gridContainer.querySelectorAll('.cell').forEach((cell) => {
-    cell.classList.remove('shot-aigua', 'shot-tocat', 'shot-enfonsat', 'last-shot', 'aim-pending', 'ship-reveal');
+    cell.classList.remove('shot-aigua', 'shot-tocat', 'shot-enfonsat', 'shot-halo', 'last-shot', 'aim-pending', 'ship-reveal');
   });
+
+  for (const hk of getWaterHaloKeys(sunkShips)) {
+    if (shotsMap[hk]) continue;
+    const [hr, hc] = hk.split(',');
+    const cell = gridContainer.querySelector(`.cell[data-r="${hr}"][data-c="${hc}"]`);
+    if (cell) cell.classList.add('shot-halo');
+  }
 
   for (const [k, info] of Object.entries(shotsMap)) {
     const [r, c] = k.split(',');

@@ -10,7 +10,8 @@ Versió web i instal·lable (PWA) del joc tradicional de batalla naval, en catal
 - **Sincronització en temps real:** comunicació mitjançant Firebase Firestore (`flota-naval-cat`, regió `eur3`) amb reconnexió automàtica si es recarrega la pàgina o es bloqueja el mòbil.
 - **Joc net verificat:** les posicions dels vaixells no surten del navegador durant la partida; s'envia una empremta SHA-256 a l'inici i es verifica al final.
 - **Contra la màquina (també sense internet):** tres nivells d'IA (*Grumet*, *Capità* i *Almirall* amb càlcul de densitat probabilística).
-- **Regles tradicionals:** tauler `10×10` (`A–J`, `1–10`), flota clàssica de 5 vaixells (*Portaavions* 5, *Cuirassat* 4, *Creuer* 3, *Submarí* 3 i *Patrullera* 2) i 1 tret per torn.
+- **Regles tradicionals:** tauler `10×10` (`A–J`, `1–10`), flota clàssica de 5 vaixells (*Portaavions* 5, *Cuirassat* 4, *Creuer* 3, *Submarí* 3 i *Patrullera* 2), separació obligatòria d'1 casella d'aigua al voltant de cada vaixell (incloent-hi les diagonals) i 1 tret per torn.
+- **Estètica càlida d'atles marítim:** fons de pergamí clar, mar mediterrani turquesa i vaixells de fusta de teca.
 - **Instal·lable al mòbil i a l'ordinador:** botó visible per instal·lar l'app (amb prompt directe a Android/Chrome i guia visual per a Safari a iOS) i *Service Worker* per jugar contra la màquina fora de línia.
 - **Àudio tàctic sintètic:** efectes de radar, aigua, impacte i enfonsament generats per Web Audio API, amb botó de silenci.
 

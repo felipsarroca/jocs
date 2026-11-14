@@ -250,7 +250,7 @@ function penaltyScore(grid, n) {
   return score;
 }
 
-export function renderQrSvg(text, darkColor = '#071322', lightColor = '#f8fafc') {
+export function renderQrSvg(text, darkColor = '#17324d', lightColor = '#fffdf8') {
   const { spec, allBytes } = encodeBytes(text);
   const base = buildMatrix(spec, allBytes);
 
