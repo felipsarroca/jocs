@@ -17,6 +17,8 @@ La versió 2.0 és deliberadament senzilla: **Jugar**, **Rànquing** i **Sobre e
 - SVG originals, números a més de colors, teclat, moviment reduït i disseny adaptable.
 - PWA: el joc funciona sense connexió després de la primera càrrega; el rànquing necessita connexió.
 
+![Benvinguda amb el nom de jugador](docs/screenshots/benvinguda.png)
+
 ![Resultat d’una partida](docs/screenshots/resultat.png)
 
 ### Controls
@@ -29,10 +31,10 @@ Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per end
 
 La captura mostra un jugador creat per a les proves i eliminat després.
 
-- Cal un **nom de jugador** únic (3–16 caràcters), sense contrasenya, lligat al navegador. Hi ha un filtre de paraules ofensives i l’avís de no fer servir el nom real.
+- En entrar per primer cop, una benvinguda demana el **nom de jugador** únic (3–16 caràcters), sense contrasenya, lligat al navegador; així tothom surt al rànquing. Hi ha un filtre de paraules ofensives i l’avís de no fer servir el nom real.
 - Cada puzle resolt **sense pistes** suma **10 punts per moviment del mínim**, menys 5 per cada moviment de més, amb un terra d’una quarta part. Un puzle de 12 moviments resolt en 12 val 120 punts.
 - Cada puzle compta **una sola vegada**, amb el millor resultat. Cada resultat **caduca al cap d’un any**.
-- Pòdium, barres de punts, posició pròpia ressaltada, canvi de nom i esborrament de les dades pròpies.
+- Podi com a protagonista, barres de punts, fitxa pròpia (lloc, punts i puzles), canvi de nom i esborrament de les dades pròpies.
 - Les solucions es comproven tornant-les a jugar amb el motor i la taula de mínims a cada navegador que obre el rànquing: una solució falsa no puntua. No pot demostrar l’absència d’ajuda externa; és una classificació lúdica.
 
 ![Sobre el joc](docs/screenshots/sobre.png)

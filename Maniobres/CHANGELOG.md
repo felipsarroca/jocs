@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 2.1.0 · 20 de novembre de 2026
+
+- Benvinguda amb el logo que demana el nom de jugador abans de jugar: tothom surt al rànquing. Només es pot jugar sense nom si no hi ha connexió.
+- Rànquing redissenyat: capçalera fina, podi com a protagonista i una columna amb la fitxa del jugador (lloc, punts i puzles) i com es puntua.
+
 ## 2.0.1 · 20 de novembre de 2026
 
 - Logo i favicon nous, clars i llegibles a 16 px: fons verd, una agulla blanca, la locomotora vermella i un vagó groc.
