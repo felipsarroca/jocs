@@ -1,5 +1,11 @@
 # Registre de canvis
 
+## 2.4.0 · 20 de novembre de 2026
+
+- Fitxa de cada jugador: toca'l al rànquing i hi veuràs els puzles resolts (dificultat, data, moviments respecte del mínim, temps i punts), el millor temps i la mitjana de moviments de més. El botó ▷ obre el mateix puzle per intentar-lo.
+- El rànquing desa el temps de cada partida (només a partir d'aquesta versió).
+- Corregit: els perfectes podien sortir com a «undefined» si el navegador conservava una còpia antiga dels fitxers. El service worker ara els baixa sempre de nou en actualitzar-se.
+
 ## 2.3.0 · 20 de novembre de 2026
 
 - Rànquing sense podi: una llista amb tots els participants ordenats per punts, medalla per als tres primers, puzles resolts, puzles perfectes (amb el mínim de moviments) i una barra de punts. La fitxa del jugador també mostra els perfectes. Amb empat de punts, passa davant qui té més perfectes.

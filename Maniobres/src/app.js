@@ -544,7 +544,7 @@ async function publish() {
   g.ranked = "pending";
   refreshNote();
   try {
-    const x = await online.submit(puzzleKey(g), g.log);
+    const x = await online.submit(puzzleKey(g), g.log, g.seconds);
     g.ranked = x.kept ? "kept" : "done";
     board_ = null;
   } catch {
@@ -606,14 +606,16 @@ function meCard() {
   return `<b>Tria un nom de jugador</b><span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom" aria-label="Nom de jugador"><button class="primary" data-action="register">Desa</button></span><small>Serà públic. No hi posis el teu nom i cognoms reals.</small>`;
 }
 function renderRanking() {
-  $("#main").innerHTML = `<div class="page rank-page"><header class="rank-top"><span class="rank-icon">${icon("trophy")}</span><div class="rank-title"><h1>Rànquing</h1><p>Puzles resolts sense pistes · cada puzle compta una vegada · els resultats duren un any</p></div><div class="rank-chips" id="hero-stats"></div></header><div class="rank-layout"><div id="rank-list"><div class="panel empty">Carregant el rànquing…</div></div><aside class="rank-side"><section class="panel me-card">${meCard()}</section><section class="panel how-card"><h3>Com es puntua</h3><ul><li><b>+10</b> per cada moviment del mínim</li><li><b>−5</b> per cada moviment de més</li><li><b>1×</b> cada puzle, amb el millor resultat</li><li><b>1 any</b> dura cada resultat</li><li><b class="star">${icon("star")}</b> perfecte: resolt amb el mínim</li></ul></section></aside></div></div>`;
+  $("#main").innerHTML = `<div class="page rank-page"><header class="rank-top"><span class="rank-icon">${icon("trophy")}</span><div class="rank-title"><h1>Rànquing</h1><p>Puzles resolts sense pistes · cada puzle compta una vegada · toca un jugador per veure’n les partides</p></div><div class="rank-chips" id="hero-stats"></div></header><div class="rank-layout"><div id="rank-list"><div class="panel empty">Carregant el rànquing…</div></div><aside class="rank-side"><section class="panel me-card">${meCard()}</section><section class="panel how-card"><h3>Com es puntua</h3><ul><li><b>+10</b> per cada moviment del mínim</li><li><b>−5</b> per cada moviment de més</li><li><b>1×</b> cada puzle, amb el millor resultat</li><li><b>1 any</b> dura cada resultat</li><li><b class="star">${icon("star")}</b> perfecte: resolt amb el mínim</li></ul></section></aside></div></div>`;
   loadRanking();
 }
 async function loadRanking() {
   try {
     if (!board_ || Date.now() - board_.at > 30e3) {
       const { uid, list } = await online.players(),
-        rows = (await verify(list)).filter((r) => r.points > 0);
+        rows = (await verify(list))
+          .map((r) => ({ ...r, solved: r.solved ?? 0, perfect: r.perfect ?? 0, games: r.games ?? [] }))
+          .filter((r) => r.points > 0);
       rows.sort(
         (a, b) => b.points - a.points || b.perfect - a.perfect || b.solved - a.solved || a.name.localeCompare(b.name),
       );
@@ -636,7 +638,7 @@ async function loadRanking() {
     if (player?.name && !$("#name-input")) $(".me-card").innerHTML = meCard();
     const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`,
       row = (r) =>
-        `<li class="ranking-row ${r.rank <= 3 ? "top t" + r.rank : ""} ${r.me ? "me" : ""}"><span class="pos">${r.rank}</span>${avatar(r.name)}<span class="who"><strong>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</strong><span class="bar"><i style="width:${Math.max(3, (100 * r.points) / top)}%"></i></span><small class="mini">${plural(r.solved, "puzle", "puzles")} · ${plural(r.perfect, "perfecte", "perfectes")}</small></span><span class="num solved" title="Puzles resolts">${r.solved}</span><span class="num perfect" title="Puzles amb el mínim de moviments">${icon("star")}${r.perfect}</span><span class="score">${r.points}<small>punts</small></span></li>`;
+        `<li><button class="ranking-row ${r.rank <= 3 ? "top t" + r.rank : ""} ${r.me ? "me" : ""}" data-player="${esc(r.uid)}" aria-label="Estadístiques de ${esc(r.name)}"><span class="pos">${r.rank}</span>${avatar(r.name)}<span class="who"><strong>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</strong><span class="bar"><i style="width:${Math.max(3, (100 * r.points) / top)}%"></i></span><small class="mini">${plural(r.solved, "puzle", "puzles")} · ${plural(r.perfect, "perfecte", "perfectes")}</small></span><span class="num solved" title="Puzles resolts">${r.solved}</span><span class="num perfect" title="Puzles amb el mínim de moviments">${icon("star")}${r.perfect}</span><span class="score">${r.points}<small>punts</small></span></button></li>`;
     $("#rank-list").innerHTML = rows.length
       ? `<section class="panel rank-table"><div class="rank-head" aria-hidden="true"><span>#</span><span>Jugador</span><span>Puzles</span><span>Perfectes</span><span>Punts</span></div><ol>${rows.map(row).join("")}</ol></section>`
       : `<div class="panel empty">${icon("trophy")}<h3>Encara no hi ha ningú al rànquing.</h3><p>Resol un puzle sense pistes i el primer lloc pot ser teu.</p><button class="primary" data-nav="play">Juga</button></div>`;
@@ -646,9 +648,27 @@ async function loadRanking() {
         `<div class="panel empty">${icon("trophy")}<h3>El rànquing no està disponible ara.</h3><p>Comprova la connexió. Pots continuar jugant mentrestant.</p></div>`;
   }
 }
+const LEVEL_COLORS = { Fàcil: "#1f9d6b", Mitjà: "#2f80d1", Difícil: "#ff8a3d", Expert: "#e5533d" };
+const day = (t) => new Date(t).toLocaleDateString("ca", { day: "numeric", month: "short", year: "numeric" });
+function showPlayer(uid) {
+  const r = board_?.rows.find((x) => x.uid === uid);
+  if (!r) return;
+  const games = [...r.games].sort((a, b) => b.t - a.t),
+    timed = games.filter((g) => g.s != null),
+    best = timed.length ? Math.min(...timed.map((g) => g.s)) : null,
+    extra = games.length ? games.reduce((t, g) => t + g.n - g.min, 0) / games.length : 0,
+    item = (g) => {
+      const level = levelOf(g.min) || "—",
+        perfect = g.n === g.min;
+      return `<li class="game-row"><span class="lvl" style="--l:${LEVEL_COLORS[level] || "#5b6b7a"}">${level}</span><span class="when">${day(g.t)}</span><span class="moves ${perfect ? "perfect" : ""}">${perfect ? icon("star") : ""}<b>${g.n}</b> <small>/ mínim ${g.min}</small></span><span class="secs">${icon("clock")}${g.s != null ? time(g.s) : "—"}</span><span class="pts">+${g.points}</span><button class="ghost play-again" data-puzzle="v1-classic-${esc(g.k)}" aria-label="Juga aquest puzle">${icon("play")}</button></li>`;
+    };
+  modal(
+    `<div class="player-card"><header class="player-head">${avatar(r.name)}<div><small>${r.rank}r lloc del rànquing</small><h2>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</h2></div></header><div class="me-stats player-stats"><div><b>${r.points}</b><small>punts</small></div><div><b>${r.solved}</b><small>puzles</small></div><div><b>${r.perfect}</b><small>perfectes</small></div><div><b>${best != null ? time(best) : "—"}</b><small>millor temps</small></div></div><p class="player-sub">${games.length ? (extra === 0 ? "Tots els puzles, amb el mínim de moviments." : `De mitjana, ${extra.toLocaleString("ca", { maximumFractionDigits: 1 })} ${extra === 1 ? "moviment" : "moviments"} més que el mínim.`) : ""}</p><h3>Partides</h3><ol class="game-list">${games.map(item).join("")}</ol><small class="player-note">Es desa el millor resultat de cada puzle. El temps es registra des de la versió 2.4. Toca ${icon("play")} per jugar el mateix puzle.</small></div>`,
+  );
+}
 const trainArt = `<svg class="hero-art" viewBox="0 0 220 150" aria-hidden="true"><path d="M0 118h220" stroke="#ffffffaa" stroke-width="4"/><path d="M0 126h220" stroke="#ffffff66" stroke-width="10" stroke-dasharray="4 10"/><g transform="translate(6 76)"><rect width="52" height="38" rx="7" fill="#e5533d" stroke="#fff" stroke-width="3"/><rect x="6" y="6" width="16" height="26" rx="3" fill="#2b3a4a"/><circle cx="48" cy="10" r="3" fill="#ffe066"/></g>${[2, 4, 6, 7].map((w, i) => `<g transform="translate(${66 + i * 38} 80)"><rect width="34" height="32" rx="5" fill="${colors[w]}" stroke="#fff" stroke-width="3"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="900" fill="#1d2b38" font-family="system-ui">${i + 1}</text></g>`).join("")}<path d="M150 20l8 16 18 2-13 12 4 18-17-9-17 9 4-18-13-12 18-2z" fill="#ffe066"/></svg>`;
 function renderAbout() {
-  $("#main").innerHTML = `<div class="page"><section class="hero about-hero"><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Maniobres és un trencaclosques de lògica: has de formar un tren en l’ordre exacte movent els vagons amb una sola locomotora i molt poc espai. Sembla fàcil, però cada moviment compta.</p></div>${trainArt}</section><div class="about-grid"><section class="panel about-card"><span class="ic" style="background:#ff8a3d">${icon("route")}</span><h3>D’on ve</h3><p>Es basa en l’Inglenook Sidings, un clàssic del modelisme ferroviari britànic ideat per Alan Wright el 1979. Reprodueix una feina real: en una estació petita, el maquinista ha d’ordenar els vagons d’un tren de mercaderies amb vies curtes i sense espai de sobres.</p></section><section class="panel about-card"><span class="ic" style="background:#1f9d6b">${icon("play")}</span><h3>Les regles</h3><ul class="rules-list"><li><b>1</b>Forma a la via A el tren de dalt, en el mateix ordre.</li><li><b>2</b>La locomotora arrossega com a molt tres vagons.</li><li><b>3</b>Només pots agafar els vagons més propers a les agulles.</li><li><b>4</b>Cada anada i tornada de la locomotora és un moviment.</li></ul></section><section class="panel about-card"><span class="ic" style="background:#7ab8ff">${icon("bulb")}</span><h3>Què s’hi aprèn</h3><p>A planificar abans d’actuar, a pensar enrere des de l’objectiu, a dividir un problema gran en passos petits i a no rendir-se quan un camí no funciona. És pensament computacional i combinatòria sense fórmules.</p></section><section class="panel about-card"><span class="ic" style="background:#b69cff">${icon("trophy")}</span><h3>Com puntua</h3><p>Cada puzle té un mínim de moviments calculat per ordinador. Si el resols sense pistes, guanyes 10 punts per cada moviment del mínim i en perds 5 per cada moviment de més. El rànquing comprova cada resultat tornant a jugar la solució.</p></section><section class="panel about-card wide"><h3>L’estació en xifres</h3><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><section class="panel about-card wide credits"><p>Versió 2.3.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a>. El rànquing només desa el nom de jugador i les solucions: no cal correu ni contrasenya.</p></section></div></div>`;
+  $("#main").innerHTML = `<div class="page"><section class="hero about-hero"><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Maniobres és un trencaclosques de lògica: has de formar un tren en l’ordre exacte movent els vagons amb una sola locomotora i molt poc espai. Sembla fàcil, però cada moviment compta.</p></div>${trainArt}</section><div class="about-grid"><section class="panel about-card"><span class="ic" style="background:#ff8a3d">${icon("route")}</span><h3>D’on ve</h3><p>Es basa en l’Inglenook Sidings, un clàssic del modelisme ferroviari britànic ideat per Alan Wright el 1979. Reprodueix una feina real: en una estació petita, el maquinista ha d’ordenar els vagons d’un tren de mercaderies amb vies curtes i sense espai de sobres.</p></section><section class="panel about-card"><span class="ic" style="background:#1f9d6b">${icon("play")}</span><h3>Les regles</h3><ul class="rules-list"><li><b>1</b>Forma a la via A el tren de dalt, en el mateix ordre.</li><li><b>2</b>La locomotora arrossega com a molt tres vagons.</li><li><b>3</b>Només pots agafar els vagons més propers a les agulles.</li><li><b>4</b>Cada anada i tornada de la locomotora és un moviment.</li></ul></section><section class="panel about-card"><span class="ic" style="background:#7ab8ff">${icon("bulb")}</span><h3>Què s’hi aprèn</h3><p>A planificar abans d’actuar, a pensar enrere des de l’objectiu, a dividir un problema gran en passos petits i a no rendir-se quan un camí no funciona. És pensament computacional i combinatòria sense fórmules.</p></section><section class="panel about-card"><span class="ic" style="background:#b69cff">${icon("trophy")}</span><h3>Com puntua</h3><p>Cada puzle té un mínim de moviments calculat per ordinador. Si el resols sense pistes, guanyes 10 punts per cada moviment del mínim i en perds 5 per cada moviment de més. El rànquing comprova cada resultat tornant a jugar la solució.</p></section><section class="panel about-card wide"><h3>L’estació en xifres</h3><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><section class="panel about-card wide credits"><p>Versió 2.4.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a>. El rànquing només desa el nom de jugador i les solucions: no cal correu ni contrasenya.</p></section></div></div>`;
 }
 function tutorial(step = 0) {
   tutorialStep = step;
@@ -999,6 +1019,13 @@ document.addEventListener("click", async (e) => {
       view = b.dataset.nav;
       render();
     } else if (b.dataset.action) await handle(b.dataset.action);
+    else if (b.dataset.player) showPlayer(b.dataset.player);
+    else if (b.dataset.puzzle) {
+      const p = puzzleFromKey(b.dataset.puzzle);
+      if (!p) return;
+      dialog.close();
+      start(p);
+    }
     else if (b.dataset.difficulty) {
       difficulty = b.dataset.difficulty;
       dialog.close();

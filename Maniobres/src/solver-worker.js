@@ -33,6 +33,7 @@ self.onmessage = async ({ data }) => {
         let points = 0,
           solved = 0,
           perfect = 0;
+        const games = [];
         for (const e of p.r) {
           try {
             if (data.now - e.t > 365 * 864e5) continue;
@@ -44,11 +45,12 @@ self.onmessage = async ({ data }) => {
             const min = t.get(key(canonical(start.state, c.t)));
             if (!min || e.n < min) continue;
             points += score(min, e.n);
+            games.push({ k: e.k, n: e.n, min, points: score(min, e.n), t: e.t, s: e.s ?? null });
             solved++;
             if (e.n === min) perfect++;
           } catch {}
         }
-        return { uid: p.uid, name: p.name, points, solved, perfect };
+        return { uid: p.uid, name: p.name, points, solved, perfect, games };
       });
       postMessage({ verified: out, request: data.request });
       return;

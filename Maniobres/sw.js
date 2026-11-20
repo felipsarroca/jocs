@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const CACHE = "maniobres-v2.3.0-1";
+const CACHE = "maniobres-v2.4.0-1";
 const FILES = [
   "./",
   "./index.html",
@@ -16,7 +16,7 @@ const FILES = [
   "./data/classic.bin",
 ];
 self.addEventListener("install", (event) =>
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES))),
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES.map((f) => new Request(f, { cache: "reload" }))))),
 );
 self.addEventListener("activate", (event) =>
   event.waitUntil(

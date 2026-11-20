@@ -24,7 +24,8 @@ service cloud.firestore {
         && (exists(old) ? d == get(old).data : fresh(d));
     }
     function validEntry(e) {
-      return e.keys().hasOnly(['n', 'l', 't']) && e.n is int && e.n >= 1 && e.n <= 60
+      return e.keys().hasOnly(['n', 'l', 't', 's']) && e.n is int
+        && (!('s' in e) || (e.s is int && e.s >= 0 && e.s <= 86400)) && e.n >= 1 && e.n <= 60
         && e.l is string && e.l.size() == 2 * e.n && e.l.matches('^([1-3][0-3])+$')
         && e.t == request.time;
     }

@@ -148,7 +148,7 @@ export async function claim(name, onlyExisting = false) {
 
 // Desa un resultat: la clau del puzle i la seqüència de maniobres.
 // Només es desa si millora el resultat anterior del mateix puzle.
-export async function submit(puzzle, log) {
+export async function submit(puzzle, log, seconds) {
   const { uid, db, fs } = await connect(),
     ref = fs.doc(db, "players", uid),
     snap = await fs.getDoc(ref);
@@ -158,7 +158,12 @@ export async function submit(puzzle, log) {
   const update = {
     at: fs.serverTimestamp(),
     last: puzzle,
-    [`r.${puzzle}`]: { n: log.length, l: log.map(([v, k]) => `${v}${k}`).join(""), t: fs.serverTimestamp() },
+    [`r.${puzzle}`]: {
+      n: log.length,
+      l: log.map(([v, k]) => `${v}${k}`).join(""),
+      t: fs.serverTimestamp(),
+      ...(Number.isFinite(seconds) ? { s: Math.min(86400, Math.max(0, Math.round(seconds))) } : {}),
+    },
   };
   // Neteja els resultats caducats del propi jugador.
   for (const [k, v] of Object.entries(snap.data().r || {}))
@@ -175,7 +180,7 @@ export async function players() {
     list: snap.docs.map((d) => ({
       uid: d.id,
       name: d.data().name,
-      r: Object.entries(d.data().r || {}).map(([k, v]) => ({ k, n: v.n, l: v.l, t: v.t?.toMillis?.() ?? 0 })),
+      r: Object.entries(d.data().r || {}).map(([k, v]) => ({ k, n: v.n, l: v.l, t: v.t?.toMillis?.() ?? 0, s: v.s ?? null })),
     })),
   };
 }
