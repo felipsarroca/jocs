@@ -1,5 +1,12 @@
 # Registre de canvis
 
+## 2.5.0 · 20 de novembre de 2026
+
+- Estació redibuixada: vies amb balast, travesses de fusta i rails a ample constant també a les corbes (abans les vies A i C s'estrenyien); topalls de final de via vermells i blancs i una palanca d'agulles.
+- Vagons nous vistos des de dalt: caixa oberta amb taulons, topalls, enganxalls, rodes i el número en un disc blanc. Locomotora dièsel nova amb cabina, capó amb ventiladors, fars i franges d'avís.
+- La locomotora fa una petita sacsejada a cada maniobra, a més del lliscament dels vagons (sense animacions si es demana moviment reduït).
+- Corregit: tocar un vagó de la via B seleccionava la via C, perquè la zona de C tapava les agulles. Ara es tria la via més propera al punt tocat.
+
 ## 2.4.0 · 20 de novembre de 2026
 
 - Fitxa de cada jugador: toca'l al rànquing i hi veuràs els puzles resolts (dificultat, data, moviments respecte del mínim, temps i punts), el millor temps i la mitjana de moviments de més. El botó ▷ obre el mateix puzle per intentar-lo.
