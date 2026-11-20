@@ -1,5 +1,9 @@
 # Registre de canvis
 
+## 2.0.1 · 20 de novembre de 2026
+
+- Logo i favicon nous, clars i llegibles a 16 px: fons verd, una agulla blanca, la locomotora vermella i un vagó groc.
+
 ## 2.0.0 · 20 de novembre de 2026
 
 - Aplicació simplificada: només Jugar, Rànquing i Sobre el joc. Fora la campanya, el repte diari, el laboratori, les sales de classe, la contrarellotge, el progrés local, la fitxa imprimible i el mode projector.

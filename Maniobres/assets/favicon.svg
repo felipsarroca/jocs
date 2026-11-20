@@ -1,1 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#111f28"/><path d="M18 53V37Q18 29 28 23L46 12M28 53V40Q28 33 38 27L52 18" fill="none" stroke="#efac62" stroke-width="5"/><path d="M18 37V12M28 35V12" fill="none" stroke="#7cccb7" stroke-width="5"/><path d="M12 17H34M12 26H34M12 45H34" stroke="#f1eadc" stroke-width="3"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Maniobres">
+  <!-- SPDX-License-Identifier: CC-BY-NC-SA-4.0 -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2cc48b"/>
+      <stop offset="1" stop-color="#16915f"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#g)"/>
+  <!-- Agulla: la via es divideix en dues -->
+  <path d="M8 102H120M50 102C72 102 70 62 94 62H120" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+  <!-- Locomotora sobre la via principal -->
+  <rect x="10" y="62" width="44" height="32" rx="7" fill="#ff5a45"/>
+  <rect x="17" y="69" width="12" height="15" rx="2" fill="#fff"/>
+  <circle cx="22" cy="95" r="5" fill="#1d2b38"/>
+  <circle cx="44" cy="95" r="5" fill="#1d2b38"/>
+  <!-- Vagó sobre la via desviada -->
+  <rect x="78" y="22" width="42" height="32" rx="7" fill="#ffd43b"/>
+  <circle cx="89" cy="55" r="5" fill="#1d2b38"/>
+  <circle cx="109" cy="55" r="5" fill="#1d2b38"/>
+</svg>
