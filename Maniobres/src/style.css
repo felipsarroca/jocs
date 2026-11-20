@@ -1651,3 +1651,76 @@ dialog .close {
     font-size: 12px;
   }
 }
+
+/* 1.3 · Arrossegar vagons i tren format */
+#main .board {
+  touch-action: none;
+  user-select: none;
+}
+#main .board [data-src] {
+  cursor: grab;
+}
+#main .board.dragging,
+#main .board.dragging * {
+  cursor: grabbing;
+}
+.board .lifted {
+  filter: drop-shadow(0 10px 8px #1d2f2f55);
+  pointer-events: none;
+}
+.board .maniobra-halo {
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.board .drop-ok .track-halo,
+.board .maniobra-halo.drop-ok {
+  opacity: 1;
+  stroke: #5cbf9466;
+}
+.board .drop-bad .track-halo,
+.board .maniobra-halo.drop-bad {
+  opacity: 1;
+  stroke: #e0705b55;
+}
+.stage .board-wrap.complete {
+  border-color: #5cbf94;
+  box-shadow: 0 0 0 3px #5cbf9455;
+}
+.stage .board-caption b.ok {
+  background: #3f9a6f;
+}
+.stage .board-caption .solution {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: #2f6a55;
+}
+.your-solution {
+  font-size: 13px;
+  color: #cfdcdc;
+}
+.your-solution b {
+  font-family: ui-monospace, monospace;
+  color: var(--mint);
+}
+.board .siding:focus {
+  outline: none;
+}
+.board .siding:focus-visible .track-halo {
+  opacity: 1;
+  stroke: #f2b35d99;
+}
+#main .board.dragging .siding .track-halo {
+  opacity: 0;
+}
+#main .board.dragging .siding.drop-ok .track-halo,
+#main .board.dragging .siding.drop-bad .track-halo {
+  opacity: 1;
+}
+.board .drop-bad .track-halo,
+.board .maniobra-halo.drop-bad {
+  stroke: #e0705b88;
+}
+#main .board.dragging .track-halo,
+#main .board.dragging .maniobra-halo {
+  transition: none;
+}

@@ -25,7 +25,7 @@ Forma el tren objectiu a la via A, en l’ordre indicat des de les agulles fins 
 
 ### Controls
 
-Ratolí o tacte: toca una via i després el darrer vagó que vols endur-te (o la locomotora per sortir sola); també hi ha botons amb el nombre de vagons. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Z** desfà. Els botons també admeten Tab i Retorn. Desfer no penalitza: el recompte correspon a la solució activa. Els vagons sobrants poden quedar enganxats a la locomotora al final.
+Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per endur-te’l (amb els que té davant), o un vagó del tren de la locomotora fins a una via per deixar-lo (amb els que té darrere). També pots tocar una via i després el darrer vagó que vols endur-te, o fer servir els botons amb el nombre de vagons. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Z** desfà. Els botons també admeten Tab i Retorn. Desfer no penalitza: el recompte correspon a la solució activa. Els vagons sobrants poden quedar enganxats a la locomotora al final.
 
 ## Rànquing amb caducitat
 

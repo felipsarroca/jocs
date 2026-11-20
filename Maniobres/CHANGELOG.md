@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 1.3.0 · 20 de novembre de 2026
+
+- Arrossegar vagons amb el ratolí o el dit: d’una via a la locomotora per endur-se’ls, o del tren de la locomotora a una via per deixar-los. Les vies de destinació s’il·luminen en verd o en vermell, i un moviment no permès torna enrere amb el motiu.
+- En completar el tren, el tauler el mostra uns segons, amb la seqüència de maniobres, abans del resultat. El resultat també inclou la solució del jugador.
+
 ## 1.2.0 · 20 de novembre de 2026
 
 - L’estació és la protagonista: el tauler ocupa tota l’alçada disponible i els vagons es veuen unes tres vegades més grans.

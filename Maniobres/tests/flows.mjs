@@ -58,6 +58,8 @@ while (!won(s, c)) {
     .click();
   s = move(s, c, ...m);
 }
+await page.locator(".board-wrap.complete").waitFor();
+assert.equal(await page.locator("dialog[open]").count(), 0);
 await page.locator("dialog[open]").waitFor();
 assert.match(await page.locator("dialog h2").textContent(), /perfecta/);
 await page.locator('[data-action="optimal"]').click();
@@ -119,6 +121,35 @@ await page.evaluate(() =>
 );
 await page.goto(base);
 await page.locator('[data-action="hint"]:not(:disabled)').waitFor();
+// Arrossegar: endur-se, intent no permès i deixar.
+await page.goto(base + "?p=mini-0");
+await page.locator('[data-action="hint"]:not(:disabled)').waitFor();
+const gameState = () =>
+  page.evaluate(() => JSON.parse(localStorage.getItem("maniobres-game")).state);
+const middle = async (sel) => {
+  const r = await page.locator(sel).boundingBox();
+  return [r.x + r.width / 2, r.y + r.height / 2];
+};
+async function dragTo(sel, x, y) {
+  const [sx, sy] = await middle(sel);
+  await page.mouse.move(sx, sy);
+  await page.mouse.down();
+  for (let i = 1; i <= 10; i++)
+    await page.mouse.move(sx + ((x - sx) * i) / 10, sy + ((y - sy) * i) / 10);
+  await page.mouse.up();
+  await page.waitForTimeout(400);
+}
+const [mx, my] = await middle(".board .maniobra-halo"),
+  [vcx, vcy] = await middle('.siding[data-via="3"] .track-halo');
+await dragTo('[data-src="2"][data-idx="0"]', mx - 60, my);
+assert.deepEqual(await gameState(), [[1], [2, 3], [4], [5]]);
+await dragTo('[data-src="1"][data-idx="0"]', vcx, vcy);
+assert.deepEqual(await gameState(), [[1], [2, 3], [4], [5]]);
+await dragTo('[data-src="0"][data-idx="0"]', vcx, vcy);
+assert.deepEqual(await gameState(), [[], [2, 3], [4], [1, 5]]);
+console.log(
+  "PASS: drag take / rejected / leave.",
+);
 console.log(
   "PASS: invalid move + undo, win, optimal replay, generated puzzle links, printable QR, offline reload, 60 campaign levels, corrupt storage recovery.",
 );
