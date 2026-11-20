@@ -1,5 +1,9 @@
 # Registre de canvis
 
+## 2.1.1 · 20 de novembre de 2026
+
+- Mòbil: la pantalla de joc ocupa tota l’alçada amb més aire entre elements; l’estació creix per omplir l’espai i els botons (Desfer, Reiniciar, Pista, Nou repte) queden a baix en una fila d’icones, a l’abast del polze. Pestanyes sense salts de línia i opcions de vagons més compactes.
+
 ## 2.1.0 · 20 de novembre de 2026
 
 - Benvinguda amb el logo que demana el nom de jugador abans de jugar: tothom surt al rànquing. Només es pot jugar sense nom si no hi ha connexió.

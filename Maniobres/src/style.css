@@ -1183,12 +1183,82 @@ dialog .close {
 
 /* Mòbil */
 @media (max-width: 650px) {
+  body {
+    padding-bottom: 48px;
+  }
   .shell {
-    padding: 10px 12px;
-    min-height: 0;
+    padding: max(18px, env(safe-area-inset-top)) 16px 16px;
+    min-height: calc(100vh - 48px);
+    min-height: calc(100dvh - 48px);
   }
   .topbar {
     gap: 8px;
+    margin-bottom: 22px;
+  }
+  .tabs-top {
+    flex: 1;
+    min-width: 0;
+  }
+  .tabs-top button {
+    flex: 1 1 auto;
+    justify-content: center;
+    white-space: nowrap;
+  }
+  /* Jugar: el tauler creix i reparteix l’alçada; els botons queden a baix. */
+  .stage {
+    gap: 16px;
+    justify-content: space-between;
+  }
+  .stage-head {
+    gap: 16px;
+  }
+  .stage-head .eyebrow {
+    margin-bottom: 8px;
+  }
+  .goal-line {
+    gap: 10px 12px;
+  }
+  .goal-line small {
+    flex-basis: 100%;
+    margin-top: -4px;
+  }
+  .stage-stats > div {
+    padding: 9px 8px;
+  }
+  .board-wrap {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(50vw + 230px);
+  }
+  .stage-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .tool-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .tool-row button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 9px 4px;
+    font-size: 12.5px;
+    min-height: 58px;
+  }
+  .tool-row .icon {
+    width: 19px;
+    height: 19px;
+  }
+  .choice-row {
+    justify-content: center;
+    gap: 6px;
+  }
+  .choice-row button {
+    font-size: 13px;
+    padding: 8px 11px;
   }
   .brand span {
     display: none;
@@ -1201,7 +1271,7 @@ dialog .close {
   }
   .tabs-top button {
     font-size: 13px;
-    padding: 7px 9px;
+    padding: 7px 6px;
   }
   .tabs-top .icon {
     display: none;
@@ -1227,13 +1297,15 @@ dialog .close {
     min-width: 0;
   }
   .board-wrap {
-    flex: none;
+    flex: 1;
     min-height: 0;
   }
   .board-wrap .board {
     position: static;
     width: 100%;
     height: auto;
+    flex: none;
+    margin: auto 0;
   }
   .board-caption {
     position: static;
