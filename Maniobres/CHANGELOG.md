@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 2.3.0 · 20 de novembre de 2026
+
+- Rànquing sense podi: una llista amb tots els participants ordenats per punts, medalla per als tres primers, puzles resolts, puzles perfectes (amb el mínim de moviments) i una barra de punts. La fitxa del jugador també mostra els perfectes. Amb empat de punts, passa davant qui té més perfectes.
+- Benvinguda més neta: només el logo, el nom i el quadre per escriure el nom de jugador. Al mòbil, el botó «Comença a jugar» va centrat i més separat del quadre.
+
 ## 2.2.0 · 20 de novembre de 2026
 
 - El dispositiu recorda el nom de jugador: si el navegador perd la sessió (Safari, navegadors interns de WhatsApp o Classroom…), el joc el recupera sol amb tots els punts. També demana al navegador que no esborri les dades.

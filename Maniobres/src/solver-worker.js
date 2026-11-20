@@ -31,7 +31,8 @@ self.onmessage = async ({ data }) => {
       // Torna a jugar cada solució del rànquing i en calcula els punts.
       const out = data.players.map((p) => {
         let points = 0,
-          solved = 0;
+          solved = 0,
+          perfect = 0;
         for (const e of p.r) {
           try {
             if (data.now - e.t > 365 * 864e5) continue;
@@ -44,9 +45,10 @@ self.onmessage = async ({ data }) => {
             if (!min || e.n < min) continue;
             points += score(min, e.n);
             solved++;
+            if (e.n === min) perfect++;
           } catch {}
         }
-        return { uid: p.uid, name: p.name, points, solved };
+        return { uid: p.uid, name: p.name, points, solved, perfect };
       });
       postMessage({ verified: out, request: data.request });
       return;

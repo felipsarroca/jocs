@@ -721,23 +721,6 @@ dialog .close {
   display: grid;
   gap: 14px;
 }
-.podium-stage {
-  border-radius: 22px;
-  padding: 20px 20px 0;
-  margin-bottom: 14px;
-  background:
-    radial-gradient(circle at 50% 0%, #fff8d6 0 30%, transparent 70%),
-    linear-gradient(180deg, #e3f3ff 0%, #d4efc0 100%);
-  border: 3px solid #fff;
-  box-shadow: 0 10px 26px #1d4b6b1a;
-}
-.podium-stage .podium {
-  margin: 0;
-}
-.podium-stage .podium-card {
-  border-bottom: 0;
-  border-radius: 18px 18px 0 0;
-}
 .me-card {
   padding: 16px;
   font-size: 14px;
@@ -763,7 +746,7 @@ dialog .close {
 }
 .me-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
   margin: 12px 0 6px;
 }
@@ -822,125 +805,130 @@ dialog .close {
   border: 3px solid #fff;
   box-shadow: 0 3px 8px #1d2b3826;
 }
-.podium {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: end;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-.podium-card {
-  text-align: center;
-  padding: 18px 10px 0;
-  overflow: hidden;
-}
-.podium-card .avatar {
-  width: 64px;
-  height: 64px;
-  font-size: 26px;
-  border-width: 4px;
-}
-.podium-card .medal {
-  display: block;
-  width: 30px;
-  height: 30px;
-  line-height: 24px;
-  border-radius: 50%;
-  margin: -16px auto 0;
-  transform: translateX(24px);
-  position: relative;
-  font-weight: 900;
-  font-size: 14px;
-  color: #fff;
-  border: 3px solid #fff;
-}
-.podium-card strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 16px;
-  overflow-wrap: anywhere;
-}
-.podium-card .pts {
-  font-size: 26px;
-  font-weight: 900;
-}
-.podium-card small {
-  color: var(--muted);
-  font-size: 12px;
-}
-.podium-card .step {
-  margin: 12px -10px 0;
-  color: #fff;
-  font-weight: 900;
-  font-size: 30px;
-  display: grid;
-  place-items: center;
-}
-.p1 .step {
-  height: 92px;
-  background: linear-gradient(#f5b82e, #e09b0b);
-}
-.p2 .step {
-  height: 62px;
-  background: linear-gradient(#a9bccb, #8299ab);
-}
-.p3 .step {
-  height: 42px;
-  background: linear-gradient(#e59a6a, #c7743f);
-}
-.p1 .medal {
-  background: #e09b0b;
-}
-.p2 .medal {
-  background: #8299ab;
-}
-.p3 .medal {
-  background: #c7743f;
-}
-.p1 .pts {
-  color: #c07f00;
-}
-.podium-card.me {
-  border-color: var(--orange);
-  box-shadow: 0 0 0 3px #ff8a3d55;
-}
 .rank-table {
   overflow: hidden;
+  padding: 6px;
 }
+.rank-table ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.rank-head,
 .ranking-row {
   display: grid;
-  grid-template-columns: 40px 38px 1fr 160px 64px;
+  grid-template-columns: 44px 40px minmax(0, 1fr) 70px 86px 82px;
   align-items: center;
   gap: 12px;
-  padding: 10px 18px;
-  border-bottom: 1px solid #edf2f6;
-  font-size: 15px;
+  padding: 10px 14px;
 }
-.ranking-row:last-child {
-  border-bottom: 0;
+.rank-head {
+  padding: 8px 14px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.rank-head span:first-child,
+.rank-head span:nth-child(n + 3) {
+  text-align: center;
+}
+.rank-head span:nth-child(2) {
+  grid-column: span 2;
+}
+.rank-head span:last-child {
+  text-align: right;
+}
+.ranking-row {
+  padding-block: 8px;
+  border-radius: 14px;
+  font-size: 15px;
+  transition: background 0.15s;
+}
+.ranking-row:nth-child(even) {
+  background: #f6fafd;
+}
+.ranking-row:hover {
+  background: #eef6fc;
+}
+.ranking-row.top {
+  background: linear-gradient(90deg, var(--tint) 0%, #ffffff00 70%);
+}
+.ranking-row.t1 {
+  --tint: #fff1c7;
+  --medal: linear-gradient(135deg, #ffd34d, #e09b0b);
+}
+.ranking-row.t2 {
+  --tint: #eaf0f5;
+  --medal: linear-gradient(135deg, #c9d6e0, #8299ab);
+}
+.ranking-row.t3 {
+  --tint: #fbe7da;
+  --medal: linear-gradient(135deg, #f0b48a, #c7743f);
 }
 .ranking-row.me {
   background: #fff3e6;
+  box-shadow: inset 4px 0 0 var(--orange);
 }
 .ranking-row .pos {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   font-weight: 900;
+  font-size: 15px;
   color: var(--muted);
-  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.ranking-row.top .pos {
+  background: var(--medal);
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 3px 8px #1d2b3826;
+  text-shadow: 0 1px 1px #0003;
 }
 .ranking-row .who {
-  font-weight: 700;
-  overflow-wrap: anywhere;
+  min-width: 0;
 }
-.ranking-row .who small {
+.ranking-row .who strong {
   display: block;
-  font-weight: 500;
-  color: var(--muted);
-  font-size: 12px;
+  font-weight: 750;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ranking-row .who .bar {
+  margin-top: 6px;
+  height: 6px;
+}
+.ranking-row .mini {
+  display: none;
+}
+.ranking-row .num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.ranking-row .perfect .icon,
+.how-card .star .icon {
+  width: 17px;
+  height: 17px;
+  color: var(--gold);
+  fill: var(--gold);
 }
 .bar {
   height: 10px;
   border-radius: 9px;
-  background: #edf2f6;
+  background: #e6eef4;
   overflow: hidden;
 }
 .bar i {
@@ -949,10 +937,24 @@ dialog .close {
   border-radius: 9px;
   background: linear-gradient(90deg, var(--green), #6fd3a3);
 }
+.ranking-row.t1 .bar i {
+  background: linear-gradient(90deg, #f5b82e, #ffd34d);
+}
 .ranking-row .score {
-  font-weight: 900;
   text-align: right;
-  font-size: 17px;
+  font-weight: 900;
+  font-size: 20px;
+  color: var(--green-dark);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.ranking-row .score small {
+  display: none;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
 }
 .empty {
   text-align: center;
@@ -1354,9 +1356,6 @@ dialog .close {
     margin-left: 0;
     flex-basis: 100%;
   }
-  .podium-stage {
-    padding: 12px 8px 0;
-  }
   .difficulty-grid,
   .facts,
   .rank-rules {
@@ -1374,29 +1373,52 @@ dialog .close {
   .hero-art {
     display: none;
   }
-  .podium {
-    gap: 6px;
+  .rank-table {
+    padding: 4px;
   }
-  .podium-card .avatar {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
-  }
-  .podium-card .pts {
-    font-size: 20px;
+  .rank-head {
+    display: none;
   }
   .ranking-row {
-    grid-template-columns: 26px 32px 1fr 52px;
-    gap: 8px;
-    padding: 9px 10px;
+    grid-template-columns: 30px 34px minmax(0, 1fr) auto;
+    gap: 10px;
+    padding: 10px;
   }
-  .ranking-row .bar {
+  .ranking-row .pos {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+  .ranking-row .num {
     display: none;
+  }
+  .ranking-row .mini {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .ranking-row .who .bar {
+    margin-top: 5px;
+  }
+  .ranking-row .score {
+    font-size: 18px;
+  }
+  .ranking-row .score small {
+    display: block;
   }
   .avatar {
     width: 32px;
     height: 32px;
     font-size: 14px;
+  }
+  .welcome .name-form {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .welcome .name-form input {
+    width: 100%;
   }
   .felip-app-footer {
     padding: 7px 12px;
@@ -1415,11 +1437,4 @@ dialog .close {
     animation: none !important;
     transition: none !important;
   }
-}
-.podium-card.free {
-  opacity: 0.6;
-  border-style: dashed;
-}
-.podium-card.free .pts {
-  color: var(--muted);
 }
