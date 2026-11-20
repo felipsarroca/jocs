@@ -26,6 +26,8 @@ import {
 const $ = (s) => document.querySelector(s),
   root = $("#app"),
   dialog = $("#dialog");
+// En tancar, buida el diàleg perquè els seus botons no dupliquin els de la pàgina.
+dialog.addEventListener("close", () => (dialog.innerHTML = ""));
 const paths = {
   play: "M5 3l14 9-14 9z",
   calendar: "M4 5h16v16H4zM8 2v6m8-6v6M4 10h16",
@@ -368,44 +370,78 @@ function render() {
 }
 function wagon(w, x, y, small = false) {
   w = game.labels?.[w - 1] ?? w;
-  return `<g class="wagon" data-wagon="${w}" transform="translate(${x} ${y})"><path d="M-5 0h62" stroke="#3d4b4c" stroke-width="4"/><rect x="0" y="-20" width="52" height="40" rx="6" fill="${colors[w]}" stroke="#263e43" stroke-width="1.5"/><path d="M5-14h42M5 14h42" stroke="#fff5" stroke-width="2"/><path d="M8-21v-5m35 5v-5M8 21v5m35-5v5" stroke="#344349" stroke-width="5"/><text x="26" y="6" text-anchor="middle" font-family="system-ui" font-size="18" font-weight="800" fill="#21333b">${w}</text></g>`;
+  return `<g class="wagon" data-wagon="${w}" transform="translate(${x} ${y})"><path d="M-5 0h62" stroke="#3d4b4c" stroke-width="4"/><rect x="0" y="-20" width="52" height="40" rx="6" fill="${colors[w]}" stroke="#263e43" stroke-width="1.5"/><path d="M5-14h42M5 14h42" stroke="#fff5" stroke-width="2"/><path d="M8-21v-5m35 5v-5M8 21v5m35-5v5" stroke="#344349" stroke-width="5"/><text x="26" y="6" text-anchor="middle" font-family="system-ui" font-size="21" font-weight="800" fill="#21333b">${w}</text></g>`;
 }
 function board(s = game.state, c = config(), interactive = true) {
   const narrow = innerWidth < 650,
     ys = [100, 220, 340],
-    headX = narrow ? 70 : 90,
-    tx = narrow ? 280 : 450,
-    pt = narrow ? 240 : 350,
-    cv = narrow ? 260 : 400,
-    step = narrow ? 70 : 72,
-    width = narrow ? 660 : 1000;
-  let a = `<svg class="board" viewBox="0 0 ${width} 430" role="group" aria-label="Estació. Via de maniobra: ${s[0].map((w) => game.labels?.[w - 1] ?? w).join(", ") || "buida"}. ${s
+    loco = narrow ? 8 : 16,
+    headX = narrow ? 72 : 84,
+    headStep = narrow ? 56 : 64,
+    pt = narrow ? 250 : 300,
+    cv = narrow ? 268 : 340,
+    tx = narrow ? 300 : 400,
+    step = 70,
+    width = tx + Math.max(...c.caps) * step + 22,
+    lbl = (w) => game.labels?.[w - 1] ?? w,
+    lineTxt = (a) => a.map(lbl).join(", ") || "buida";
+  let a = `<svg class="board" viewBox="0 36 ${width} 340" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Estació. Via de maniobra: ${lineTxt(s[0])}. ${s
     .slice(1)
-    .map(
-      (a, i) =>
-        `Via ${"ABC"[i]}: ${a.map((w) => game.labels?.[w - 1] ?? w).join(", ") || "buida"}`,
-    )
-    .join(
-      ". ",
-    )}"><defs><pattern id="sleepers" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M8 0v18" stroke="#baafa0" stroke-width="5"/></pattern></defs><g opacity=".35" stroke="#d4cbb9" fill="none"><path d="M20 45h${width - 40}M20 390h${width - 40}"/><path d="M40 30v370M${width - 40} 30v370"/></g><text x="36" y="35" fill="#65756e" font-family="monospace" font-size="11" letter-spacing="3">PATI DE MANIOBRES / ${c.caps.join(" · ")}</text><path d="M28 211H${pt}v18H28z" fill="url(#sleepers)"/><path d="M25 212H${pt}M25 228H${pt}" stroke="#697976" stroke-width="3"/>`;
+    .map((x, i) => `Via ${"ABC"[i]}: ${lineTxt(x)}`)
+    .join(". ")}"><defs><pattern id="sleepers" width="16" height="18" patternUnits="userSpaceOnUse"><path d="M7 0v18" stroke="#baafa0" stroke-width="5"/></pattern></defs>`;
+  // Via de maniobra
+  a += `<path d="M6 211H${pt}v18H6z" fill="url(#sleepers)"/><path d="M4 212H${pt}M4 228H${pt}" stroke="#697976" stroke-width="3"/><text x="${headX}" y="276" fill="#53625c" font-family="system-ui" font-size="13" font-weight="700">${narrow ? "Maniobra" : "Via de maniobra"} <tspan font-weight="400">· màx. ${c.h}${narrow ? "" : " vagons"}</tspan></text>`;
   for (let i = 1; i <= 3; i++) {
     const y = ys[i - 1],
-      end = tx + c.caps[i - 1] * step;
-    a += `<g class="siding ${selected === i ? "selected" : ""}" ${interactive ? `data-via="${i}" tabindex="0" role="button" aria-label="Via ${"ABC"[i - 1]}, ${s[i].length} de ${c.caps[i - 1]} vagons"` : ""}><path class="track-halo" d="M${pt} 220 Q${cv} ${y} ${tx} ${y}H${end}" fill="none" stroke="#f2b35d66" stroke-width="62" stroke-linecap="round"/><path d="M${pt} 220 Q${cv} ${y} ${tx} ${y}H${end}" fill="none" stroke="#b9ae9a" stroke-width="19" stroke-dasharray="5 12"/><path d="M${pt} 213 Q${cv} ${y - 7} ${tx} ${y - 7}H${end}M${pt} 227 Q${cv} ${y + 7} ${tx} ${y + 7}H${end}" fill="none" stroke="#697976" stroke-width="3"/><path d="M${end} ${y - 17}v34M${end - 5} ${y - 17}h10M${end - 5} ${y + 17}h10" stroke="#485a57" stroke-width="5"/><rect x="${tx - 30}" y="${y - 55}" width="30" height="23" rx="4" fill="${i === 1 ? "#355c52" : "#546766"}"/><text x="${tx - 15}" y="${y - 39}" fill="white" text-anchor="middle" font-size="14" font-weight="700">${"ABC"[i - 1]}</text><text x="${tx + 10}" y="${y - 39}" class="track-label" font-family="system-ui" font-size="12">${i === 1 ? "Tren final" : "Via auxiliar"} <tspan fill="#738079" font-weight="400">${s[i].length}/${c.caps[i - 1]}</tspan></text>`;
-    for (let k = 0; k < c.caps[i - 1]; k++)
+      cap = c.caps[i - 1],
+      end = tx + cap * step - 12,
+      dest = i === 1;
+    a += `<g class="siding ${selected === i ? "selected" : ""} ${dest ? "dest" : ""}" ${interactive ? `data-via="${i}" tabindex="0" role="button" aria-label="Via ${"ABC"[i - 1]}, ${s[i].length} de ${cap} vagons"` : ""}><path class="track-halo" d="M${pt} 220 Q${cv} ${y} ${tx} ${y}H${end}" fill="none" stroke="#f2b35d66" stroke-width="62" stroke-linecap="round"/><path d="M${pt} 220 Q${cv} ${y} ${tx} ${y}H${end}" fill="none" stroke="#b9ae9a" stroke-width="19" stroke-dasharray="5 11"/><path d="M${pt} 213 Q${cv} ${y - 7} ${tx} ${y - 7}H${end}M${pt} 227 Q${cv} ${y + 7} ${tx} ${y + 7}H${end}" fill="none" stroke="${dest ? "#3f7a63" : "#697976"}" stroke-width="3"/><path d="M${end + 4} ${y - 17}v34M${end - 1} ${y - 17}h10M${end - 1} ${y + 17}h10" stroke="#485a57" stroke-width="5"/><rect x="${tx - 40}" y="${y - 52}" width="28" height="24" rx="5" fill="${dest ? "#2f6a55" : "#546766"}"/><text x="${tx - 26}" y="${y - 35}" fill="white" text-anchor="middle" font-size="15" font-weight="800" font-family="system-ui">${"ABC"[i - 1]}</text>`;
+    if (dest) {
+      // El tren objectiu, plaça per plaça, just a sobre de la via A.
+      for (let k = 0; k < c.t; k++) {
+        const w = lbl(k + 1),
+          ok = s[1].length === c.t && s[1][k] === k + 1;
+        a += `<g class="goal-tag" transform="translate(${tx + k * step + 26} ${y - 40})"><rect x="-17" y="-12" width="34" height="23" rx="5" fill="${colors[w]}" stroke="${ok ? "#2f6a55" : "#263e43"}" stroke-width="${ok ? 3 : 1.2}" opacity=".95"/><text y="5" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="800" fill="#21333b">${w}</text></g>`;
+      }
+    } else
+      a += `<text x="${tx - 4}" y="${y - 35}" class="track-label" font-family="system-ui" font-size="13">Via auxiliar <tspan fill="#738079" font-weight="400">${s[i].length}/${cap}</tspan></text>`;
+    for (let k = 0; k < cap; k++)
       a += `<rect x="${tx + k * step}" y="${y - 21}" width="52" height="42" rx="5" fill="none" stroke="#c6beb0" stroke-dasharray="3 5"/>`;
     s[i].forEach(
       (w, j) =>
-        (a += cutTarget(wagon(w, tx + j * step, y), i, s[0].length + j + 1, s, c, interactive)),
+        (a += cutTarget(
+          wagon(w, tx + j * step, y),
+          i,
+          s[0].length + j + 1,
+          s,
+          c,
+          interactive,
+        )),
     );
     a += "</g>";
   }
-  a += cutTarget(`<g transform="translate(${narrow ? 10 : 26} 220)"><rect x="0" y="-22" width="54" height="44" rx="6" fill="#304f49" stroke="#1b3734" stroke-width="2"/><rect x="5" y="-16" width="17" height="32" rx="3" fill="#172f32"/><path d="M30-14h16m-16 7h16m-16 7h16m-16 7h16m-16 7h16" stroke="#a8b9a5" stroke-width="2"/><path d="M10-24h32M10 24h32" stroke="#1d3439" stroke-width="5"/><circle cx="51" cy="-13" r="3" fill="#f6cd82"/><circle cx="51" cy="13" r="3" fill="#f6cd82"/></g>`, selected, 0, s, c, interactive, "Locomotora sola");
+  a += cutTarget(
+    `<g transform="translate(${loco} 220)"><rect x="0" y="-23" width="56" height="46" rx="7" fill="#304f49" stroke="#1b3734" stroke-width="2"/><rect x="5" y="-17" width="18" height="34" rx="3" fill="#172f32"/><path d="M31-14h17m-17 7h17m-17 7h17m-17 7h17m-17 7h17" stroke="#a8b9a5" stroke-width="2"/><path d="M10-25h34M10 25h34" stroke="#1d3439" stroke-width="5"/><circle cx="53" cy="-13" r="3" fill="#f6cd82"/><circle cx="53" cy="13" r="3" fill="#f6cd82"/><text x="28" y="44" text-anchor="middle" font-family="system-ui" font-size="11" fill="#53625c">Locomotora</text></g>`,
+    selected,
+    0,
+    s,
+    c,
+    interactive,
+    "Locomotora sola",
+  );
   s[0].forEach(
     (w, j) =>
-      (a += cutTarget(wagon(w, headX + j * (narrow ? 55 : 65), 220), selected, j + 1, s, c, interactive)),
+      (a += cutTarget(
+        wagon(w, headX + j * headStep, 220),
+        selected,
+        j + 1,
+        s,
+        c,
+        interactive,
+      )),
   );
-  a += `<text x="34" y="280" fill="#63746c" font-family="system-ui" font-size="12">Via de maniobra · ${s[0].length}/${c.h}</text><circle cx="${pt}" cy="220" r="5" fill="#355c52"/><path d="M${pt} 250v20" stroke="#64736b"/><text x="${pt}" y="288" text-anchor="middle" font-size="11" fill="#64736b">Agulles</text></svg>`;
+  a += `<circle cx="${pt}" cy="220" r="5" fill="#355c52"/><text x="${pt - 8}" y="250" text-anchor="end" font-family="system-ui" font-size="11" fill="#64736b">Agulles</text></svg>`;
   return a;
 }
 // Amb una via triada, tocar un vagó vol dir «torna amb els vagons fins a aquest».
@@ -425,29 +461,26 @@ function renderGame() {
   if (!game || view !== "play") return;
   const c = config(),
     isWon = won(game.state, c),
+    blocked = remaining === null && !solving && !isWon,
     modeNames = {
       free: "Partida lliure",
       daily: "Repte diari",
-      campaign: "Les sis línies",
+      campaign: "Les sis línies · nivell " + ((game.level ?? 0) + 1),
       lab: "Laboratori",
       class: "Repte de classe",
       sprint: "Contrarellotge",
       tutorial: "Primera maniobra",
-    };
+    },
+    show = (x) => (prefs.minimum ? (x ?? "—") : "?"),
+    instruction = isWon
+      ? `Tren completat amb ${game.log.length} moviments.`
+      : blocked
+        ? "Aquest repartiment no té solució: cap seqüència de maniobres pot formar el tren."
+        : selected
+          ? `<b>2</b> Via ${"ABC"[selected - 1]}: toca el darrer vagó que vols endur-te, o la locomotora per tornar sola.`
+          : `<b>1</b> Toca una via (A, B o C). La locomotora hi entrarà amb els vagons que porta.`;
   $("#main").innerHTML =
-    `<div class="page-head"><div class="title"><div class="eyebrow">${modeNames[game.mode]} · ${c.name}</div><h1>${isWon ? "Tren a punt. Bona feina." : "Troba el camí més curt."}</h1><p>${game.mode === "daily" ? "El mateix repte per a tothom. Una nova oportunitat cada dia." : "Ordena els vagons. Allibera espai. Pensa el següent moviment."}</p></div><div class="mini-metrics"><b>${game.log.length}</b> moviments <span>· mínim ${prefs.minimum ? (game.min ?? "?") : "?"}</span></div><span class="badge">${c.n} vagons · ${c.t} al tren</span></div>${game.mode === "class" ? `<div class="room-banner">Estació compartida <strong>${esc(game.room)}</strong></div>` : ""}<div class="game-grid"><section class="panel"><div class="target-bar"><div><div class="eyebrow">Destinació · Via A</div><div class="label">Forma aquest tren</div></div><div><div class="target-train">${Array.from({ length: c.t }, (_, i) => `<span class="wagon-chip" style="--w:${colors[game.labels?.[i] ?? i + 1]}">${game.labels?.[i] ?? i + 1}</span>`).join("")}</div><div class="direction">AGULLES → FONS DE VIA</div></div></div><div class="board-wrap">${board()}<span class="board-caption">${selected ? "Via " + "ABC"[selected - 1] + " · toca el darrer vagó que vols endur-te" : "Selecciona una via · A / B / C"}</span></div><div class="controls">${isWon ? `<div class="prompt">${icon("trophy")} Tren completat amb ${game.log.length} moviments.</div><div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="prompt">${selected ? `<b>Via ${"ABC"[selected - 1]}</b> · Amb quants vagons vols tornar?` : "<b>01</b> Tria la via on vols fer la maniobra."}</div><div class="choice-row">${selected ? Array.from({ length: c.h + 1 }, (_, k) => `<button data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "Locomotora sola" : k + " " + (k === 1 ? "vagó" : "vagons")}</button>`).join("") + `<button class="ghost" data-action="cancel">Cancel·la</button>` : [1, 2, 3].map((v) => `<button data-via="${v}" ${autoplay ? "disabled" : ""}>Via ${"ABC"[v - 1]} <span class="muted">${game.state[v].length}/${c.caps[v - 1]}</span></button>`).join("")}</div>${preview ? `<p class="hint-line">${esc(preview)}</p>` : ""}`}</div><div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="compact-new" data-action="new">Nou repte</button><button data-action="history">${icon("route")} Historial</button><button data-action="print">${icon("print")} Fitxa</button><button data-action="projector" aria-label="${prefs.projector ? "Sortir del projector" : "Mode projector"}">${icon("screen")}</button></div></section><aside class="side-stack"><div class="panel metrics"><div class="metric"><strong>${game.log.length}</strong><span>Moviments</span></div><div class="metric"><strong>${prefs.minimum ? (game.min ?? "—") : "?"}</strong><span>Mínim inicial</span></div><div class="metric"><strong>${prefs.minimum ? (solving ? "…" : (remaining ?? "—")) : "?"}</strong><span>Mínim restant</span></div><div class="metric"><strong id="timer">${time(game.finished ? game.seconds : elapsed())}</strong><span>${game.mode === "sprint" ? "Temps del puzle" : "Temps · sense límit"}</span></div></div><div class="panel small-card"><div class="eyebrow">El teu proper repte</div><label for="difficulty" class="muted" style="font-size:12px">Dificultat</label><select id="difficulty">${[
-      ["facil", "Fàcil · fins a 8"],
-      ["mitja", "Mitjà · 9–12"],
-      ["dificil", "Difícil · 13–15"],
-      ["expert", "Expert · 16–17"],
-    ]
-      .map(
-        ([v, l]) =>
-          `<option value="${v}" ${difficulty === v ? "selected" : ""}>${l} moviments</option>`,
-      )
-      .join(
-        "",
-      )}</select><button class="primary wide" data-action="new">Nova partida</button></div><div class="panel small-card"><div class="eyebrow">Cap d’estació</div><h3>${remaining === null && !solving ? "Aquest tren està bloquejat" : game.log.length === 0 ? "Comença pel fons" : "Fes lloc al següent"}</h3><p>${remaining === null && !solving ? "En aquesta configuració no es pot arribar al tren objectiu. Canvia el repartiment o l’estació al Laboratori." : "El darrer vagó del tren ha de quedar al fons de la via A. Reserva espai abans de moure’l."}</p>${sprintEnd ? `<b class="warning">Ronda: <span id="sprint-time">${time(Math.max(0, Math.ceil((sprintEnd - Date.now()) / 1000)))}</span></b>` : '<button class="ghost" data-action="tutorial">Recorda les regles</button>'}</div><div class="panel small-card history-card"><div class="eyebrow">Quadern de maniobres</div><div class="history">${game.log.length ? game.log.map(([v, k]) => `<span>${"ABC"[v - 1]}${k}</span>`).join("") : "Encara no has mogut cap vagó."}</div></div></aside></div><div class="bottom-note"><span>${icon("info")} A, B, C: via · 0–${c.h}: vagons · Z: desfer</span><span>${game.hints ? "Amb ajuda · " + game.hints + " pistes" : "Al teu ritme. Cada intent ensenya."}</span></div>`;
+    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${modeNames[game.mode]} · ${c.name}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<span class="wagon-chip" style="--w:${colors[game.labels?.[i] ?? i + 1]}">${game.labels?.[i] ?? i + 1}</span>`).join("")}</span><small>de les agulles cap al fons</small></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div>${sprintEnd ? `<div class="warning"><b id="sprint-time">${time(Math.max(0, Math.ceil((sprintEnd - Date.now()) / 1000)))}</b><small>ronda</small></div>` : ""}</div></div>${game.mode === "class" ? `<div class="room-banner">Estació compartida <strong>${esc(game.room)}</strong></div>` : ""}<div class="board-wrap ${selected ? "choosing" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? Array.from({ length: c.h + 1 }, (_, k) => `<button data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "Locomotora sola" : k + " " + (k === 1 ? "vagó" : "vagons")}</button>`).join("") + `<button class="ghost" data-action="cancel">Cancel·la</button>` : [1, 2, 3].map((v) => `<button data-via="${v}" ${autoplay ? "disabled" : ""}>Via ${"ABC"[v - 1]} <span class="muted">${game.state[v].length}/${c.caps[v - 1]}</span></button>`).join("")}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button data-action="history">${icon("route")} Historial${game.log.length ? ` <span class="muted">${game.log.length}</span>` : ""}</button><button data-action="new-menu">${icon("play")} Nou repte</button><button data-action="print" aria-label="Fitxa imprimible">${icon("print")}</button><button data-action="projector" aria-label="${prefs.projector ? "Sortir del projector" : "Mode projector"}">${icon("screen")}</button></div></div></div>`;
 }
 function select(v) {
   if (!game || game.finished || autoplay) return;
@@ -683,7 +716,7 @@ function renderClass() {
 }
 function renderInfo() {
   $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">Darrere de les agulles</div><h1>Un petit espai. Un gran puzle.</h1><p>Lògica ferroviària per jugar, investigar i aprendre.</p></div></div><div class="info-grid"><article class="panel prose"><h3>Per què «Maniobres»?</h3><p>Una maniobra ferroviària és un moviment que permet ordenar, enganxar o separar vehicles. Aquí cada decisió transforma l’espai disponible. El nom parla del que fas i del que aprens: preparar el següent pas.</p><h3>L’original: Inglenook Sidings</h3><p>Alan Wright va presentar aquest puzle de modelisme ferroviari el 1979. La versió clàssica té vuit vagons, tres vies de capacitats 5–3–3 i una via de maniobra per a la locomotora i tres vagons. L’objectiu és formar un tren de cinc vagons en un ordre concret.</p><p>Maniobres n’és una adaptació digital en català amb regles explícites, solucions òptimes i eines per a l’aula. No és una reproducció oficial ni està afiliada als autors de les referències.</p><h3>Les nostres regles</h3><ol><li>Forma exactament el tren objectiu a la via A, llegit des de les agulles fins al fons.</li><li>Només pots retirar els vagons accessibles des de les agulles. Els vagons no canvien d’ordre quan s’enganxen.</li><li>Tria una via i amb quants vagons en vols sortir. Entrar i tornar compta com una maniobra.</li><li>La locomotora s’acosta fins on cal per enganxar o deixar vagons. No ha d’introduir tot el tren dins la via.</li><li>En acabar cada maniobra, respecta les capacitats i deixa lliures les agulles. Els vagons sobrants poden quedar en qualsevol via, també enganxats a la locomotora.</li></ol><p>La notació <b>B2</b> vol dir: maniobra a la via B i torna amb dos vagons en total. Desfer no penalitza: reconstrueix la solució activa.</p><h3>Fonts i crèdits</h3><p><a href="https://arxiv.org/abs/1810.07970" target="_blank" rel="noopener noreferrer">Simon R. Blackburn · Inglenook Shunting Puzzles</a><br><a href="https://www.wymann.info/ShuntingPuzzles/" target="_blank" rel="noopener noreferrer">Adrian Wymann · Model Railways Shunting Puzzles</a></p><p>Codi sota llicència AGPLv3; dissenys SVG, textos i materials sota CC BY-NC-SA 4.0. Codi disponible a <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">GitHub</a>. Versió 1.1.0.</p></article><aside><section class="panel prose"><h3>Què hi trobaràs</h3><p>Partida lliure amb quatre dificultats, 60 nivells, repte diari, contrarellotge, set estacions de laboratori, pistes exactes, reproducció de solucions, fitxes amb QR, mode projector i sales de classe.</p><h3>Un rànquing que es renova</h3><p>La temporada comença el primer dia de cada mes, segons l’hora de Barcelona. El millor resultat de cada dia aporta de 10 a 100 punts. Els empats comparteixen lloc. Els resultats s’oculten en caducar als 30 dies i una neteja diària els elimina del servidor.</p><h3>Privacitat i joc honest</h3><p>No demanem nom, correu ni edat. En publicar, es desa un identificador pseudònim, la solució i la puntuació. El servidor verifica els moviments; això no pot demostrar que ningú hagi fet servir ajuda externa. No hi ha publicitat ni analítica de seguiment.</p><p>Les partides lliures es queden al dispositiu. El servei de rànquing utilitza Supabase a la UE. Els registres tècnics del proveïdor poden incloure dades de connexió. El docent ha de consultar el centre abans de vincular pseudònims a alumnat.</p><button data-action="erase">Esborra les meves dades</button><h3>Accessible i sense connexió</h3><p>Vagons amb números i colors, controls de teclat, moviment reduït i so opcional. Després de la primera càrrega completa es pot jugar sense internet; el rànquing i les sales necessiten connexió.</p></section></aside></div>`;
+    `<div class="page-head"><div><div class="eyebrow">Darrere de les agulles</div><h1>Un petit espai. Un gran puzle.</h1><p>Lògica ferroviària per jugar, investigar i aprendre.</p></div></div><div class="info-grid"><article class="panel prose"><h3>Per què «Maniobres»?</h3><p>Una maniobra ferroviària és un moviment que permet ordenar, enganxar o separar vehicles. Aquí cada decisió transforma l’espai disponible. El nom parla del que fas i del que aprens: preparar el següent pas.</p><h3>L’original: Inglenook Sidings</h3><p>Alan Wright va presentar aquest puzle de modelisme ferroviari el 1979. La versió clàssica té vuit vagons, tres vies de capacitats 5–3–3 i una via de maniobra per a la locomotora i tres vagons. L’objectiu és formar un tren de cinc vagons en un ordre concret.</p><p>Maniobres n’és una adaptació digital en català amb regles explícites, solucions òptimes i eines per a l’aula. No és una reproducció oficial ni està afiliada als autors de les referències.</p><h3>Les nostres regles</h3><ol><li>Forma exactament el tren objectiu a la via A, llegit des de les agulles fins al fons.</li><li>Només pots retirar els vagons accessibles des de les agulles. Els vagons no canvien d’ordre quan s’enganxen.</li><li>Tria una via i amb quants vagons en vols sortir. Entrar i tornar compta com una maniobra.</li><li>La locomotora s’acosta fins on cal per enganxar o deixar vagons. No ha d’introduir tot el tren dins la via.</li><li>En acabar cada maniobra, respecta les capacitats i deixa lliures les agulles. Els vagons sobrants poden quedar en qualsevol via, també enganxats a la locomotora.</li></ol><p>La notació <b>B2</b> vol dir: maniobra a la via B i torna amb dos vagons en total. Desfer no penalitza: reconstrueix la solució activa.</p><h3>Fonts i crèdits</h3><p><a href="https://arxiv.org/abs/1810.07970" target="_blank" rel="noopener noreferrer">Simon R. Blackburn · Inglenook Shunting Puzzles</a><br><a href="https://www.wymann.info/ShuntingPuzzles/" target="_blank" rel="noopener noreferrer">Adrian Wymann · Model Railways Shunting Puzzles</a></p><p>Codi sota llicència AGPLv3; dissenys SVG, textos i materials sota CC BY-NC-SA 4.0. Codi disponible a <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">GitHub</a>. Versió 1.2.0.</p></article><aside><section class="panel prose"><h3>Què hi trobaràs</h3><p>Partida lliure amb quatre dificultats, 60 nivells, repte diari, contrarellotge, set estacions de laboratori, pistes exactes, reproducció de solucions, fitxes amb QR, mode projector i sales de classe.</p><h3>Un rànquing que es renova</h3><p>La temporada comença el primer dia de cada mes, segons l’hora de Barcelona. El millor resultat de cada dia aporta de 10 a 100 punts. Els empats comparteixen lloc. Els resultats s’oculten en caducar als 30 dies i una neteja diària els elimina del servidor.</p><h3>Privacitat i joc honest</h3><p>No demanem nom, correu ni edat. En publicar, es desa un identificador pseudònim, la solució i la puntuació. El servidor verifica els moviments; això no pot demostrar que ningú hagi fet servir ajuda externa. No hi ha publicitat ni analítica de seguiment.</p><p>Les partides lliures es queden al dispositiu. El servei de rànquing utilitza Supabase a la UE. Els registres tècnics del proveïdor poden incloure dades de connexió. El docent ha de consultar el centre abans de vincular pseudònims a alumnat.</p><button data-action="erase">Esborra les meves dades</button><h3>Accessible i sense connexió</h3><p>Vagons amb números i colors, controls de teclat, moviment reduït i so opcional. Després de la primera càrrega completa es pot jugar sense internet; el rànquing i les sales necessiten connexió.</p></section></aside></div>`;
 }
 function renderProgress() {
   const t = title(prog.xp),
@@ -703,8 +736,8 @@ function tutorial(step = 0) {
   tutorialStep = step;
   const pages = [
     [
-      "Benvingut al pati de vies.",
-      "La teva missió és formar el tren de dalt a la via A. Els números es llegeixen de les agulles cap al fons.",
+      "Et donem la benvinguda al pati de vies.",
+      "Has de formar a la via A el tren que veus a dalt. Sobre cada plaça de la via A hi ha el número del vagó que hi ha d’anar.",
     ],
     [
       "L’espai és el repte.",
@@ -712,7 +745,7 @@ function tutorial(step = 0) {
     ],
     [
       "Una via. Un tall.",
-      "Primer tria A, B o C. Després tria el nombre total de vagons amb què vols tornar. «Locomotora sola» deixa tots els vagons a la via, si hi caben.",
+      "Primer toca una via: A, B o C. Després toca el darrer vagó que vols endur-te. Si toques la locomotora, torna sola i deixa tots els vagons a la via. Cada anada i tornada és una maniobra.",
     ],
     [
       "No pots saltar vagons.",
@@ -871,6 +904,22 @@ async function handle(action) {
         '<h2>Comença una altra partida?</h2><p>El repte actual es reemplaçarà. Els resultats acabats es conserven.</p><div class="dialog-actions"><button class="primary" data-action="new-confirm">Nova partida</button><button data-action="close">Continua jugant</button></div>',
       );
     } else handle("new-confirm");
+    return;
+  }
+  if (action === "new-menu") {
+    modal(
+      `<div class="eyebrow">Partida lliure · Inglenook clàssic</div><h2>Tria la dificultat</h2><p>El número és el mínim de moviments de la millor solució.</p><div class="difficulty-grid">${[
+        ["facil", "Fàcil", "fins a 8"],
+        ["mitja", "Mitjà", "9 a 12"],
+        ["dificil", "Difícil", "13 a 15"],
+        ["expert", "Expert", "16 i 17"],
+      ]
+        .map(
+          ([v, n, r]) =>
+            `<button class="${difficulty === v ? "primary" : ""}" data-difficulty="${v}"><b>${n}</b><small>${r} moviments</small></button>`,
+        )
+        .join("")}</div><p class="muted" style="font-size:12px">També pots seguir <button class="ghost" data-nav="campaign">les sis línies</button> o fer el <button class="ghost" data-action="daily">repte diari</button>.</p>`,
+    );
     return;
   }
   if (action === "new-confirm") {
@@ -1120,6 +1169,7 @@ document.addEventListener("click", async (e) => {
   try {
     if (b.dataset.nav) {
       autoplay = false;
+      if (dialog.open) dialog.close();
       const v = b.dataset.nav;
       if (v === "daily") {
         handle("daily");
@@ -1128,6 +1178,11 @@ document.addEventListener("click", async (e) => {
       view = v;
       render();
     } else if (b.dataset.action) await handle(b.dataset.action);
+    else if (b.dataset.difficulty) {
+      difficulty = b.dataset.difficulty;
+      dialog.close();
+      handle("new");
+    }
     else if (b.dataset.via) select(+b.dataset.via);
     else if (b.dataset.cut !== undefined) doMove(selected, +b.dataset.cut);
     else if (b.dataset.level !== undefined)
@@ -1291,6 +1346,10 @@ if (!storageOK)
   toast(
     "El navegador no permet desar el progrés. Pots jugar, però no es conservarà en tancar.",
   );
+if (!read("seen-tutorial", false) && !linked) {
+  save("seen-tutorial", true);
+  tutorial();
+}
 if ("serviceWorker" in navigator)
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 

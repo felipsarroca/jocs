@@ -19,6 +19,8 @@ const browser = await chromium.launch({ channel: "chrome" }),
   page = await context.newPage(),
   errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
+// El tutorial s’obre sol el primer cop; les proves el donen per vist.
+await page.addInitScript(() => localStorage.setItem("maniobres-seen-tutorial", "true"));
 const base = process.env.TEST_URL || "http://127.0.0.1:4173/";
 await page.goto(base + "?p=mini-0");
 await page.locator('[data-action="hint"]:not(:disabled)').waitFor();

@@ -1,5 +1,13 @@
 # Registre de canvis
 
+## 1.2.0 · 20 de novembre de 2026
+
+- L’estació és la protagonista: el tauler ocupa tota l’alçada disponible i els vagons es veuen unes tres vegades més grans.
+- Menú lateral en una barra estreta d’icones; objectiu, moviments, mínim i temps en una franja fina a sobre del tauler.
+- Sobre cada plaça de la via A hi ha el vagó que hi ha d’anar; es ressalta en verd quan és al seu lloc.
+- Instrucció del pas actual dins del tauler, etiquetes de locomotora i via de maniobra, i tutorial automàtic la primera vegada.
+- Dificultat de la partida lliure al botó «Nou repte».
+
 ## 1.1.0 · 20 de novembre de 2026
 
 - El meu progrés: experiència, títols, ratxa del repte diari amb un dia de marge setmanal, rècords personals i 17 èxits.

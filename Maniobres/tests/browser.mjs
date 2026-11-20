@@ -19,6 +19,8 @@ const page = await browser.newPage({
   deviceScaleFactor: 1,
 });
 page.on("pageerror", (e) => errors.push(e.message));
+// El tutorial s’obre sol el primer cop; les proves el donen per vist.
+await page.addInitScript(() => localStorage.setItem("maniobres-seen-tutorial", "true"));
 await page.goto(process.env.TEST_URL || "http://127.0.0.1:4173/");
 await page.locator('[data-action="hint"]:not(:disabled)').waitFor();
 await page.screenshot({
