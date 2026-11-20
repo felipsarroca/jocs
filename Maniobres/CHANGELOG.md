@@ -1,5 +1,11 @@
 # Registre de canvis
 
+## 2.6.0 · 20 de novembre de 2026
+
+- Els vagons llisquen pels rails: en arrossegar-los segueixen el recorregut de la via (també les corbes, girant amb la via) en lloc de volar, i s'aturen en tocar la locomotora o els vagons de la via. Des de la locomotora, el tren entra a la via més propera al dit. L'animació de cada maniobra també segueix els rails.
+- Vagons més treballats: bastidor, topalls rodons, enganxall, caixa amb taulons, muntants i ombres. Locomotora nova amb passadís metàl·lic i baranes, cabina, capó amb reixeta, ventiladors i tub d'escapament.
+- La palanca de les agulles queda per sota dels vagons que hi passen.
+
 ## 2.5.0 · 20 de novembre de 2026
 
 - Estació redibuixada: vies amb balast, travesses de fusta i rails a ample constant també a les corbes (abans les vies A i C s'estrenyien); topalls de final de via vermells i blancs i una palanca d'agulles.
