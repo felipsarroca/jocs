@@ -1,0 +1,18 @@
+{
+  "name": "Maniobres · El puzle ferroviari",
+  "short_name": "Maniobres",
+  "lang": "ca",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111f28",
+  "theme_color": "#111f28",
+  "icons": [
+    {
+      "src": "assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

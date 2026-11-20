@@ -1,0 +1,62 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later AND CC-BY-NC-SA-4.0 -->
+<html lang="ca">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#111f28" />
+    <meta
+      name="description"
+      content="Maniobres: el puzle ferroviari Inglenook en català. Ordena els vagons, supera reptes i puja al rànquing de temporada."
+    />
+    <title>Maniobres · Cada moviment compta</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="src/style.css" />
+    <script src="assets/qrcode.js" defer></script>
+    <script type="module" src="src/app.js"></script>
+  </head>
+  <body>
+    <div id="app"><p class="loading">Obrint l’estació…</p></div>
+    <dialog id="dialog"></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <footer class="felip-app-footer">
+      <a
+        href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca"
+        target="_blank"
+        rel="noopener noreferrer"
+        ><img src="assets/license.png" alt="Creative Commons BY-NC-SA"
+      /></a>
+      <div>
+        Aplicació creada per
+        <a
+          href="https://ja.cat/felipsarroca"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Felip Sarroca</a
+        >
+        amb assistència de la IA<br />Codi:
+        <a
+          href="https://github.com/felipsarroca/jocs/blob/main/Maniobres/LICENSE"
+          target="_blank"
+          rel="noopener noreferrer"
+          >AGPLv3</a
+        >
+        · Continguts:
+        <a
+          href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca"
+          target="_blank"
+          rel="noopener noreferrer"
+          >CC BY-NC-SA 4.0</a
+        >
+        ·
+        <a
+          href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Suggeriments i errors</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>

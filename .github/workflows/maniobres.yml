@@ -1,0 +1,21 @@
+name: Verifica Maniobres
+on:
+  push:
+    paths: ['Maniobres/**', '.github/workflows/maniobres.yml']
+  pull_request:
+    paths: ['Maniobres/**', '.github/workflows/maniobres.yml']
+permissions:
+  contents: read
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Maniobres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm run check
+      - run: npm test

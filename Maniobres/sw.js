@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+const CACHE = "maniobres-v1.1.0-1";
+const FILES = [
+  "./",
+  "./index.html",
+  "./src/app.js",
+  "./src/engine.js",
+  "./src/online.js",
+  "./src/progress.js",
+  "./src/solver-worker.js",
+  "./src/style.css",
+  "./assets/favicon.svg",
+  "./assets/license.png",
+  "./assets/qrcode.js",
+  "./manifest.webmanifest",
+  "./data/catalog.json",
+  "./data/stats.json",
+  ...[
+    "mini",
+    "intermedia",
+    "classic",
+    "curta",
+    "asimetrica",
+    "estreta",
+    "compacta",
+  ].map((x) => "./data/" + x + ".bin"),
+  "./docs/guia-docent.md",
+];
+self.addEventListener("install", (event) =>
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES))),
+);
+self.addEventListener("activate", (event) =>
+  event.waitUntil(
+    (async () => {
+      for (const key of await caches.keys())
+        if (key.startsWith("maniobres-") && key !== CACHE)
+          await caches.delete(key);
+      await self.clients.claim();
+    })(),
+  ),
+);
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (
+    event.request.method !== "GET" ||
+    url.origin !== location.origin ||
+    !url.href.startsWith(self.registration.scope)
+  )
+    return;
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE);
+      if (event.request.mode === "navigate") {
+        try {
+          return await fetch(event.request);
+        } catch {
+          return await cache.match("./index.html");
+        }
+      }
+      const match = await cache.match(event.request);
+      if (match) return match;
+      return fetch(event.request);
+    })(),
+  );
+});
