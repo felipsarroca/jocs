@@ -4,6 +4,8 @@ import {
   key,
   moves,
   move,
+  won,
+  score,
   CONFIGS,
   puzzleFromKey,
 } from "./engine.js";
@@ -25,6 +27,30 @@ self.onmessage = async ({ data }) => {
     const { config, state, request } = data,
       c = CONFIGS.find((c) => c.id === config),
       t = await table(config);
+    if (data.type === "verify") {
+      // Torna a jugar cada solució del rànquing i en calcula els punts.
+      const out = data.players.map((p) => {
+        let points = 0,
+          solved = 0;
+        for (const e of p.r) {
+          try {
+            if (data.now - e.t > 365 * 864e5) continue;
+            const start = puzzleFromKey(`v1-classic-${e.k}`);
+            if (!start || e.l.length !== 2 * e.n) continue;
+            let st = start.state;
+            for (let i = 0; i < e.l.length; i += 2) st = move(st, c, +e.l[i], +e.l[i + 1]);
+            if (!won(st, c)) continue;
+            const min = t.get(key(canonical(start.state, c.t)));
+            if (!min || e.n < min) continue;
+            points += score(min, e.n);
+            solved++;
+          } catch {}
+        }
+        return { uid: p.uid, name: p.name, points, solved };
+      });
+      postMessage({ verified: out, request: data.request });
+      return;
+    }
     if (data.type === "generate") {
       const exclude = new Set(data.exclude || []),
         choices = [],

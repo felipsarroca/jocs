@@ -1,5 +1,13 @@
 # Registre de canvis
 
+## 2.0.0 · 20 de novembre de 2026
+
+- Aplicació simplificada: només Jugar, Rànquing i Sobre el joc. Fora la campanya, el repte diari, el laboratori, les sales de classe, la contrarellotge, el progrés local, la fitxa imprimible i el mode projector.
+- Rànquing públic nou amb Firebase: nom de jugador únic sense contrasenya, cada puzle sense pistes compta una vegada (10 punts per moviment del mínim, −5 per moviment de més) i els resultats caduquen al cap d’un any. Pòdium, barres de punts, canvi de nom i esborrament.
+- Les solucions del rànquing es comproven reproduint-les amb el motor.
+- Estètica clara i alegre: cel, gespa, vagons de colors vius i locomotora vermella.
+- «Sobre el joc» renovat: origen, regles, què s’hi aprèn, com puntua i xifres de l’estació.
+
 ## 1.3.0 · 20 de novembre de 2026
 
 - Arrossegar vagons amb el ratolí o el dit: d’una via a la locomotora per endur-se’ls, o del tren de la locomotora a una via per deixar-los. Les vies de destinació s’il·luminen en verd o en vermell, i un moviment no permès torna enrere amb el motiu.

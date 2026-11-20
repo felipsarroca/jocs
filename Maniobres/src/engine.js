@@ -149,6 +149,12 @@ export function daily(catalog, date = dateKey()) {
   );
   return a[hash(date) % a.length];
 }
+// Punts del rànquing: 10 per moviment mínim (la dificultat), −5 per cada moviment de més,
+// amb un terra d’una quarta part.
+export function score(min, moves) {
+  const base = 10 * min;
+  return Math.max(Math.round(base / 4), base - 5 * (moves - min));
+}
 export function stars(count, min) {
   return count === min ? 3 : count <= min + 2 ? 2 : 1;
 }

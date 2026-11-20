@@ -36,7 +36,7 @@ await page.keyboard.press("a");
 await page.keyboard.press("3"); // illegal in mini, must not poison undo history
 let s = initial.state;
 const first = moves(s, c)[0];
-await page.locator(`[data-via="${first[0]}"]`).last().click();
+await page.keyboard.press("abc"[first[0] - 1]);
 await page.locator(`button[data-cut="${first[1]}"]`).click();
 await page.locator('[data-action="undo"]').click();
 assert.deepEqual(
@@ -51,7 +51,7 @@ while (!won(s, c)) {
     m = moves(s, c).find(
       (m) => table.get(key(canonical(move(s, c, ...m), c.t))) === d - 1,
     );
-  await page.locator(`[data-via="${m[0]}"]`).last().click();
+  await page.keyboard.press("abc"[m[0] - 1]);
   // Alterna els botons i tocar directament el vagó o la locomotora al tauler.
   await page
     .locator(step++ % 2 === 0 ? `button[data-cut="${m[1]}"]` : `.board [data-cut="${m[1]}"]`)
@@ -93,16 +93,6 @@ assert.deepEqual(
   ).state,
   generated.state,
 );
-await page.evaluate(() => (window.print = () => {}));
-await page.locator('[data-action="print"]').click();
-assert.equal(await page.locator(".print-sheet .qr svg").count(), 1);
-await page.emulateMedia({ media: "print" });
-await page.pdf({
-  path: "docs/fitxa-exemple.pdf",
-  format: "A4",
-  printBackground: true,
-});
-await page.emulateMedia({ media: "screen" });
 await page.evaluate(async () => {
   await navigator.serviceWorker.ready;
 });
@@ -110,8 +100,8 @@ await page.waitForFunction(() => !!navigator.serviceWorker.controller);
 await context.setOffline(true);
 await page.reload();
 await page.locator('[data-action="hint"]:not(:disabled)').waitFor();
-await page.locator('[data-nav="campaign"]').click();
-assert.equal(await page.locator("[data-level]").count(), 60);
+await page.locator('[data-nav="about"]').click();
+assert.match(await page.locator("h1").textContent(), /vagons/);
 await context.setOffline(false);
 await page.evaluate(() =>
   localStorage.setItem(
@@ -151,7 +141,7 @@ console.log(
   "PASS: drag take / rejected / leave.",
 );
 console.log(
-  "PASS: invalid move + undo, win, optimal replay, generated puzzle links, printable QR, offline reload, 60 campaign levels, corrupt storage recovery.",
+  "PASS: invalid move + undo, win, optimal replay, generated puzzle links, offline reload and about page, corrupt storage recovery.",
 );
 assert.deepEqual(errors, []);
 await browser.close();

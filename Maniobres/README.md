@@ -8,45 +8,40 @@
 
 ## El joc
 
-Forma el tren objectiu a la via A, en l’ordre indicat des de les agulles fins al fons. Tria una via i el nombre total de vagons amb què vols tornar. Entrar i tornar compta com una maniobra. Només es poden recollir els vagons accessibles; cada via té una capacitat limitada.
+Forma el tren objectiu a la via A, en l’ordre indicat des de les agulles fins al fons. Arrossega vagons d’una via a la locomotora o de la locomotora a una via. Cada anada i tornada de la locomotora compta com una maniobra. Només es poden agafar els vagons accessibles i cada via té una capacitat limitada.
 
-- **Partida lliure:** quatre dificultats, amb selecció entre totes les situacions inicials clàssiques del nivell. S’exclouen les partides que ja has resolt en aquest dispositiu.
-- **Campanya:** 60 reptes en sis línies, de l’estació petita als reptes de 17 moviments.
-- **Repte diari:** el mateix per a tothom, segons la data d’Europa/Madrid.
-- **Laboratori:** set estacions amb estadístiques exactes i repartiments experimentals, inclosos casos sense solució.
-- **Contrarellotge:** cinc minuts, opcional i fora del rànquing.
-- **A l’aula:** sales amb codi, puzle compartit, rànquing del grup i exportació CSV per al creador.
-- **El meu progrés:** experiència i cinc títols (d’Aprenent de maniobres a Mestre d’agulles), ratxa del repte diari amb un dia de marge per setmana, rècords personals per puzle i 17 èxits. Tot es desa al dispositiu.
-- Tutorial, mínim inicial i restant, pistes (cada pista resta una estrella possible), desfer, historial, reproducció òptima, fitxa imprimible amb QR, projector i so opcional.
+La versió 2.0 és deliberadament senzilla: **Jugar**, **Rànquing** i **Sobre el joc**.
+
+- **Jugar:** quatre dificultats (fàcil, mitjà, difícil i expert) segons el mínim de moviments. S’eviten els puzles que ja has resolt en aquest navegador.
+- Tutorial, mínim i moviments restants, pistes, desfer, reinici, reproducció de la solució òptima i so opcional.
 - SVG originals, números a més de colors, teclat, moviment reduït i disseny adaptable.
-- PWA amb recursos locals: joc sense connexió després de la primera càrrega completa. Les sales i el rànquing requereixen connexió.
+- PWA: el joc funciona sense connexió després de la primera càrrega; el rànquing necessita connexió.
 
-![El meu progrés: títol, ratxa i èxits](docs/screenshots/progres.png)
+![Resultat d’una partida](docs/screenshots/resultat.png)
 
 ### Controls
 
-Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per endur-te’l (amb els que té davant), o un vagó del tren de la locomotora fins a una via per deixar-lo (amb els que té darrere). També pots tocar una via i després el darrer vagó que vols endur-te, o fer servir els botons amb el nombre de vagons. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Z** desfà. Els botons també admeten Tab i Retorn. Desfer no penalitza: el recompte correspon a la solució activa. Els vagons sobrants poden quedar enganxats a la locomotora al final.
+Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per endur-te’l (amb els que té davant), o un vagó del tren de la locomotora fins a una via per deixar-lo (amb els que té darrere). També pots tocar una via i després el darrer vagó que vols endur-te. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Z** desfà.
 
-## Rànquing amb caducitat
+## Rànquing públic
 
-![Rànquing amb participants temporals de prova](docs/screenshots/ranquing-prova.png)
+![Rànquing amb un jugador de prova](docs/screenshots/ranquing-prova.png)
 
-La captura mostra tres participants creats exclusivament per a les proves i eliminats després. El joc publicat no incorpora resultats ficticis.
+La captura mostra un jugador creat per a les proves i eliminat després.
 
-- Temporades mensuals segons Europa/Madrid i classificació del dia.
-- Només el millor resultat per jugador, dia i sala: repetir un puzle no acumula punts.
-- 100 punts amb el mínim; −5 per moviment extra, amb un terra de 10 punts.
-- Els empats comparteixen posició. El temps no desempata.
-- Pòdium visual, indicador de temporada i ressaltat del jugador propi.
-- Resultats ocults en caducar als **30 dies**; eliminació física diària a les 03:15 UTC. Les sales també caduquen als 30 dies.
-- Publicació voluntària. Les partides amb pistes o reproducció de solucions no es poden publicar des de la interfície.
-- El servidor reprodueix la solució amb el mateix motor, valida l’objectiu i calcula els punts. No pot demostrar l’absència d’ajuda externa: és una classificació lúdica.
+- Cal un **nom de jugador** únic (3–16 caràcters), sense contrasenya, lligat al navegador. Hi ha un filtre de paraules ofensives i l’avís de no fer servir el nom real.
+- Cada puzle resolt **sense pistes** suma **10 punts per moviment del mínim**, menys 5 per cada moviment de més, amb un terra d’una quarta part. Un puzle de 12 moviments resolt en 12 val 120 punts.
+- Cada puzle compta **una sola vegada**, amb el millor resultat. Cada resultat **caduca al cap d’un any**.
+- Pòdium, barres de punts, posició pròpia ressaltada, canvi de nom i esborrament de les dades pròpies.
+- Les solucions es comproven tornant-les a jugar amb el motor i la taula de mínims a cada navegador que obre el rànquing: una solució falsa no puntua. No pot demostrar l’absència d’ajuda externa; és una classificació lúdica.
+
+![Sobre el joc](docs/screenshots/sobre.png)
 
 ## Matemàtiques verificades
 
 El model clàssic té 403.200 posicions inicials etiquetades i 6.720 trens objectiu: 2.709.504.000 combinacions. Identificant els tres vagons sobrants s’obtenen **356.160 estats**, dels quals **67.200** són inicials. El màxim del mínim és **17**, la mitjana és **11,5416** i hi ha **32** situacions inicials reduïdes de 17 moviments.
 
-Les taules binàries contenen una distància exacta per estat. Un Web Worker les consulta sense bloquejar la interfície. Les pistes segueixen un veí amb distància inferior en una unitat. El Laboratori és deliberadament acotat a set configuracions per garantir-ne els resultats.
+Les taules binàries contenen una distància exacta per estat. Un Web Worker les consulta sense bloquejar la interfície. Les pistes segueixen un veí amb distància inferior en una unitat. 
 
 Les etiquetes visibles dels vagons es barregen de manera determinista: la mateixa URL sempre presenta el mateix puzle i els mateixos números. Els identificadors `v1-classic-…` inclouen la versió de representació. No es canvia el catàleg d’una versió publicada sense mantenir els identificadors anteriors.
 
@@ -67,7 +62,7 @@ node tests/browser.mjs
 node tests/flows.mjs
 ```
 
-Les proves de navegador requereixen Chrome i Playwright. Les proves `node tests/online.mjs` consulten el servidor real, creen identitats i sales temporals de prova i les eliminen en acabar.
+Les proves de navegador requereixen Chrome i Playwright.
 
 ```sh
 npm run generate
@@ -76,32 +71,32 @@ npm run generate
 Regenera les set taules, el catàleg i les estadístiques. Les proves comproven tots els 818 reptes del catàleg, la reversibilitat dels moviments, les capacitats, els recomptes clàssics i la recuperació del tren en el mínim anunciat.
 
 ```text
-src/       motor, progrés, interfície, solucionador en Worker i client del rànquing
+src/       motor, interfície, solucionador en Worker i client del rànquing
 data/      taules binàries, catàleg i estadístiques reproduïbles
-assets/    SVG propi, distintiu de llicència i generador QR local
-server/    esquema SQL i Edge Function de validació
+assets/    SVG propi i distintiu de llicència
+firebase/  regles de seguretat de Firestore
 scripts/   generació de dades i servidor de desenvolupament
-tests/     motor, progrés, navegador, fluxos complets i integració remota
-docs/      guia docent, revisió crítica, captures i fitxa d’exemple
+tests/     motor, navegador i fluxos complets
+docs/      guia docent, revisió crítica i captures
 ```
 
 ## Publicació i servei compartit
 
 El frontend viu a GitHub Pages, dins del repositori `felipsarroca/jocs`. Els fitxers publicats són els mateixos que hi ha en aquesta carpeta. La CI comprova el motor i la sintaxi.
 
-El servidor és el projecte Supabase dedicat **Maniobres**, regió `eu-west-1`, referència `zcwsqrgxoxvjbvpulroq`. El cost indicat en crear-lo era de 0 €/mes; cal revisar les quotes si creix l’ús. No depèn dels altres projectes de Felip.
+El rànquing usa el projecte Firebase dedicat **maniobres-cat** (Firestore a `eur3`, pla gratuït Spark) amb accés anònim. La configuració web de `src/ranking.js` és pública per disseny; la seguretat la donen les regles de `firebase/firestore.rules`:
 
-`server/schema.sql` documenta la migració aplicada. L’Edge Function `maniobres` es desplega amb `server/index.ts`, `src/engine.js` i `data/catalog.json`, preservant aquestes rutes. `verify_jwt=false` és intencional: és una API pública que valida les capacitats de dispositiu i les solucions; no usa sessions de Supabase Auth.
+- cada jugador només pot escriure el seu document i reservar el seu nom;
+- cada actualització afegeix o millora com a molt un resultat, amb l’hora del servidor i un format de solució vàlid;
+- la lectura és pública.
 
-Les taules tenen RLS activada i no concedeixen accés a `anon` ni `authenticated`. Només l’Edge Function utilitza la clau de servei, llegida de l’entorn del servidor. **No hi ha secrets al frontend.** El token de dispositiu només es conserva al seu navegador; al servidor se’n desa el resum SHA-256. Hi ha límits de peticions i d’enviaments.
+Per desplegar les regles: `cd firebase` i `firebase deploy --only firestore:rules --project maniobres-cat`.
 
 Per a una actualització, executa les proves, actualitza la versió de la memòria cau de `sw.js` quan canviïn recursos i publica els fitxers. El nou service worker s’activa quan es tanquen les pestanyes antigues.
 
 ## Privacitat i ús escolar
 
-No es demanen noms, correus ni edats. La publicació envia un identificador pseudònim, el puzle, la seqüència, la durada i la data. No hi ha analítica ni publicitat. El proveïdor pot conservar registres tècnics de connexió segons les seves polítiques. El botó d’esborrament elimina els resultats i les sales pròpies del servidor i el progrés local.
-
-Un pseudònim vinculable a un alumne continua sent dada personal. El centre ha de validar l’ús i la base jurídica del tractament. El codi de sala dona accés al seu tauler: cal compartir-lo només amb el grup. El control de la sala queda vinculat al navegador creador; no hi ha recuperació de comptes entre dispositius.
+No es demanen correus, contrasenyes ni edats. El rànquing desa el nom de jugador, les solucions i les dates. No hi ha analítica ni publicitat. El botó «Esborra’m» elimina el nom i tots els resultats propis. Un nom que permeti identificar un alumne és una dada personal: cal demanar noms de joc i que el centre en validi l’ús.
 
 Materials preparats i revisats tècnicament i visualment. **Pendents de validació amb alumnat.**
 
@@ -113,4 +108,4 @@ Aplicació creada per **Felip Sarroca amb assistència de la IA**. El nom «Mani
 - [Simon R. Blackburn, *Inglenook Shunting Puzzles*](https://arxiv.org/abs/1810.07970).
 - [Adrian Wymann, *Model Railways Shunting Puzzles*](https://www.wymann.info/ShuntingPuzzles/).
 
-Codi: [AGPLv3](LICENSE) · Continguts (textos, SVG originals i materials): [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca) · [Suggeriments i errors](https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml). El generador QR de Kazuhiko Arase conserva la seva llicència MIT i els crèdits a `assets/qrcode.js`. No s’han utilitzat recursos visuals de tercers.
+Codi: [AGPLv3](LICENSE) · Continguts (textos, SVG originals i materials): [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca) · [Suggeriments i errors](https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml). El rànquing carrega el SDK de Firebase (Apache 2.0) des de gstatic.com. No s’han utilitzat recursos visuals de tercers.

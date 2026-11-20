@@ -1,30 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const CACHE = "maniobres-v1.3.0-1";
+const CACHE = "maniobres-v2.0.0-1";
 const FILES = [
   "./",
   "./index.html",
   "./src/app.js",
   "./src/engine.js",
-  "./src/online.js",
-  "./src/progress.js",
+  "./src/ranking.js",
   "./src/solver-worker.js",
   "./src/style.css",
   "./assets/favicon.svg",
   "./assets/license.png",
-  "./assets/qrcode.js",
   "./manifest.webmanifest",
   "./data/catalog.json",
-  "./data/stats.json",
-  ...[
-    "mini",
-    "intermedia",
-    "classic",
-    "curta",
-    "asimetrica",
-    "estreta",
-    "compacta",
-  ].map((x) => "./data/" + x + ".bin"),
-  "./docs/guia-docent.md",
+  "./data/mini.bin",
+  "./data/classic.bin",
 ];
 self.addEventListener("install", (event) =>
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES))),

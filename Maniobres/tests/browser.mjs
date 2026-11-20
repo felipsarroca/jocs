@@ -38,7 +38,7 @@ console.log(
 await page.locator('[data-via="1"]').last().click();
 await page.locator("[data-cut]:not(:disabled)").first().click();
 await page.locator('[data-action="undo"]').click();
-for (const v of ["campaign", "lab", "class", "info", "sprint", "ranking"]) {
+for (const v of ["about", "ranking"]) {
   await page.locator(`[data-nav="${v}"]`).click();
   await page.waitForTimeout(v === "ranking" ? 1800 : 100);
   console.log("view", v, await page.locator("h1").textContent());

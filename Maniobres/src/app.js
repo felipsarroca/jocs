@@ -7,22 +7,14 @@ import {
   move,
   moves,
   won,
-  daily,
-  dateKey,
+  score,
+  stars,
   hash,
   rng,
   puzzleFromKey,
 } from "./engine.js";
-import { api } from "./online.js";
-import {
-  ACHIEVEMENTS,
-  normalize,
-  rating,
-  record,
-  visit,
-  streak,
-  title,
-} from "./progress.js";
+import * as online from "./ranking.js";
+
 const $ = (s) => document.querySelector(s),
   root = $("#app"),
   dialog = $("#dialog");
@@ -56,15 +48,15 @@ function icon(n) {
   return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[n] || paths.info}"/></svg>`;
 }
 const colors = [
-  "#aebbc0",
-  "#f2b35d",
-  "#80c8bd",
-  "#d28e82",
-  "#a8add2",
-  "#dfca7e",
-  "#7fa7c3",
-  "#b5bf91",
-  "#cba8bc",
+  "#c9d3da",
+  "#ff7a6b",
+  "#ffb347",
+  "#ffe066",
+  "#7bd88f",
+  "#5ccfe6",
+  "#7ab8ff",
+  "#b69cff",
+  "#ff9ccf",
 ];
 const esc = (x) =>
   String(x).replace(
@@ -89,69 +81,24 @@ function save(k, v) {
     storageOK = false;
   }
 }
-let token = read("token", null);
-if (!token) {
-  token = crypto.randomUUID() + crypto.randomUUID();
-  save("token", token);
-}
 let prefs = read("prefs", {
-    sound: false,
-    reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
-    minimum: true,
-  }),
-  records = read("records", []).filter((r) => Date.now() - r.at < 30 * 864e5),
-  progress = read("progress", {}),
-  room = read("room", null),
-  teacher = read("teacher", null),
-  prog = normalize(read("prog", null));
-save("records", records);
+  sound: false,
+  reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
+  minimum: true,
+});
+let solvedLocal = read("solved", []);
 document.body.classList.toggle("reduced", prefs.reduced);
-let catalog, stats;
+let catalog;
 try {
-  [catalog, stats] = await Promise.all(
-    ["catalog", "stats"].map(async (f) => {
-      const r = await fetch(`data/${f}.json`);
-      if (!r.ok) throw Error();
-      return r.json();
-    }),
-  );
+  const r = await fetch("data/catalog.json");
+  if (!r.ok) throw Error();
+  catalog = await r.json();
 } catch {
   root.innerHTML =
     '<p class="loading">No s’han pogut carregar les dades. Comprova la connexió i torna a obrir el joc.</p>';
   throw Error("Dades no disponibles");
 }
-const campaign = [];
-for (let line = 0; line < 6; line++) {
-  const a = catalog.filter(
-    (p) =>
-      p.config ===
-        (line === 0 ? "mini" : line === 1 ? "intermedia" : "classic") &&
-      p.min >=
-        (line < 2
-          ? 2
-          : line === 2
-            ? 5
-            : line === 3
-              ? 9
-              : line === 4
-                ? 13
-                : 16) &&
-      p.min <=
-        (line < 2
-          ? 12
-          : line === 2
-            ? 8
-            : line === 3
-              ? 12
-              : line === 4
-                ? 15
-                : 17),
-  );
-  for (let j = 0; j < 10; j++)
-    campaign.push(a[Math.floor((j * (a.length - 1)) / 9)]);
-}
 let view = "play",
-  rankTab = "season",
   difficulty = "facil",
   selected = 0,
   game = null,
@@ -163,16 +110,27 @@ let view = "play",
   solverResolve = null,
   autoplay = false,
   preview = null,
-  rankData = null,
-  sprintEnd = 0,
-  sprintSolved = 0,
-  sprintTimer = null,
-  onlineMessage = "",
-  tutorialStep = 0;
+  tutorialStep = 0,
+  player = null,
+  board_ = null;
+const LEVELS = {
+  facil: ["Fàcil", 2, 8],
+  mitja: ["Mitjà", 9, 12],
+  dificil: ["Difícil", 13, 15],
+  expert: ["Expert", 16, 17],
+};
+const levelOf = (min) =>
+  Object.values(LEVELS).find(([, lo, hi]) => min >= lo && min <= hi)?.[0] || "";
+
 const worker = new Worker(new URL("./solver-worker.js", import.meta.url), {
   type: "module",
 });
 worker.onmessage = ({ data }) => {
+  if (data.verified) {
+    verifyResolve?.(data.verified);
+    verifyResolve = null;
+    return;
+  }
   if (data.generated) {
     start(data.generated);
     return;
@@ -321,7 +279,6 @@ function start(p, mode = "free", extra = {}) {
     started: Date.now(),
     finished: false,
     mode,
-    date: dateKey(),
     ...extra,
   };
   selected = 0;
@@ -332,41 +289,16 @@ function start(p, mode = "free", extra = {}) {
   persist();
   solve();
   render();
-  if (!extra.replay) celebrate(visit(prog, mode));
 }
-function celebrate(codes) {
-  save("prog", prog);
-  if (!codes?.length) return;
-  const names = codes.map((c) => ACHIEVEMENTS.find((a) => a[0] === c)?.[1]);
-  toast("Nou èxit: " + names.join(" · "));
+// Clau del puzle per al rànquing: la posició inicial canònica del joc clàssic.
+function puzzleKey(g = game) {
+  return g.config === "classic" ? String(key(canonical(g.initial, 5))) : null;
 }
-const navs = [
-  ["play", "play", "Estació"],
-  ["daily", "calendar", "Repte diari"],
-  ["campaign", "route", "Les sis línies"],
-  ["ranking", "trophy", "Rànquing"],
-  ["lab", "lab", "Laboratori"],
-  ["class", "users", "A l’aula"],
-  ["sprint", "clock", "Contrarellotge"],
-  ["progress", "medal", "El meu progrés"],
-  ["info", "info", "Sobre el joc"],
-];
 function render() {
-  document.body.classList.toggle(
-    "projector",
-    !!prefs.projector && view === "play",
-  );
-  root.innerHTML = `<div class="shell"><header class="topbar"><button class="brand" data-nav="play" aria-label="Maniobres, anar a l’estació"><img src="assets/favicon.svg" alt=""><span><strong>Maniobres</strong><small>Cada moviment compta</small></span></button><div class="top-actions"><button data-action="tutorial">${icon("info")} Com s’hi juga</button><button data-action="settings" aria-label="Preferències">${icon("settings")}</button></div></header><div class="layout"><nav class="nav" aria-label="Modes de joc">${navs.map(([v, i, n]) => `<button data-nav="${v}" class="${view === v ? "active" : ""}" ${view === v ? 'aria-current="page"' : ""}>${icon(i)}${n}</button>`).join("")}<div class="nav-note"><span class="status-dot"></span>Sense anuncis. Sense presses.<br>Un petit pati de vies.<br>Moltes maneres de pensar.</div></nav><main id="main"></main></div></div>`;
+  root.innerHTML = `<div class="shell"><header class="topbar"><button class="brand" data-nav="play" aria-label="Maniobres, anar al joc"><img src="assets/favicon.svg" alt=""><span><strong>Maniobres</strong><small>Cada moviment compta</small></span></button><nav class="tabs-top" aria-label="Seccions"><button data-nav="play" class="${view === "play" ? "active" : ""}">${icon("play")} Jugar</button><button data-nav="ranking" class="${view === "ranking" ? "active" : ""}">${icon("trophy")} Rànquing</button><button data-nav="about" class="${view === "about" ? "active" : ""}">${icon("info")} Sobre el joc</button></nav><div class="top-actions"><button data-action="tutorial">${icon("info")} Com s’hi juga</button><button data-action="settings" aria-label="Preferències">${icon("settings")}</button></div></header><main id="main"></main></div>`;
   if (view === "play") renderGame();
-  else if (view === "campaign") renderCampaign();
-  else if (view === "ranking") {
-    renderRanking();
-    loadRanking();
-  } else if (view === "lab") renderLab();
-  else if (view === "class") renderClass();
-  else if (view === "info") renderInfo();
-  else if (view === "sprint") renderSprint();
-  else if (view === "progress") renderProgress();
+  else if (view === "about") renderAbout();
+  else renderRanking();
 }
 function wagon(w, x, y, extra = "") {
   w = game.labels?.[w - 1] ?? w;
@@ -422,7 +354,7 @@ function board(s = game.state, c = config(), interactive = true) {
     a += "</g>";
   }
   a += cutTarget(
-    `<g transform="translate(${loco} 220)"><rect x="0" y="-23" width="56" height="46" rx="7" fill="#304f49" stroke="#1b3734" stroke-width="2"/><rect x="5" y="-17" width="18" height="34" rx="3" fill="#172f32"/><path d="M31-14h17m-17 7h17m-17 7h17m-17 7h17m-17 7h17" stroke="#a8b9a5" stroke-width="2"/><path d="M10-25h34M10 25h34" stroke="#1d3439" stroke-width="5"/><circle cx="53" cy="-13" r="3" fill="#f6cd82"/><circle cx="53" cy="13" r="3" fill="#f6cd82"/><text x="28" y="44" text-anchor="middle" font-family="system-ui" font-size="11" fill="#53625c">Locomotora</text></g>`,
+    `<g transform="translate(${loco} 220)"><rect x="0" y="-23" width="56" height="46" rx="7" fill="#e5533d" stroke="#a63322" stroke-width="2"/><rect x="5" y="-17" width="18" height="34" rx="3" fill="#2b3a4a"/><path d="M31-14h17m-17 7h17m-17 7h17m-17 7h17m-17 7h17" stroke="#ffd2c4" stroke-width="2"/><path d="M10-25h34M10 25h34" stroke="#1d3439" stroke-width="5"/><circle cx="53" cy="-13" r="3" fill="#f6cd82"/><circle cx="53" cy="13" r="3" fill="#f6cd82"/><text x="28" y="44" text-anchor="middle" font-family="system-ui" font-size="11" fill="#53625c">Locomotora</text></g>`,
     selected,
     0,
     s,
@@ -462,15 +394,6 @@ function renderGame() {
   const c = config(),
     isWon = won(game.state, c),
     blocked = remaining === null && !solving && !isWon,
-    modeNames = {
-      free: "Partida lliure",
-      daily: "Repte diari",
-      campaign: "Les sis línies · nivell " + ((game.level ?? 0) + 1),
-      lab: "Laboratori",
-      class: "Repte de classe",
-      sprint: "Contrarellotge",
-      tutorial: "Primera maniobra",
-    },
     show = (x) => (prefs.minimum ? (x ?? "—") : "?"),
     notation = game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "),
     instruction = isWon
@@ -481,7 +404,7 @@ function renderGame() {
           ? `<b>2</b> Via ${"ABC"[selected - 1]}: toca el darrer vagó que vols endur-te, o la locomotora per tornar sola.`
           : `<b>1</b> Arrossega vagons: d’una via a la locomotora per endur-te’ls, o del tren de la locomotora a una via per deixar-los.`;
   $("#main").innerHTML =
-    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${modeNames[game.mode]} · ${c.name}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<span class="wagon-chip" style="--w:${colors[game.labels?.[i] ?? i + 1]}">${game.labels?.[i] ?? i + 1}</span>`).join("")}</span><small>de les agulles cap al fons</small></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div>${sprintEnd ? `<div class="warning"><b id="sprint-time">${time(Math.max(0, Math.ceil((sprintEnd - Date.now()) / 1000)))}</b><small>ronda</small></div>` : ""}</div></div>${game.mode === "class" ? `<div class="room-banner">Estació compartida <strong>${esc(game.room)}</strong></div>` : ""}<div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? Array.from({ length: c.h + 1 }, (_, k) => `<button data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "Locomotora sola" : k + " " + (k === 1 ? "vagó" : "vagons")}</button>`).join("") + `<button class="ghost" data-action="cancel">Cancel·la</button>` : [1, 2, 3].map((v) => `<button data-via="${v}" ${autoplay ? "disabled" : ""}>Via ${"ABC"[v - 1]} <span class="muted">${game.state[v].length}/${c.caps[v - 1]}</span></button>`).join("")}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button data-action="history">${icon("route")} Historial${game.log.length ? ` <span class="muted">${game.log.length}</span>` : ""}</button><button data-action="new-menu">${icon("play")} Nou repte</button><button data-action="print" aria-label="Fitxa imprimible">${icon("print")}</button><button data-action="projector" aria-label="${prefs.projector ? "Sortir del projector" : "Mode projector"}">${icon("screen")}</button></div></div></div>`;
+    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${game.mode === "tutorial" ? "Partida de pràctica · no puntua" : game.min ? levelOf(game.min) + " · " + score(game.min, game.min) + " punts amb el mínim" : "Preparant…"}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<span class="wagon-chip" style="--w:${colors[game.labels?.[i] ?? i + 1]}">${game.labels?.[i] ?? i + 1}</span>`).join("")}</span><small>de les agulles cap al fons</small></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div></div></div><div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? Array.from({ length: c.h + 1 }, (_, k) => `<button data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "Locomotora sola" : k + " " + (k === 1 ? "vagó" : "vagons")}</button>`).join("") + `<button class="ghost" data-action="cancel">Cancel·la</button>` : ""}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="primary" data-action="new-menu">${icon("play")} Nou repte</button></div></div></div>`;
 }
 function select(v) {
   if (!game || game.finished || autoplay) return;
@@ -541,58 +464,23 @@ function finish() {
   requestId++;
   solving = false;
   sound("whistle");
-  const stars = rating(game.log.length, game.min, game.hints);
-  game.outcome = null;
-  if (!autoplay) {
-    records.push({
-      id: game.id,
-      min: game.min,
-      moves: game.log.length,
-      at: Date.now(),
-      seconds: game.seconds,
-      mode: game.mode,
-      hints: game.hints,
-    });
-    records = records.filter((r) => Date.now() - r.at < 30 * 864e5);
-    save("records", records);
-    let lineComplete = false;
-    if (game.mode === "campaign") {
-      progress[game.level] = Math.max(progress[game.level] || 0, stars);
-      save("progress", progress);
-      const first = game.level - (game.level % 10);
-      lineComplete = Array.from({ length: 10 }, (_, j) => progress[first + j]).every(
-        (x) => x === 3,
-      );
-    }
-    if (game.mode === "sprint") sprintSolved++;
-    game.outcome = record(
-      prog,
-      {
-        id: game.id,
-        config: game.config,
-        mode: game.mode,
-        min: game.min,
-        moves: game.log.length,
-        hints: game.hints,
-        undos: game.undos,
-        seconds: game.seconds,
-        date: game.date,
-      },
-      { today: dateKey(), lineComplete },
-    );
-    save("prog", prog);
+  const k = puzzleKey();
+  if (!autoplay && k && !solvedLocal.includes(k)) {
+    solvedLocal = [...solvedLocal, k].slice(-5000);
+    save("solved", solvedLocal);
   }
+  game.ranked = !autoplay && !game.hints && !!k ? "pending" : null;
   persist();
   renderGame();
-  if (!autoplay) {
-    const g = game;
-    setTimeout(
-      () => {
-        if (game === g && view === "play" && !dialog.open) showResult();
-      },
-      prefs.reduced ? 1200 : 2600,
-    );
-  }
+  if (autoplay) return;
+  if (game.ranked && player?.name) publish();
+  const g = game;
+  setTimeout(
+    () => {
+      if (game === g && view === "play" && !dialog.open) showResult();
+    },
+    prefs.reduced ? 1200 : 2600,
+  );
 }
 function modal(html) {
   dialog.innerHTML = `<button class="close" data-action="close" aria-label="Tancar">×</button>${html}`;
@@ -603,143 +491,122 @@ function modal(html) {
   }
   if (!dialog.open) dialog.showModal();
 }
+function rankingNote() {
+  const g = game;
+  if (g.mode === "tutorial") return "Partida de pràctica: no puntua al rànquing.";
+  if (g.hints) return "Amb pistes o veient la solució, la partida no puntua al rànquing.";
+  if (!g.ranked) return "";
+  if (!player?.name)
+    return `<b>Vols sortir al rànquing?</b> Tria un nom de jugador i aquesta partida hi sumarà ${score(g.min, g.log.length)} punts.<span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom de jugador" aria-label="Nom de jugador"><button class="primary" data-action="register">Desa</button></span><small>Serà públic. No hi posis el teu nom i cognoms reals.</small>`;
+  if (g.ranked === "pending") return "Desant el resultat al rànquing…";
+  if (g.ranked === "kept") return "Ja tenies aquest puzle resolt amb menys moviments o igual: el rànquing conserva el millor resultat.";
+  if (g.ranked === "error") return `No s’ha pogut desar el resultat. <button class="ghost" data-action="retry">Torna-ho a provar</button>`;
+  return `+${score(g.min, g.log.length)} punts al rànquing per a <b>${esc(player.name)}</b>.`;
+}
 function showResult() {
-  const n = rating(game.log.length, game.min, game.hints),
-    o = game.outcome,
-    extra = game.min != null ? game.log.length - game.min : null,
-    near =
-      extra === 1
-        ? "A 1 moviment del mínim!"
-        : extra === 2
-          ? "A 2 moviments del mínim. Gairebé!"
-          : "",
-    news = [
-      o?.improved
-        ? `Nou rècord personal: ${game.log.length} moviments (abans ${o.previous}).`
-        : o && o.previous !== null && game.log.length >= o.previous
-          ? `El teu rècord en aquest puzle és de ${o.previous} moviments.`
-          : "",
-      o?.xp ? `+${o.xp} punts d’experiència.` : "",
-      ...(o?.unlocked || []).map(
-        (c) => "Nou èxit: " + ACHIEVEMENTS.find((a) => a[0] === c)[1] + ".",
-      ),
-    ].filter(Boolean);
+  const n = stars(game.log.length, game.min),
+    extra = game.min != null ? game.log.length - game.min : null;
   modal(
-    `<div class="eyebrow">Servei completat</div><h2>${n === 3 ? "Una maniobra perfecta." : "El tren ja pot sortir."}</h2><div class="big-stars" aria-label="${n} estrelles">${"★".repeat(n)}${"☆".repeat(3 - n)}</div><p class="your-solution">La teva solució: <b>${esc(game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "))}</b></p><p><b>${game.log.length} moviments</b> · mínim ${game.min ?? "desconegut"} · ${time(game.seconds)}${game.hints ? " · amb ajuda" : ""}</p><p>${extra === 0 ? (game.hints ? "Has arribat al mínim, però amb ajuda: la pista resta una estrella." : "Has trobat un dels camins més curts possibles.") : near || `Pots tornar-hi i explorar una altra estratègia.${extra != null ? " T’has quedat a " + extra + " moviments del mínim." : ""}`}${extra && game.hints ? " La pista resta una estrella." : ""}</p>${news.length ? `<ul class="result-news">${news.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}<div class="dialog-actions"><button class="primary" data-action="next">${game.mode === "campaign" ? "Següent nivell" : "Següent repte"}</button><button data-action="optimal">Veure la solució òptima</button><button data-action="share">Compartir</button>${["daily", "class"].includes(game.mode) ? '<button class="accent" data-action="submit">Publicar al rànquing</button>' : ""}</div><p id="online-message" style="margin-top:16px;font-size:12px">${["daily", "class"].includes(game.mode) ? "Publicació opcional amb pseudònim automàtic. El resultat caduca als 30 dies." : ""}</p>`,
+    `<div class="eyebrow">Tren format</div><h2>${extra === 0 ? "Una maniobra perfecta." : "El tren ja pot sortir."}</h2><div class="big-stars" aria-label="${n} estrelles">${"★".repeat(n)}${"☆".repeat(3 - n)}</div><p><b>${game.log.length} moviments</b> · mínim ${game.min ?? "?"} · ${time(game.seconds)}</p><p class="your-solution">La teva solució: <b>${esc(game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "))}</b></p><p>${extra === 0 ? "Has trobat un dels camins més curts possibles." : extra === 1 ? "A 1 moviment del mínim!" : extra != null ? `T’has quedat a ${extra} moviments del mínim.` : ""}</p><div class="rank-note" id="rank-note">${rankingNote()}</div><div class="dialog-actions"><button class="primary" data-action="next">Següent repte</button><button data-action="optimal">Veure la solució òptima</button></div>`,
   );
 }
-function renderCampaign() {
-  const names = [
-    "Aprendre a maniobrar",
-    "La línia intermèdia",
-    "Guanyar espai",
-    "Pensar abans de moure",
-    "L’art de l’estratègia",
-    "Els disset moviments",
-  ];
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">60 parades · 6 línies</div><h1>El viatge de l’aprenent.</h1><p>De la primera maniobra al repte més exigent.</p></div><span class="badge">${Object.keys(progress).length}/60 completades</span></div><div class="cards">${names
-      .map(
-        (n, i) =>
-          `<section class="panel card"><div class="route-num">LÍNIA 0${i + 1} ━━━━━━━━━</div><h3>${n}</h3><p>${i === 0 ? "Cinc vagons. Una estació per començar." : i === 1 ? "Set vagons i una mica més de recorregut." : i === 5 ? "Deu reptes de 16 o 17 moviments mínims." : "Deu reptes per trobar la teva estratègia."}</p><div class="levels">${campaign
-            .slice(i * 10, i * 10 + 10)
-            .map(
-              (p, j) =>
-                `<button class="level" data-level="${i * 10 + j}" aria-label="Nivell ${i * 10 + j + 1}, mínim ${p.min} moviments">${String(i * 10 + j + 1).padStart(2, "0")}<small>${progress[i * 10 + j] ? "★".repeat(progress[i * 10 + j]) : "· · ·"}</small></button>`,
-            )
-            .join("")}</div></section>`,
-      )
-      .join("")}</div>`;
+function refreshNote() {
+  const el = $("#rank-note");
+  if (el) el.innerHTML = rankingNote();
 }
+async function publish() {
+  const g = game;
+  g.ranked = "pending";
+  refreshNote();
+  try {
+    const x = await online.submit(puzzleKey(g), g.log);
+    g.ranked = x.kept ? "kept" : "done";
+    board_ = null;
+  } catch {
+    g.ranked = "error";
+  }
+  persist();
+  if (game === g) refreshNote();
+}
+async function loadPlayer() {
+  try {
+    player = await online.me();
+  } catch {
+    player = null;
+  }
+  return player;
+}
+let verifyResolve = null;
+function verify(list) {
+  return new Promise((resolve) => {
+    verifyResolve = resolve;
+    worker.postMessage({ type: "verify", config: "classic", players: list, now: Date.now(), request: -1 });
+  });
+}
+const avatarColor = (name) => colors[1 + (hash(name) % 8)];
+const initial = (name) => esc([...name.trim()][0]?.toUpperCase() || "?");
+function avatar(name) {
+  return `<span class="avatar" style="--a:${avatarColor(name)}">${initial(name)}</span>`;
+}
+function meCard() {
+  if (player?.name) {
+    const mine = board_?.rows.find((r) => r.me);
+    return `<div class="me-line">${avatar(player.name)}<span class="grow">Jugues com a <b>${esc(player.name)}</b>${mine ? ` · <b>${mine.rank}r</b> lloc amb ${mine.points} punts` : " · encara sense punts"}</span><button class="ghost" data-action="rename">Canvia el nom</button><button class="ghost" data-action="erase">Esborra’m</button></div>`;
+  }
+  return `<b>Tria un nom de jugador per sortir al rànquing.</b><span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom de jugador" aria-label="Nom de jugador"><button class="primary" data-action="register">Desa</button></span><small>Serà públic i únic. No hi posis el teu nom i cognoms reals. Queda lligat a aquest navegador.</small>`;
+}
+const trophyArt = `<svg class="hero-art" viewBox="0 0 220 150" aria-hidden="true"><rect x="20" y="96" width="56" height="44" rx="6" fill="#ffffff55"/><rect x="82" y="66" width="56" height="74" rx="6" fill="#ffffff88"/><rect x="144" y="112" width="56" height="28" rx="6" fill="#ffffff44"/><text x="110" y="112" text-anchor="middle" font-size="30" font-weight="900" fill="#c06a00" font-family="system-ui">1</text><text x="48" y="126" text-anchor="middle" font-size="22" font-weight="900" fill="#fff" font-family="system-ui">2</text><text x="172" y="134" text-anchor="middle" font-size="18" font-weight="900" fill="#fff" font-family="system-ui">3</text><path d="M92 14h36v16a18 18 0 01-36 0zM92 18H80v6a12 12 0 0012 12M128 18h12v6a12 12 0 01-12 12M110 48v8m-10 4h20" fill="#fff" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></svg>`;
 function renderRanking() {
-  const d = new Date(),
-    localDay = dateKey(),
-    [yr, mo, dy] = localDay.split("-").map(Number),
-    days = Math.round((Date.UTC(yr, mo, 1) - Date.UTC(yr, mo - 1, dy)) / 864e5),
-    month = new Intl.DateTimeFormat("ca", {
-      month: "long",
-      year: "numeric",
-      timeZone: "Europe/Madrid",
-    }).format(d);
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">El tauler de l’estació</div><h1>Cada mes, una nova sortida.</h1><p>Reptes compartits. Petites victòries. Sempre hi ets a temps.</p></div></div><section class="season-hero"><div><div class="eyebrow">Temporada en curs</div><h2>${esc(month.charAt(0).toUpperCase() + month.slice(1))}</h2><p>Un millor resultat per dia. Tothom comença de nou cada mes.</p></div><div class="season-clock"><strong>${days} dies</strong><small>per al canvi de temporada</small></div></section><div class="tabs" role="group" aria-label="Classificació"><button data-rank="season" class="${rankTab === "season" ? "active" : ""}">Temporada</button><button data-rank="daily" class="${rankTab === "daily" ? "active" : ""}">Avui</button><button data-rank="local" class="${rankTab === "local" ? "active" : ""}">El meu quadern</button>${room ? `<button data-rank="class" class="${rankTab === "class" ? "active" : ""}">La meva classe</button>` : ""}</div><div id="rank-content"><div class="panel empty">Carregant el tauler…</div></div><div class="legend"><span><b>100 punts</b> amb el mínim</span><span><b>−5 punts</b> per moviment extra</span><span><b>30 dies</b> de conservació</span></div><p class="muted" style="font-size:12px">Només reptes sense pistes ni reproducció de la solució. Els empats comparteixen posició; la velocitat no desempata. Classificació lúdica, no una qualificació escolar. <button class="ghost" data-action="daily">Juga el repte d’avui ${icon("arrow")}</button></p>`;
+  $("#main").innerHTML = `<div class="page"><section class="hero rank-hero"><div><div class="eyebrow">Rànquing públic</div><h1>Els millors caps de maniobres</h1><p>Cada puzle resolt sense pistes suma punts: com més difícil i com més a prop del mínim, més punts. Cada puzle compta una sola vegada, amb el teu millor resultat.</p><div class="hero-stats" id="hero-stats"></div></div>${trophyArt}</section><section class="panel me-card">${meCard()}</section><div id="rank-list"><div class="panel empty">Carregant el rànquing…</div></div><div class="rank-rules"><div><b>10 punts</b>per cada moviment del mínim: un puzle de 12 en val 120.</div><div><b>−5 punts</b>per cada moviment de més, fins a quedar-te amb una quarta part.</div><div><b>1 any</b>dura cada resultat. Després caduca i el puzle es pot tornar a puntuar.</div></div></div>`;
+  loadRanking();
 }
 async function loadRanking() {
-  const tab = rankTab;
-  if (tab === "local") {
-    const data = records.slice().reverse();
-    $("#rank-content").innerHTML = data.length
-      ? `<div class="panel">${data
-          .slice(0, 40)
-          .map(
-            (r) =>
-              `<div class="ranking-row"><span class="pos">${rating(r.moves, r.min, r.hints)}★</span><span>${esc(r.id)}${r.hints ? " · amb ajuda" : ""}</span><span class="score">${r.moves} mov.</span><small>${new Date(r.at).toLocaleDateString("ca")}</small></div>`,
-          )
-          .join("")}</div>`
-      : empty(
-          "El teu quadern comença aquí.",
-          "Resol un puzle i hi trobaràs el resultat durant 30 dies.",
-        );
-    return;
-  }
   try {
-    const data = await api("board", {
-      scope: tab,
-      room: tab === "class" ? room?.code : undefined,
-      token,
-    });
-    if (view !== "ranking" || rankTab !== tab) return;
-    rankData = data;
-    const rows = data.rows;
-    if (!rows.length) {
-      $("#rank-content").innerHTML = empty(
-        "El primer tren encara no ha arribat.",
-        "Resol el repte diari i publica el teu resultat. El primer lloc pot ser teu.",
-      );
-      return;
+    if (!board_ || Date.now() - board_.at > 30e3) {
+      const { uid, list } = await online.players(),
+        rows = (await verify(list)).filter((r) => r.points > 0);
+      rows.sort((a, b) => b.points - a.points || b.solved - a.solved || a.name.localeCompare(b.name));
+      let last = null,
+        rank = 0;
+      rows.forEach((r, i) => {
+        if (r.points !== last) rank = i + 1;
+        r.rank = rank;
+        last = r.points;
+        r.me = r.uid === uid;
+      });
+      board_ = { rows, at: Date.now() };
     }
-    const top = rows.slice(0, 3),
-      order = top.length === 3 ? [1, 0, 2] : top.map((_, i) => i);
-    $("#rank-content").innerHTML =
-      `<div class="podium" ${top.length < 3 ? `style="grid-template-columns:repeat(${top.length},1fr)"` : ""}>${order.map((i) => `<div class="panel podium-card ${i === 0 ? "first" : i === 2 ? "third" : ""}"><div class="medal">${top[i].rank}</div><strong>${esc(top[i].name)}${top[i].me ? " · tu" : ""}</strong><div class="points">${top[i].points}</div><small>punts · ${top[i].games} ${top[i].games === 1 ? "repte" : "reptes"}</small></div>`).join("")}</div><div class="panel">${rows.map((r) => `<div class="ranking-row ${r.me ? "me" : ""}"><span class="pos">${String(r.rank).padStart(2, "0")}</span><span>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</span><span class="score">${r.points} <small>punts</small></span><small>${r.games} ${r.games === 1 ? "repte" : "reptes"}</small></div>`).join("")}</div>`;
+    if (view !== "ranking") return;
+    const rows = board_.rows,
+      mine = rows.find((r) => r.me),
+      top = rows[0]?.points || 1,
+      total = rows.reduce((t, r) => t + r.solved, 0);
+    $("#hero-stats").innerHTML = `<div><strong>${rows.length}</strong><small>jugadors</small></div><div><strong>${total}</strong><small>puzles resolts</small></div>${mine ? `<div><strong>${mine.rank}r</strong><small>el teu lloc</small></div>` : ""}`;
+    if (player?.name && !$("#name-input")) $(".me-card").innerHTML = meCard();
+    const pod = rows.slice(0, 3),
+      order = [1, 0, 2],
+      rest = rows.slice(3, 100),
+      row = (r) =>
+        `<div class="ranking-row ${r.me ? "me" : ""}"><span class="pos">${r.rank}</span>${avatar(r.name)}<span class="who">${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}<small>${r.solved} ${r.solved === 1 ? "puzle" : "puzles"}</small></span><span class="bar"><i style="width:${Math.max(4, (100 * r.points) / top)}%"></i></span><span class="score">${r.points}</span></div>`;
+    $("#rank-list").innerHTML = rows.length
+      ? `<div class="podium">${order
+          .map((i) => [pod[i], i])
+          .map(([r, i]) =>
+            !r
+              ? `<div class="panel podium-card free p${i + 1}"><span class="avatar" style="--a:#d8e3ec">?</span><strong>Lloc lliure</strong><div class="pts">—</div><small>pot ser teu</small><div class="step">${i + 1}</div></div>`
+              : `<div class="panel podium-card p${rows.indexOf(r) + 1} ${r.me ? "me" : ""}">${avatar(r.name)}<span class="medal">${r.rank}</span><strong>${esc(r.name)}</strong><div class="pts">${r.points}</div><small>punts · ${r.solved} ${r.solved === 1 ? "puzle" : "puzles"}</small><div class="step">${rows.indexOf(r) + 1}</div></div>`,
+          )
+          .join("")}</div>${rest.length || (mine && mine.rank > 100) ? `<div class="panel rank-table">${rest.map(row).join("")}${mine && rows.indexOf(mine) >= 100 ? row(mine) : ""}</div>` : ""}`
+      : `<div class="panel empty">${icon("trophy")}<h3>Encara no hi ha ningú al podi.</h3><p>Resol un puzle sense pistes i el primer lloc pot ser teu.</p><button class="primary" data-nav="play">Juga</button></div>`;
   } catch (e) {
-    if (view === "ranking" && rankTab === tab)
-      $("#rank-content").innerHTML = empty(
-        "El tauler no està disponible ara.",
-        "Pots continuar jugant. " + e.message,
-      );
+    if (view === "ranking")
+      $("#rank-list").innerHTML =
+        `<div class="panel empty">${icon("trophy")}<h3>El rànquing no està disponible ara.</h3><p>Comprova la connexió. Pots continuar jugant mentrestant.</p></div>`;
   }
 }
-function empty(h, p) {
-  return `<div class="panel empty">${icon("trophy")}<h3>${h}</h3><p>${p}</p></div>`;
-}
-function renderLab(id = "classic") {
-  const c = CONFIGS.find((c) => c.id === id),
-    st = stats.find((s) => s.id === id);
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">Laboratori de vies</div><h1>I si faltés una mica d’espai?</h1><p>Compara set estacions verificades. Formula una hipòtesi i posa-la a prova.</p></div></div><div class="info-grid"><section class="panel prose"><label for="lab-config">Disseny de l’estació</label><select id="lab-config" style="display:block;width:100%;margin:12px 0">${CONFIGS.map((x) => `<option value="${x.id}" ${id === x.id ? "selected" : ""}>${x.name} · ${x.caps.join("–")} · maniobra ${x.h}</option>`).join("")}</select><div class="lab-stats"><div class="lab-stat"><strong>${(st.solvable * 100).toFixed(1)} %</strong><small>Partides resolubles</small></div><div class="lab-stat"><strong>${st.max}</strong><small>Mínim més alt</small></div><div class="lab-stat"><strong>${st.mean.toFixed(1)}</strong><small>Mitjana de les resolubles</small></div></div><p>${c.n} vagons en total · tren de ${c.t} vagons · ${st.initial.toLocaleString("ca")} situacions inicials resolubles de ${st.total.toLocaleString("ca")}.</p><div class="hintbox">${st.solvable === 1 ? "Tots els repartiments inicials d’aquest model tenen solució." : "Una part dels repartiments no es pot resoldre. Un vagó pot quedar atrapat al fons d’una via."}</div><div class="dialog-actions"><button class="primary" data-lab-play="${id}">Prova un repte resoluble</button><button data-lab-random="${id}">Investiga un repartiment a l’atzar</button></div></section><section class="panel prose"><h3>Una investigació, tres passos</h3><ol><li>Prediu què passarà si escurces la via de maniobra.</li><li>Compara la clàssica amb «Maniobra curta» mantenint els mateixos vuit vagons.</li><li>Explica quin vagó no pots alliberar i per què falta espai.</li></ol><h3>Què vol dir «mínim»?</h3><p>Una entrada a una via i el retorn a la via de maniobra compten com una maniobra. La dificultat humana també depèn de com sigui de fàcil veure l’estratègia.</p><p>Els valors provenen d’una exploració exhaustiva dels estats. L’editor està acotat a aquestes set configuracions per garantir respostes exactes i ràpides.</p></section></div>`;
-}
-function renderClass() {
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">Una estació per a tota la classe</div><h1>Penseu junts. Moveu amb criteri.</h1><p>Un codi, el mateix puzle i un tauler privat del grup.</p></div></div><div class="cards"><section class="panel card"><div class="route-num">01 / ALUMNAT</div><h3>Entra a la teva estació</h3><p>Demana el codi al docent. No cal escriure cap nom ni correu.</p><div class="form-line"><input id="room-code" aria-label="Codi de classe" maxlength="10" placeholder="CODI D’ESTACIÓ" value="${esc(room?.code || "")}"></div><button class="primary" data-action="join">Entrar al repte</button></section><section class="panel card"><div class="route-num">02 / DOCENT</div><h3>Obre una estació</h3><p>Comparteix el repte actual o el repte diari. La sala i els resultats s’esborren als 30 dies.</p><select id="class-puzzle" aria-label="Repte de la sala"><option value="daily">Repte diari</option>${catalog.some((p) => p.id === game.id) ? '<option value="current">Repte actual</option>' : ""}</select><button class="primary" data-action="create-room" style="margin-top:10px">Crea una sala</button>${teacher ? `<p style="margin-top:15px">Sala: <b>${esc(teacher.code)}</b></p><div class="form-line"><button data-action="export-room">${icon("download")} CSV</button><button data-action="delete-room">Tanca i esborra</button></div>` : ""}</section><section class="panel card"><div class="route-num">03 / MATERIALS</div><h3>De la pantalla a la taula</h3><p>Imprimeix el puzle actual amb QR, projecta’l o exporta les teves partides.</p><div class="form-line"><button data-action="print">${icon("print")} Fitxa amb QR</button><button data-action="export">${icon("download")} CSV local</button></div><button data-action="guide">Guia docent</button></section></div><div class="panel prose" style="margin-top:18px"><h3>Una proposta per treballar en grup</h3><p>Repartiu quatre rols i canvieu-los després de cada puzle: planificar, executar, registrar i comprovar. Abans de moure, expliqueu què voleu aconseguir. En acabar, compareu dues solucions i justifiqueu les diferències.</p><p>El codi dona accés al tauler de la sala: compartiu-lo només amb el grup. El docent ha de validar l’ús del servei amb el centre. Els pseudònims vinculables a alumnes continuen sent dades personals.</p></div>`;
-}
-function renderInfo() {
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">Darrere de les agulles</div><h1>Un petit espai. Un gran puzle.</h1><p>Lògica ferroviària per jugar, investigar i aprendre.</p></div></div><div class="info-grid"><article class="panel prose"><h3>Per què «Maniobres»?</h3><p>Una maniobra ferroviària és un moviment que permet ordenar, enganxar o separar vehicles. Aquí cada decisió transforma l’espai disponible. El nom parla del que fas i del que aprens: preparar el següent pas.</p><h3>L’original: Inglenook Sidings</h3><p>Alan Wright va presentar aquest puzle de modelisme ferroviari el 1979. La versió clàssica té vuit vagons, tres vies de capacitats 5–3–3 i una via de maniobra per a la locomotora i tres vagons. L’objectiu és formar un tren de cinc vagons en un ordre concret.</p><p>Maniobres n’és una adaptació digital en català amb regles explícites, solucions òptimes i eines per a l’aula. No és una reproducció oficial ni està afiliada als autors de les referències.</p><h3>Les nostres regles</h3><ol><li>Forma exactament el tren objectiu a la via A, llegit des de les agulles fins al fons.</li><li>Només pots retirar els vagons accessibles des de les agulles. Els vagons no canvien d’ordre quan s’enganxen.</li><li>Tria una via i amb quants vagons en vols sortir. Entrar i tornar compta com una maniobra.</li><li>La locomotora s’acosta fins on cal per enganxar o deixar vagons. No ha d’introduir tot el tren dins la via.</li><li>En acabar cada maniobra, respecta les capacitats i deixa lliures les agulles. Els vagons sobrants poden quedar en qualsevol via, també enganxats a la locomotora.</li></ol><p>La notació <b>B2</b> vol dir: maniobra a la via B i torna amb dos vagons en total. Desfer no penalitza: reconstrueix la solució activa.</p><h3>Fonts i crèdits</h3><p><a href="https://arxiv.org/abs/1810.07970" target="_blank" rel="noopener noreferrer">Simon R. Blackburn · Inglenook Shunting Puzzles</a><br><a href="https://www.wymann.info/ShuntingPuzzles/" target="_blank" rel="noopener noreferrer">Adrian Wymann · Model Railways Shunting Puzzles</a></p><p>Codi sota llicència AGPLv3; dissenys SVG, textos i materials sota CC BY-NC-SA 4.0. Codi disponible a <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">GitHub</a>. Versió 1.3.0.</p></article><aside><section class="panel prose"><h3>Què hi trobaràs</h3><p>Partida lliure amb quatre dificultats, 60 nivells, repte diari, contrarellotge, set estacions de laboratori, pistes exactes, reproducció de solucions, fitxes amb QR, mode projector i sales de classe.</p><h3>Un rànquing que es renova</h3><p>La temporada comença el primer dia de cada mes, segons l’hora de Barcelona. El millor resultat de cada dia aporta de 10 a 100 punts. Els empats comparteixen lloc. Els resultats s’oculten en caducar als 30 dies i una neteja diària els elimina del servidor.</p><h3>Privacitat i joc honest</h3><p>No demanem nom, correu ni edat. En publicar, es desa un identificador pseudònim, la solució i la puntuació. El servidor verifica els moviments; això no pot demostrar que ningú hagi fet servir ajuda externa. No hi ha publicitat ni analítica de seguiment.</p><p>Les partides lliures es queden al dispositiu. El servei de rànquing utilitza Supabase a la UE. Els registres tècnics del proveïdor poden incloure dades de connexió. El docent ha de consultar el centre abans de vincular pseudònims a alumnat.</p><button data-action="erase">Esborra les meves dades</button><h3>Accessible i sense connexió</h3><p>Vagons amb números i colors, controls de teclat, moviment reduït i so opcional. Després de la primera càrrega completa es pot jugar sense internet; el rànquing i les sales necessiten connexió.</p></section></aside></div>`;
-}
-function renderProgress() {
-  const t = title(prog.xp),
-    today = dateKey(),
-    run = streak(prog.days, today),
-    got = ACHIEVEMENTS.filter((a) => prog.ach[a[0]]).length,
-    pct = t.to ? Math.round(((prog.xp - t.from) / (t.to - t.from)) * 100) : 100,
-    when = (ms) => new Date(ms).toLocaleDateString("ca", { day: "numeric", month: "short" });
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">El teu quadern de servei</div><h1>Cada tren t’ensenya alguna cosa.</h1><p>El progrés es desa només en aquest dispositiu.</p></div><span class="badge">${got}/${ACHIEVEMENTS.length} èxits</span></div><section class="season-hero progress-hero"><div><div class="eyebrow">Títol · nivell ${t.level}</div><h2>${esc(t.name)}</h2><div class="xp-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div><p>${prog.xp} punts d’experiència${t.to ? ` · ${t.to - prog.xp} per a «${esc(t.next)}»` : " · títol màxim"}</p></div><div class="progress-figures"><div><strong>${run}</strong><small>${run === 1 ? "dia de ratxa" : "dies de ratxa"}</small></div><div><strong>${prog.solved}</strong><small>trens resolts</small></div><div><strong>${prog.perfect}</strong><small>amb el mínim</small></div></div></section><div class="streak-line">${icon("calendar")}${prog.days.includes(today) ? "Repte d’avui fet. Torna demà per allargar la ratxa." : `<span>Repte d’avui pendent.</span> <button class="ghost" data-action="daily">Juga’l ara ${icon("arrow")}</button>`}<small>Un dia de marge per setmana: un descuit no trenca la ratxa.</small></div><div class="achievements">${ACHIEVEMENTS.map(([code, name, how]) => `<div class="achievement ${prog.ach[code] ? "on" : ""}"><span class="ach-icon">${icon(prog.ach[code] ? "medal" : "lock")}</span><div><b>${name}${prog.ach[code] ? ` <time>${when(prog.ach[code])}</time>` : ""}</b><small>${how}</small></div></div>`).join("")}</div>`;
-}
-function renderSprint() {
-  $("#main").innerHTML =
-    `<div class="page-head"><div><div class="eyebrow">Cinc minuts a l’estació</div><h1>Un tren darrere l’altre.</h1><p>Una modalitat opcional per quan et vingui de gust córrer.</p></div></div><section class="panel prose"><h2>Contrarellotge · 5:00</h2><p>Resol tants puzles fàcils com puguis en cinc minuts. Pots desfer, però les pistes no estan disponibles. Aquest mode no participa en el rànquing.</p><button class="primary" data-action="start-sprint">Comença la ronda ${icon("arrow")}</button></section>`;
+const trainArt = `<svg class="hero-art" viewBox="0 0 220 150" aria-hidden="true"><path d="M0 118h220" stroke="#ffffffaa" stroke-width="4"/><path d="M0 126h220" stroke="#ffffff66" stroke-width="10" stroke-dasharray="4 10"/><g transform="translate(6 76)"><rect width="52" height="38" rx="7" fill="#e5533d" stroke="#fff" stroke-width="3"/><rect x="6" y="6" width="16" height="26" rx="3" fill="#2b3a4a"/><circle cx="48" cy="10" r="3" fill="#ffe066"/></g>${[2, 4, 6, 7].map((w, i) => `<g transform="translate(${66 + i * 38} 80)"><rect width="34" height="32" rx="5" fill="${colors[w]}" stroke="#fff" stroke-width="3"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="900" fill="#1d2b38" font-family="system-ui">${i + 1}</text></g>`).join("")}<path d="M150 20l8 16 18 2-13 12 4 18-17-9-17 9 4-18-13-12 18-2z" fill="#ffe066"/></svg>`;
+function renderAbout() {
+  $("#main").innerHTML = `<div class="page"><section class="hero about-hero"><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Maniobres és un trencaclosques de lògica: has de formar un tren en l’ordre exacte movent els vagons amb una sola locomotora i molt poc espai. Sembla fàcil, però cada moviment compta.</p></div>${trainArt}</section><div class="about-grid"><section class="panel about-card"><span class="ic" style="background:#ff8a3d">${icon("route")}</span><h3>D’on ve</h3><p>Es basa en l’Inglenook Sidings, un clàssic del modelisme ferroviari britànic ideat per Alan Wright el 1979. Reprodueix una feina real: en una estació petita, el maquinista ha d’ordenar els vagons d’un tren de mercaderies amb vies curtes i sense espai de sobres.</p></section><section class="panel about-card"><span class="ic" style="background:#1f9d6b">${icon("play")}</span><h3>Les regles</h3><ul class="rules-list"><li><b>1</b>Forma a la via A el tren de dalt, en el mateix ordre.</li><li><b>2</b>La locomotora arrossega com a molt tres vagons.</li><li><b>3</b>Només pots agafar els vagons més propers a les agulles.</li><li><b>4</b>Cada anada i tornada de la locomotora és un moviment.</li></ul></section><section class="panel about-card"><span class="ic" style="background:#7ab8ff">${icon("bulb")}</span><h3>Què s’hi aprèn</h3><p>A planificar abans d’actuar, a pensar enrere des de l’objectiu, a dividir un problema gran en passos petits i a no rendir-se quan un camí no funciona. És pensament computacional i combinatòria sense fórmules.</p></section><section class="panel about-card"><span class="ic" style="background:#b69cff">${icon("trophy")}</span><h3>Com puntua</h3><p>Cada puzle té un mínim de moviments calculat per ordinador. Si el resols sense pistes, guanyes 10 punts per cada moviment del mínim i en perds 5 per cada moviment de més. El rànquing comprova cada resultat tornant a jugar la solució.</p></section><section class="panel about-card wide"><h3>L’estació en xifres</h3><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><section class="panel about-card wide credits"><p>Versió 2.0.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a>. El rànquing només desa el nom de jugador i les solucions: no cal correu ni contrasenya.</p></section></div></div>`;
 }
 function tutorial(step = 0) {
   tutorialStep = step;
@@ -785,52 +652,10 @@ function settings() {
       )}<p>Els canvis es guarden en aquest dispositiu. No hi ha notificacions ni anuncis.</p><button class="primary" data-action="close">Fet</button>`,
   );
 }
-function printSheet() {
-  if (!game) return;
-  document.querySelector(".print-sheet")?.remove();
-  const c = config(),
-    url = new URL(location.href);
-  url.search = "";
-  url.searchParams.set("p", game.id);
-  let qr = "";
-  if (
-    window.qrcode &&
-    (catalog.some((p) => p.id === game.id) || puzzleFromKey(game.id))
-  ) {
-    const q = window.qrcode(0, "M");
-    q.addData(url.href);
-    q.make();
-    qr = q.createSvgTag(3, 2);
-  }
-  const el = document.createElement("section");
-  el.className = "print-sheet";
-  el.innerHTML = `<div class="qr">${qr}</div><h1>Maniobres</h1><p>${esc(c.name)} · ${esc(game.id)} · ${c.n} vagons</p><p><b>Objectiu:</b> deixa ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(" → ")} a la via A, des de les agulles cap al fons.</p>${board(game.initial, c, false)}<p><b>Registre:</b> B2 vol dir entrar a B i tornar amb dos vagons en total. Una entrada i el retorn compten com una maniobra.</p><div class="writing"></div><p><b>Estratègia:</b> què heu preparat abans de moure el darrer vagó?</p><div class="writing"></div><p>Felip Sarroca · Continguts: CC BY-NC-SA 4.0 · ${qr ? "Escaneja el QR per obrir el mateix puzle." : "Repartiment experimental: conserva aquesta fitxa."}</p>`;
-  document.body.append(el);
-  window.print();
-}
-function download(name, rows) {
-  const csv =
-      "\ufeff" +
-      rows
-        .map((r) =>
-          r
-            .map((x) => '"' + String(x ?? "").replaceAll('"', '""') + '"')
-            .join(";"),
-        )
-        .join("\r\n"),
-    u = URL.createObjectURL(
-      new Blob([csv], { type: "text/csv;charset=utf-8" }),
-    ),
-    a = document.createElement("a");
-  a.href = u;
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(u), 2000);
-}
 async function optimal() {
   dialog.close();
   const p = { ...game, state: clone(game.initial) };
-  start(p, game.mode, { level: game.level, room: game.room, replay: true });
+  start(p, game.mode, { replay: true });
   game.hints++;
   autoplay = true;
   preview = "Reproduint una solució òptima…";
@@ -849,118 +674,54 @@ async function optimal() {
   renderGame();
   toast("Solució reproduïda. Reinicia per provar-la tu.");
 }
-async function publish() {
-  if (game.hints)
-    return notify(
-      "Aquesta partida té ajuda. Reinicia i resol-la sense pistes per publicar-la.",
-    );
-  if (game.date !== dateKey())
-    return notify(
-      "Aquest repte ja no és el d’avui. Els resultats es publiquen el mateix dia.",
-    );
-  notify("Comprovant la solució…");
-  try {
-    const x = await api("submit", {
-      token,
-      day: game.date,
-      puzzle: game.id,
-      room: game.mode === "class" ? game.room : null,
-      log: game.log,
-      seconds: game.seconds,
-    });
-    notify(
-      `Publicat com ${x.name}. ${x.points} punts. El resultat caduca als 30 dies.`,
-    );
-  } catch (e) {
-    notify(e.message);
-  }
-}
 async function handle(action) {
-  if (action === "close") {
-    dialog.close();
-    return;
-  }
-  if (action === "tutorial") {
-    tutorial();
-    return;
-  }
-  if (action === "tutorial-back") {
-    tutorial(tutorialStep - 1);
-    return;
-  }
+  if (action === "close") return dialog.close();
+  if (action === "tutorial") return tutorial();
+  if (action === "tutorial-back") return tutorial(tutorialStep - 1);
   if (action === "tutorial-next") {
     if (tutorialStep === 4) {
       dialog.close();
-      start(
-        catalog.find((p) => p.config === "mini" && p.min === 2),
-        "tutorial",
-      );
+      start(catalog.find((p) => p.config === "mini" && p.min === 2), "tutorial");
     } else tutorial(tutorialStep + 1);
     return;
   }
-  if (action === "settings") {
-    settings();
-    return;
-  }
+  if (action === "settings") return settings();
   if (action === "cancel") {
     selected = 0;
-    renderGame();
+    return renderGame();
+  }
+  if (action === "new-menu") {
+    modal(
+      `<div class="eyebrow">Nou repte</div><h2>Tria la dificultat</h2><p>El número és el mínim de moviments de la millor solució. Com més difícil, més punts.</p><div class="difficulty-grid">${Object.entries(
+        LEVELS,
+      )
+        .map(
+          ([v, [n, lo, hi]]) =>
+            `<button class="${difficulty === v ? "primary" : ""}" data-difficulty="${v}"><b>${n}</b><small>${lo === 2 ? "fins a " + hi : lo + " a " + hi} moviments</small><small>${score(lo, lo)}–${score(hi, hi)} punts</small></button>`,
+        )
+        .join("")}</div>`,
+    );
     return;
   }
   if (action === "new") {
     if (game && !game.finished && game.log.length) {
       modal(
-        '<h2>Comença una altra partida?</h2><p>El repte actual es reemplaçarà. Els resultats acabats es conserven.</p><div class="dialog-actions"><button class="primary" data-action="new-confirm">Nova partida</button><button data-action="close">Continua jugant</button></div>',
+        '<h2>Comença una altra partida?</h2><p>El repte actual es perdrà.</p><div class="dialog-actions"><button class="primary" data-action="new-confirm">Nova partida</button><button data-action="close">Continua jugant</button></div>',
       );
     } else handle("new-confirm");
     return;
   }
-  if (action === "new-menu") {
-    modal(
-      `<div class="eyebrow">Partida lliure · Inglenook clàssic</div><h2>Tria la dificultat</h2><p>El número és el mínim de moviments de la millor solució.</p><div class="difficulty-grid">${[
-        ["facil", "Fàcil", "fins a 8"],
-        ["mitja", "Mitjà", "9 a 12"],
-        ["dificil", "Difícil", "13 a 15"],
-        ["expert", "Expert", "16 i 17"],
-      ]
-        .map(
-          ([v, n, r]) =>
-            `<button class="${difficulty === v ? "primary" : ""}" data-difficulty="${v}"><b>${n}</b><small>${r} moviments</small></button>`,
-        )
-        .join("")}</div><p class="muted" style="font-size:12px">També pots seguir <button class="ghost" data-nav="campaign">les sis línies</button> o fer el <button class="ghost" data-action="daily">repte diari</button>.</p>`,
-    );
-    return;
-  }
-  if (action === "new-confirm") {
-    dialog.close();
-    sprintEnd = 0;
-    const [lo, hi] = {
-      facil: [2, 8],
-      mitja: [9, 12],
-      dificil: [13, 15],
-      expert: [16, 17],
-    }[difficulty];
+  if (action === "new-confirm" || action === "next") {
+    if (dialog.open) dialog.close();
+    const [, lo, hi] = LEVELS[difficulty];
     toast("Preparant una nova maniobra…");
-    worker.postMessage({
-      type: "generate",
-      config: "classic",
-      lo,
-      hi,
-      exclude: Object.keys(prog.best),
-    });
-    return;
-  }
-  if (action === "daily") {
-    dialog.close();
-    sprintEnd = 0;
-    start(daily(catalog), "daily");
+    worker.postMessage({ type: "generate", config: "classic", lo, hi, exclude: solvedLocal.map((k) => "v1-classic-" + k) });
     return;
   }
   if (action === "undo") {
     if (!game.log.length || autoplay) return;
     game.state = game.undo.pop();
     game.log.pop();
-    game.undos = (game.undos || 0) + 1;
     game.finished = false;
     selected = 0;
     persist();
@@ -970,206 +731,57 @@ async function handle(action) {
   }
   if (action === "restart") {
     autoplay = false;
-    if (game.log.length && !game.finished && !game.hints) {
-      prog.restarts[game.id] = (prog.restarts[game.id] || 0) + 1;
-      save("prog", prog);
-    }
-    start({ ...game, state: clone(game.initial) }, game.mode, {
-      level: game.level,
-      room: game.room,
-      replay: true,
-    });
+    start({ ...game, state: clone(game.initial) }, game.mode);
     return;
   }
   if (action === "hint") {
-    if (game.mode === "sprint")
-      return toast("Les pistes no estan disponibles en contrarellotge.");
     if (!nextMove) return toast("No hi ha cap pista disponible.");
     game.hints++;
     selected = nextMove[0];
-    preview = `Prova ${"ABC"[nextMove[0] - 1]}${nextMove[1]}: torna amb ${nextMove[1]} vagons. Aquesta maniobra redueix el mínim restant.`;
+    preview = `Pista: ${"ABC"[nextMove[0] - 1]}${nextMove[1]}, torna amb ${nextMove[1]} ${nextMove[1] === 1 ? "vagó" : "vagons"}. Amb pistes, la partida no puntua.`;
     persist();
     renderGame();
     return;
   }
-  if (action === "history") {
-    modal(
-      '<h2>Quadern de maniobres</h2><p>B2 vol dir entrar a B i sortir amb dos vagons en total.</p><div class="history" style="max-height:50vh">' +
-        (game.log.length
-          ? game.log
-              .map(([v, k], i) => `<span>${i + 1}. ${"ABC"[v - 1]}${k}</span>`)
-              .join(" ")
-          : "Encara no has fet cap maniobra.") +
-        "</div>",
-    );
-    return;
-  }
-  if (action === "result") {
-    showResult();
-    return;
-  }
-  if (action === "submit") {
-    await publish();
-    return;
-  }
-  if (action === "optimal") {
-    await optimal();
-    return;
-  }
-  if (action === "share") {
-    const label =
-        game.mode === "daily"
-          ? "Repte diari " + game.date.split("-").reverse().join("/")
-          : game.mode === "campaign"
-            ? "Nivell " + (game.level + 1)
-            : "Partida lliure",
-      text = `Maniobres · ${label} · ${game.log.length} moviments (mínim ${game.min ?? "?"}) · ${"★".repeat(rating(game.log.length, game.min, game.hints))}\n${location.origin + location.pathname}`;
+  if (action === "result") return showResult();
+  if (action === "optimal") return optimal();
+  if (action === "retry") return publish();
+  if (action === "register") {
+    const input = $("#name-input");
     try {
-      await navigator.clipboard.writeText(text);
-      toast("Resultat copiat.");
-    } catch {
-      modal(`<h2>Comparteix el resultat</h2><p>${esc(text)}</p>`);
-    }
-    return;
-  }
-  if (action === "next") {
-    dialog.close();
-    if (game.mode === "campaign" && game.level < 59)
-      start(campaign[game.level + 1], "campaign", { level: game.level + 1 });
-    else if (game.mode === "sprint" && sprintEnd > Date.now())
-      start(pick("facil"), "sprint");
-    else handle("new-confirm");
-    return;
-  }
-  if (action === "projector") {
-    prefs.projector = !prefs.projector;
-    save("prefs", prefs);
-    view = "play";
-    render();
-    return;
-  }
-  if (action === "print") {
-    printSheet();
-    return;
-  }
-  if (action === "export") {
-    download("maniobres-resultats.csv", [
-      ["Puzle", "Modalitat", "Moviments", "Mínim", "Pistes", "Segons", "Data"],
-      ...records.map((r) => [
-        r.id,
-        r.mode,
-        r.moves,
-        r.min,
-        r.hints,
-        r.seconds,
-        new Date(r.at).toISOString(),
-      ]),
-    ]);
-    return;
-  }
-  if (action === "start-sprint") {
-    sprintEnd = Date.now() + 300000;
-    sprintSolved = 0;
-    start(pick("facil"), "sprint");
-    return;
-  }
-  if (action === "create-room") {
-    try {
-      const chosen = $("#class-puzzle").value === "current" ? game : daily(catalog);
-      const x = await api("create-room", { token, puzzle: chosen.id });
-      teacher = { code: x.code };
-      room = { code: x.code };
-      save("teacher", teacher);
-      save("room", room);
-      renderClass();
-      toast("Sala creada: " + x.code);
+      await online.register(input?.value || "");
+      await loadPlayer();
+      toast("Nom desat: " + player.name);
+      if (dialog.open && game?.ranked && game.finished) await publish();
+      board_ = null;
+      if (view === "ranking") renderRanking();
     } catch (e) {
       toast(e.message);
     }
     return;
   }
-  if (action === "join") {
-    try {
-      const code = $("#room-code").value.trim().toUpperCase();
-      const x = await api("room", { room: code });
-      room = { code };
-      save("room", room);
-      start(
-        catalog.find((p) => p.id === x.puzzle),
-        "class",
-        { room: code },
-      );
-    } catch (e) {
-      toast(e.message);
-    }
-    return;
-  }
-  if (action === "export-room") {
-    try {
-      const x = await api("export", { room: teacher.code, token });
-      download("maniobres-classe.csv", [
-        ["Pseudònim", "Puzle", "Moviments", "Punts", "Data"],
-        ...x.rows.map((r) => [r.name, r.puzzle, r.moves, r.points, r.day]),
-      ]);
-    } catch (e) {
-      toast(e.message);
-    }
-    return;
-  }
-  if (action === "delete-room") {
-    modal(
-      '<h2>Esborra la sala i els resultats?</h2><p>Aquesta acció elimina la sala que has creat i els seus resultats compartits.</p><div class="dialog-actions"><button data-action="delete-room-confirm">Esborra la sala</button><button class="primary" data-action="close">Conserva-la</button></div>',
-    );
-    return;
-  }
-  if (action === "delete-room-confirm") {
-    try {
-      await api("delete-room", { room: teacher.code, token });
-      teacher = null;
-      room = null;
-      save("teacher", null);
-      save("room", null);
-      dialog.close();
-      renderClass();
-      toast("Sala esborrada.");
-    } catch (e) {
-      toast(e.message);
-    }
+  if (action === "rename") {
+    $(".me-card").innerHTML = `<b>Nou nom de jugador</b><span class="name-form"><input id="name-input" maxlength="16" value="${esc(player.name)}" aria-label="Nom de jugador"><button class="primary" data-action="register">Desa</button><button class="ghost" data-nav="ranking">Cancel·la</button></span><small>Els teus punts es conserven.</small>`;
+    $("#name-input").focus();
     return;
   }
   if (action === "erase") {
     modal(
-      '<h2>Esborra les teves dades?</h2><p>S’eliminaran els teus resultats publicats, les sales que has creat i el progrés local d’aquest navegador. No es pot desfer.</p><div class="dialog-actions"><button data-action="erase-confirm">Esborra-ho</button><button class="primary" data-action="close">Conserva-ho</button></div>',
+      '<h2>T’esborres del rànquing?</h2><p>S’eliminaran el teu nom i tots els teus resultats. No es pot desfer.</p><div class="dialog-actions"><button data-action="erase-confirm">Esborra’m</button><button class="primary" data-action="close">Cancel·la</button></div>',
     );
     return;
   }
   if (action === "erase-confirm") {
     try {
-      await api("erase", { token });
-      for (const k of [
-        "records",
-        "progress",
-        "room",
-        "teacher",
-        "game",
-        "token",
-        "prog",
-      ])
-        localStorage.removeItem("maniobres-" + k);
-      location.reload();
+      await online.erase();
+      player = null;
+      board_ = null;
+      dialog.close();
+      renderRanking();
+      toast("Dades esborrades.");
     } catch (e) {
-      toast(
-        "No s’han esborrat les dades: " +
-          e.message +
-          " Torna-ho a provar amb connexió.",
-      );
+      toast("No s’ha pogut esborrar: comprova la connexió.");
     }
-    return;
-  }
-  if (action === "guide") {
-    modal(
-      '<div class="eyebrow">Guia docent</div><h2>De jugar a investigar</h2><p><b>1.</b> Familiarització: tutorial i puzle petit.</p><p><b>2.</b> Registre: anoteu les maniobres i compareu dues solucions.</p><p><b>3.</b> Estratègia: formuleu un mètode i proveu-lo en un repte nou.</p><p><b>4.</b> Laboratori: predieu l’efecte d’escurçar una via i contrasteu-ho.</p><p><b>5.</b> Disseny: compareu espai, resolubilitat i moviments.</p><p><b>6.</b> Transferència: resoleu un repte desconegut i defenseu les decisions.</p><p>Avalueu l’anticipació, la justificació, la revisió i la col·laboració. La classificació no és una nota. Materials preparats i revisats; pendents de validació amb alumnat.</p><a href="docs/guia-docent.md" target="_blank">Obre la guia completa</a>',
-    );
   }
 }
 // Arrossegar vagons amb el ratolí o el dit. Cada deixada vàlida és una maniobra.
@@ -1290,69 +902,20 @@ document.addEventListener("click", async (e) => {
     if (b.dataset.nav) {
       autoplay = false;
       if (dialog.open) dialog.close();
-      const v = b.dataset.nav;
-      if (v === "daily") {
-        handle("daily");
-        return;
-      }
-      view = v;
+      view = b.dataset.nav;
       render();
     } else if (b.dataset.action) await handle(b.dataset.action);
     else if (b.dataset.difficulty) {
       difficulty = b.dataset.difficulty;
       dialog.close();
       handle("new");
-    }
-    else if (b.dataset.via) select(+b.dataset.via);
+    } else if (b.dataset.via) select(+b.dataset.via);
     else if (b.dataset.cut !== undefined) doMove(selected, +b.dataset.cut);
-    else if (b.dataset.level !== undefined)
-      start(campaign[+b.dataset.level], "campaign", {
-        level: +b.dataset.level,
-      });
-    else if (b.dataset.rank) {
-      rankTab = b.dataset.rank;
-      renderRanking();
-      loadRanking();
-    } else if (b.dataset.labPlay) start(pick("all", b.dataset.labPlay), "lab");
-    else if (b.dataset.labRandom) {
-      const c = CONFIGS.find((c) => c.id === b.dataset.labRandom),
-        a = Array.from({ length: c.n }, (_, i) => i + 1).sort(
-          () => Math.random() - 0.5,
-        ),
-        s = [[], [], [], []];
-      for (const w of a) {
-        const options = [1, 2, 3].filter((i) => s[i].length < c.caps[i - 1]);
-        s[options[Math.floor(Math.random() * options.length)]].push(w);
-      }
-      start(
-        { id: "experiment-" + Date.now(), config: c.id, state: s, min: null },
-        "lab",
-      );
-      const id = requestId;
-      const wait = setInterval(() => {
-        if (requestId !== id) {
-          clearInterval(wait);
-          return;
-        }
-        if (!solving) {
-          clearInterval(wait);
-          if (remaining === null && !prog.ach.investigador) {
-            prog.ach.investigador = Date.now();
-            celebrate(["investigador"]);
-          }
-          game.min = remaining;
-          persist();
-          renderGame();
-        }
-      }, 50);
-    }
   } catch (e) {
     toast("No s’ha pogut completar l’acció: " + e.message);
   }
 });
 document.addEventListener("change", (e) => {
-  if (e.target.id === "difficulty") difficulty = e.target.value;
-  if (e.target.id === "lab-config") renderLab(e.target.value);
   if (e.target.dataset.pref) {
     prefs[e.target.dataset.pref] = e.target.checked;
     save("prefs", prefs);
@@ -1361,12 +924,14 @@ document.addEventListener("change", (e) => {
   }
 });
 document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.id === "name-input") {
+    e.preventDefault();
+    handle("register");
+  }
+});
+document.addEventListener("keydown", (e) => {
   if (e.target.closest("input,select,textarea") || dialog.open) return;
   if (view !== "play" || autoplay) return;
-  if (e.key === "Escape" && prefs.projector) {
-    handle("projector");
-    return;
-  }
   if (/^[abc]$/i.test(e.key)) {
     e.preventDefault();
     select("abc".indexOf(e.key.toLowerCase()) + 1);
@@ -1390,28 +955,12 @@ document.addEventListener("keydown", (e) => {
   }
 });
 setInterval(() => {
-  if ($("#timer") && game && !game.finished)
-    $("#timer").textContent = time(elapsed());
-  if (sprintEnd) {
-    if ($("#sprint-time"))
-      $("#sprint-time").textContent = time(
-        Math.max(0, Math.ceil((sprintEnd - Date.now()) / 1000)),
-      );
-    if (Date.now() >= sprintEnd) {
-      sprintEnd = 0;
-      autoplay = false;
-      modal(
-        `<div class="eyebrow">Fi de la ronda</div><h2>${sprintSolved} trens completats.</h2><p>Cinc minuts de concentració. Ara pots continuar al teu ritme.</p><button class="primary" data-action="new-confirm">Torna a la partida lliure</button>`,
-      );
-    }
-  }
+  if ($("#timer") && game && !game.finished) $("#timer").textContent = time(elapsed());
 }, 1000);
 setTimeout(
-  () =>
-    toast("Fa mitja hora que ets a l’estació. Et ve de gust fer una pausa?"),
+  () => toast("Fa mitja hora que ets a l’estació. Et ve de gust fer una pausa?"),
   30 * 60e3,
 );
-
 function validSaved(g) {
   try {
     if (!g || !Array.isArray(g.log) || g.log.length > 500) return false;
@@ -1462,6 +1011,7 @@ else if (validSaved(saved)) {
   solve();
   render();
 } else start(pick("facil"));
+loadPlayer();
 if (!storageOK)
   toast(
     "El navegador no permet desar el progrés. Pots jugar, però no es conservarà en tancar.",

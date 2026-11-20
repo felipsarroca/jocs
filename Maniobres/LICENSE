@@ -7,7 +7,7 @@ Codi font: https://github.com/felipsarroca/jocs/tree/main/Maniobres
 
 Aquesta obra té una llicència doble:
 
-  Codi (HTML, CSS, JavaScript, scripts i servidor): GNU AGPLv3 o posterior
+  Codi (HTML, CSS, JavaScript, scripts i regles del servidor): GNU AGPLv3 o posterior
     Pots usar, estudiar, modificar i redistribuir el codi. Si en publiques una
     versió modificada, també al web, has de compartir-ne el codi font amb la
     mateixa llicència i citar l'autoria original.
@@ -21,8 +21,8 @@ Aquesta obra té una llicència doble:
     Text legal: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.ca
 
 Elements de tercers:
-  - Generador de codis QR de Kazuhiko Arase (assets/qrcode.js): MIT. Conserva
-    els seus crèdits i la seva llicència dins del fitxer.
+  - Firebase JavaScript SDK (Google), carregat des de gstatic.com per al
+    rànquing: Apache License 2.0. No es distribueix dins d'aquest repositori.
 
 Suggeriments i errors:
   https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml

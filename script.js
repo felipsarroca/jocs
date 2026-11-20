@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         name: "Maniobres",
                         path: 'https://ja.cat/maniobres',
                         category: 'Jocs de lògica',
-                        description: "Puzle ferroviari: forma el tren objectiu amb el mínim de maniobres. Campanya, repte diari, laboratori i mode aula.",
+                        description: "Puzle ferroviari: forma el tren objectiu amb el mínim de maniobres i puja al rànquing públic.",
                         icon: 'Maniobres/assets/favicon.svg'
                     }    ];
 
