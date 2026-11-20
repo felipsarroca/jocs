@@ -65,6 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         category: "Jocs d'estratègia",
                         description: "El joc tradicional de batalla naval 10×10. Juga en línia amb un codi de sala o contra la màquina, també des del mòbil.",
                         icon: 'Flota/assets/favicon.svg'
+                    },
+                    {
+                        name: "Maniobres",
+                        path: 'https://ja.cat/maniobres',
+                        category: 'Jocs de lògica',
+                        description: "Puzle ferroviari: forma el tren objectiu amb el mínim de maniobres. Campanya, repte diari, laboratori i mode aula.",
+                        icon: 'Maniobres/assets/favicon.svg'
                     }    ];
 
     const mainContainer = document.getElementById('apps-container');
