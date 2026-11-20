@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Rànquing públic amb Firebase (Firestore + accés anònim).
 // Cada navegador té un usuari anònim; el nom de jugador és únic i queda lligat al navegador.
+// Des d'un altre dispositiu es pot continuar amb el mateix nom (claim): el jugador s'hi trasllada.
 // Els resultats no els valida cap servidor: qui obre el rànquing torna a reproduir
 // cada solució amb el motor i la taula de mínims, i només compten les correctes.
 
@@ -82,7 +83,8 @@ export async function register(name) {
     player = fs.doc(db, "players", uid),
     current = await fs.getDoc(player);
   const taken = await fs.getDoc(fs.doc(db, "names", k));
-  if (taken.exists() && taken.data().uid !== uid) throw Error("Aquest nom ja el fa servir una altra persona.");
+  if (taken.exists() && taken.data().uid !== uid)
+    throw Object.assign(Error("Aquest nom ja s’ha fet servir."), { code: "taken", name: clean });
   const batch = fs.writeBatch(db);
   if (!taken.exists()) batch.set(fs.doc(db, "names", k), { uid });
   if (current.exists()) {
@@ -104,6 +106,44 @@ export async function register(name) {
     throw Error("No s’ha pogut desar el nom. Potser ja està agafat; prova’n un altre.");
   }
   return clean;
+}
+
+// Continua amb un nom que ja existeix (per exemple, des d'un altre dispositiu).
+// El jugador passa a aquest navegador amb tots els resultats; l'anterior en queda desvinculat.
+// Amb onlyExisting, no crea cap nom nou: retorna null si el nom ja no existeix.
+export async function claim(name, onlyExisting = false) {
+  const [clean, error] = checkName(name);
+  if (error) throw Error(error);
+  const { uid, db, fs } = await connect(),
+    k = nameKey(clean),
+    nameRef = fs.doc(db, "names", k),
+    taken = await fs.getDoc(nameRef);
+  if (!taken.exists()) return onlyExisting ? null : register(clean);
+  const oldUid = taken.data().uid;
+  if (oldUid === uid) return clean;
+  const old = await fs.getDoc(fs.doc(db, "players", oldUid)),
+    mine = await fs.getDoc(fs.doc(db, "players", uid)),
+    batch = fs.writeBatch(db);
+  if (mine.exists() && mine.data().key !== k) batch.delete(fs.doc(db, "names", mine.data().key));
+  batch.update(nameRef, { uid });
+  if (old.exists()) {
+    batch.set(fs.doc(db, "players", uid), old.data());
+    batch.delete(old.ref);
+  } else
+    batch.set(fs.doc(db, "players", uid), {
+      name: clean,
+      key: k,
+      since: fs.serverTimestamp(),
+      at: fs.serverTimestamp(),
+      last: "",
+      r: {},
+    });
+  try {
+    await batch.commit();
+  } catch {
+    throw Error("No s’ha pogut recuperar el nom. Comprova la connexió i torna-ho a provar.");
+  }
+  return old.exists() ? old.data().name : clean;
 }
 
 // Desa un resultat: la clau del puzle i la seqüència de maniobres.

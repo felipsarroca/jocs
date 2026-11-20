@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 2.2.0 · 20 de novembre de 2026
+
+- El dispositiu recorda el nom de jugador: si el navegador perd la sessió (Safari, navegadors interns de WhatsApp o Classroom…), el joc el recupera sol amb tots els punts. També demana al navegador que no esborri les dades.
+- Continuar des d’un altre dispositiu: si el nom ja s’ha fet servir, el joc ho avisa i ofereix «És meu, continua». El jugador es trasllada amb tots els resultats i l’altre dispositiu en queda desvinculat fins que hi torni a continuar. Les regles de Firestore només permeten el trasllat com a còpia exacta, sense duplicats al rànquing.
+
 ## 2.1.1 · 20 de novembre de 2026
 
 - Mòbil: la pantalla de joc ocupa tota l’alçada amb més aire entre elements; l’estació creix per omplir l’espai i els botons (Desfer, Reiniciar, Pista, Nou repte) queden a baix en una fila d’icones, a l’abast del polze. Pestanyes sense salts de línia i opcions de vagons més compactes.

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Maniobres: rànquing públic. Cada jugador només pot escriure el seu document.
+// Maniobres: rànquing públic. Cada jugador només pot escriure el seu document,
+// però pot continuar amb el seu nom des d'un altre dispositiu (el jugador s'hi trasllada).
 // La validesa de les solucions la comprova qui llegeix el rànquing (reproducció amb el motor).
 rules_version = '2';
 service cloud.firestore {
@@ -9,6 +10,18 @@ service cloud.firestore {
       return d.name is string && d.name.size() >= 3 && d.name.size() <= 16
         && d.key is string && d.key.matches('^[a-z0-9]{3,16}$')
         && getAfter(/databases/$(db)/documents/names/$(d.key)).data.uid == request.auth.uid;
+    }
+    function fresh(d) {
+      return d.keys().hasOnly(['name', 'key', 'since', 'at', 'last', 'r'])
+        && d.since == request.time && d.at == request.time && d.last == '' && d.r == {};
+    }
+    // Continuar amb un nom des d'un altre dispositiu: el nom passa a aquest usuari i el
+    // jugador s'hi trasllada tal com era (còpia exacta), o de nou si ja no existia.
+    function claimed(d) {
+      let before = get(/databases/$(db)/documents/names/$(d.key)).data.uid;
+      let old = /databases/$(db)/documents/players/$(before);
+      return before != request.auth.uid && validName(d)
+        && (exists(old) ? d == get(old).data : fresh(d));
     }
     function validEntry(e) {
       return e.keys().hasOnly(['n', 'l', 't']) && e.n is int && e.n >= 1 && e.n <= 60
@@ -21,15 +34,19 @@ service cloud.firestore {
       allow create: if signedIn() && key.matches('^[a-z0-9]{3,16}$')
         && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
       allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+      // Continuar amb el nom: només si el jugador anterior desapareix en la mateixa operació.
+      allow update: if signedIn() && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(/databases/$(db)/documents/players/$(request.auth.uid)).data.key == key
+        && !existsAfter(/databases/$(db)/documents/players/$(resource.data.uid));
     }
 
     match /players/{uid} {
       allow read: if true;
       allow create: if signedIn() && uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['name', 'key', 'since', 'at', 'last', 'r'])
-        && validName(request.resource.data)
-        && request.resource.data.since == request.time && request.resource.data.at == request.time
-        && request.resource.data.last == '' && request.resource.data.r == {};
+        && ((fresh(request.resource.data) && validName(request.resource.data))
+          || claimed(request.resource.data));
+      allow update: if signedIn() && uid == request.auth.uid && claimed(request.resource.data);
       allow update: if signedIn() && uid == request.auth.uid
         && request.resource.data.keys().hasOnly(['name', 'key', 'since', 'at', 'last', 'r'])
         && request.resource.data.since == resource.data.since
@@ -52,7 +69,8 @@ service cloud.firestore {
                 || request.resource.data.r[request.resource.data.last].n < resource.data.r[request.resource.data.last].n
                 || resource.data.r[request.resource.data.last].t < request.time - duration.value(365, 'd')))
         );
-      allow delete: if signedIn() && uid == request.auth.uid;
+      allow delete: if signedIn() && (uid == request.auth.uid
+        || getAfter(/databases/$(db)/documents/names/$(resource.data.key)).data.uid == request.auth.uid);
     }
   }
 }

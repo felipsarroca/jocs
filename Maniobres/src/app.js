@@ -503,7 +503,7 @@ function modal(html, locked = false) {
 }
 function welcome() {
   modal(
-    `<div class="welcome"><img class="welcome-logo" src="assets/favicon.svg" alt=""><div class="eyebrow">Et donem la benvinguda a</div><h2>Maniobres</h2><p>Forma trens amb el mínim de moviments i puja al rànquing. Abans de començar, tria el teu nom de jugador.</p><span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom de jugador" aria-label="Nom de jugador" autocomplete="off"><button class="primary" data-action="welcome-save">Comença a jugar</button></span><p class="name-error" id="name-error" role="alert"></p><small>Serà públic al rànquing. Fes servir un nom de joc, no el teu nom i cognoms reals. Queda desat en aquest navegador.</small></div>`,
+    `<div class="welcome"><img class="welcome-logo" src="assets/favicon.svg" alt=""><div class="eyebrow">Et donem la benvinguda a</div><h2>Maniobres</h2><p>Forma trens amb el mínim de moviments i puja al rànquing. Abans de començar, tria el teu nom de jugador.</p><span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom de jugador" aria-label="Nom de jugador" autocomplete="off" value="${esc(read("me", null)?.name || "")}"><button class="primary" data-action="welcome-save">Comença a jugar</button></span><p class="name-error" id="name-error" role="alert"></p><small>Serà públic al rànquing. Fes servir un nom de joc, no el teu nom i cognoms reals. Aquest dispositiu el recordarà.</small></div>`,
     true,
   );
   setTimeout(() => $("#name-input")?.focus(), 50);
@@ -551,13 +551,38 @@ async function publish() {
   persist();
   if (game === g) refreshNote();
 }
+// El nom també es recorda al dispositiu: si el navegador perd la sessió anònima,
+// el joc continua amb el mateix nom (i els punts) sense demanar res.
 async function loadPlayer() {
   try {
     player = await online.me();
+    const remembered = read("me", null);
+    if (!player.name && remembered?.name) {
+      try {
+        if (await online.claim(remembered.name, true)) {
+          player = await online.me();
+          toast(`Hola de nou, ${player.name}!`);
+        }
+      } catch {}
+    }
+    if (player.name) save("me", { name: player.name });
   } catch {
     player = null;
   }
   return player;
+}
+let pendingClaim = null;
+// Nom ja agafat: avisa i permet continuar-hi (canvi de dispositiu) o triar-ne un altre.
+function offerClaim(name) {
+  pendingClaim = name;
+  const form = $("#name-input")?.closest(".name-form");
+  if (!form) return toast("Aquest nom ja s’ha fet servir.");
+  form.parentElement.querySelector(".claim-box")?.remove();
+  $("#name-error") && ($("#name-error").textContent = "");
+  form.insertAdjacentHTML(
+    "afterend",
+    `<div class="claim-box" role="alert"><p><b>«${esc(name)}» ja s’ha fet servir.</b> Si és teu i jugues des d’un altre dispositiu, pots continuar-hi amb els teus punts. Si no és teu, tria’n un altre.</p>${player?.name ? `<p class="muted">Deixaràs el nom «${esc(player.name)}» i els seus punts.</p>` : ""}<div class="claim-actions"><button class="primary" data-action="claim">És meu, continua</button><button class="ghost" data-action="claim-cancel">Tria’n un altre</button></div></div>`,
+  );
 }
 let verifyResolve = null;
 function verify(list) {
@@ -628,7 +653,7 @@ async function loadRanking() {
 }
 const trainArt = `<svg class="hero-art" viewBox="0 0 220 150" aria-hidden="true"><path d="M0 118h220" stroke="#ffffffaa" stroke-width="4"/><path d="M0 126h220" stroke="#ffffff66" stroke-width="10" stroke-dasharray="4 10"/><g transform="translate(6 76)"><rect width="52" height="38" rx="7" fill="#e5533d" stroke="#fff" stroke-width="3"/><rect x="6" y="6" width="16" height="26" rx="3" fill="#2b3a4a"/><circle cx="48" cy="10" r="3" fill="#ffe066"/></g>${[2, 4, 6, 7].map((w, i) => `<g transform="translate(${66 + i * 38} 80)"><rect width="34" height="32" rx="5" fill="${colors[w]}" stroke="#fff" stroke-width="3"/><text x="17" y="22" text-anchor="middle" font-size="16" font-weight="900" fill="#1d2b38" font-family="system-ui">${i + 1}</text></g>`).join("")}<path d="M150 20l8 16 18 2-13 12 4 18-17-9-17 9 4-18-13-12 18-2z" fill="#ffe066"/></svg>`;
 function renderAbout() {
-  $("#main").innerHTML = `<div class="page"><section class="hero about-hero"><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Maniobres és un trencaclosques de lògica: has de formar un tren en l’ordre exacte movent els vagons amb una sola locomotora i molt poc espai. Sembla fàcil, però cada moviment compta.</p></div>${trainArt}</section><div class="about-grid"><section class="panel about-card"><span class="ic" style="background:#ff8a3d">${icon("route")}</span><h3>D’on ve</h3><p>Es basa en l’Inglenook Sidings, un clàssic del modelisme ferroviari britànic ideat per Alan Wright el 1979. Reprodueix una feina real: en una estació petita, el maquinista ha d’ordenar els vagons d’un tren de mercaderies amb vies curtes i sense espai de sobres.</p></section><section class="panel about-card"><span class="ic" style="background:#1f9d6b">${icon("play")}</span><h3>Les regles</h3><ul class="rules-list"><li><b>1</b>Forma a la via A el tren de dalt, en el mateix ordre.</li><li><b>2</b>La locomotora arrossega com a molt tres vagons.</li><li><b>3</b>Només pots agafar els vagons més propers a les agulles.</li><li><b>4</b>Cada anada i tornada de la locomotora és un moviment.</li></ul></section><section class="panel about-card"><span class="ic" style="background:#7ab8ff">${icon("bulb")}</span><h3>Què s’hi aprèn</h3><p>A planificar abans d’actuar, a pensar enrere des de l’objectiu, a dividir un problema gran en passos petits i a no rendir-se quan un camí no funciona. És pensament computacional i combinatòria sense fórmules.</p></section><section class="panel about-card"><span class="ic" style="background:#b69cff">${icon("trophy")}</span><h3>Com puntua</h3><p>Cada puzle té un mínim de moviments calculat per ordinador. Si el resols sense pistes, guanyes 10 punts per cada moviment del mínim i en perds 5 per cada moviment de més. El rànquing comprova cada resultat tornant a jugar la solució.</p></section><section class="panel about-card wide"><h3>L’estació en xifres</h3><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><section class="panel about-card wide credits"><p>Versió 2.1.1 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a>. El rànquing només desa el nom de jugador i les solucions: no cal correu ni contrasenya.</p></section></div></div>`;
+  $("#main").innerHTML = `<div class="page"><section class="hero about-hero"><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Maniobres és un trencaclosques de lògica: has de formar un tren en l’ordre exacte movent els vagons amb una sola locomotora i molt poc espai. Sembla fàcil, però cada moviment compta.</p></div>${trainArt}</section><div class="about-grid"><section class="panel about-card"><span class="ic" style="background:#ff8a3d">${icon("route")}</span><h3>D’on ve</h3><p>Es basa en l’Inglenook Sidings, un clàssic del modelisme ferroviari britànic ideat per Alan Wright el 1979. Reprodueix una feina real: en una estació petita, el maquinista ha d’ordenar els vagons d’un tren de mercaderies amb vies curtes i sense espai de sobres.</p></section><section class="panel about-card"><span class="ic" style="background:#1f9d6b">${icon("play")}</span><h3>Les regles</h3><ul class="rules-list"><li><b>1</b>Forma a la via A el tren de dalt, en el mateix ordre.</li><li><b>2</b>La locomotora arrossega com a molt tres vagons.</li><li><b>3</b>Només pots agafar els vagons més propers a les agulles.</li><li><b>4</b>Cada anada i tornada de la locomotora és un moviment.</li></ul></section><section class="panel about-card"><span class="ic" style="background:#7ab8ff">${icon("bulb")}</span><h3>Què s’hi aprèn</h3><p>A planificar abans d’actuar, a pensar enrere des de l’objectiu, a dividir un problema gran en passos petits i a no rendir-se quan un camí no funciona. És pensament computacional i combinatòria sense fórmules.</p></section><section class="panel about-card"><span class="ic" style="background:#b69cff">${icon("trophy")}</span><h3>Com puntua</h3><p>Cada puzle té un mínim de moviments calculat per ordinador. Si el resols sense pistes, guanyes 10 punts per cada moviment del mínim i en perds 5 per cada moviment de més. El rànquing comprova cada resultat tornant a jugar la solució.</p></section><section class="panel about-card wide"><h3>L’estació en xifres</h3><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><section class="panel about-card wide credits"><p>Versió 2.2.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a>. El rànquing només desa el nom de jugador i les solucions: no cal correu ni contrasenya.</p></section></div></div>`;
 }
 function tutorial(step = 0) {
   tutorialStep = step;
@@ -782,9 +807,39 @@ async function handle(action) {
       toast(`Hola, ${player.name}! Ja surts al rànquing.`);
       afterWelcome();
     } catch (e) {
-      err.textContent = e.message;
       btn.disabled = false;
+      if (e.code === "taken") return offerClaim(e.name);
+      err.textContent = e.message;
       input?.focus();
+    }
+    return;
+  }
+  if (action === "claim-cancel") {
+    pendingClaim = null;
+    document.querySelector(".claim-box")?.remove();
+    const input = $("#name-input");
+    input?.select();
+    input?.focus();
+    return;
+  }
+  if (action === "claim") {
+    const btn = document.querySelector('[data-action="claim"]'),
+      fromWelcome = !!dialog.querySelector(".welcome");
+    if (btn) btn.disabled = true;
+    try {
+      await online.claim(pendingClaim);
+      pendingClaim = null;
+      await loadPlayer();
+      board_ = null;
+      toast(`Hola de nou, ${player.name}! Continues amb els teus punts.`);
+      if (fromWelcome) {
+        dialog.close();
+        afterWelcome();
+      } else if (dialog.open && game?.ranked && game.finished) await publish();
+      if (view === "ranking") renderRanking();
+    } catch (e) {
+      if (btn) btn.disabled = false;
+      toast(e.message);
     }
     return;
   }
@@ -798,6 +853,7 @@ async function handle(action) {
       board_ = null;
       if (view === "ranking") renderRanking();
     } catch (e) {
+      if (e.code === "taken") return offerClaim(e.name);
       toast(e.message);
     }
     return;
@@ -816,6 +872,7 @@ async function handle(action) {
   if (action === "erase-confirm") {
     try {
       await online.erase();
+      save("me", null);
       player = null;
       board_ = null;
       dialog.close();
@@ -1063,6 +1120,7 @@ if (!storageOK)
   toast(
     "El navegador no permet desar el progrés. Pots jugar, però no es conservarà en tancar.",
   );
+navigator.storage?.persist?.().catch(() => {});
 if ("serviceWorker" in navigator)
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 

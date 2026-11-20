@@ -1020,6 +1020,32 @@ dialog .close {
   font-weight: 650;
   font-size: 14px;
 }
+.claim-box {
+  margin: 10px 0 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff6e8;
+  border: 1px solid #ffd29e;
+  text-align: left;
+}
+.claim-box p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--ink) !important;
+  max-width: none !important;
+}
+.claim-box p.muted {
+  color: var(--muted) !important;
+}
+.welcome .claim-actions {
+  justify-content: center;
+}
+.claim-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
 
 /* Sobre el joc */
 .about-hero {
