@@ -1949,16 +1949,29 @@ kbd {
     min-height: calc(100vh - 48px);
     min-height: calc(100dvh - 48px);
   }
+  /* Capçalera en dues files: marca i botons rodons; a sota, les pestanyes a tota l’amplada. */
   .topbar {
-    gap: 8px;
-    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px 8px;
+    margin-bottom: 20px;
+  }
+  .brand {
+    order: 1;
+  }
+  .top-actions {
+    order: 2;
+    margin-left: auto;
   }
   .tabs-top {
-    flex: 1;
+    order: 3;
+    flex: 1 1 100%;
     min-width: 0;
+    padding: 4px;
+    border-radius: 16px;
+    box-shadow: 0 4px 14px #1d4b6b12;
   }
   .tabs-top button {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     justify-content: center;
     white-space: nowrap;
   }
@@ -2014,26 +2027,41 @@ kbd {
     font-size: 13px;
     padding: 8px 11px;
   }
-  .brand span {
-    display: none;
-  }
   .brand img {
-    width: 34px;
+    width: 44px;
+  }
+  .brand strong {
+    font-size: 23px;
+  }
+  .brand small {
+    font-size: 9px;
+    letter-spacing: 1.5px;
   }
   .tabs-top {
     margin-left: 0;
   }
   .tabs-top button {
-    font-size: 13px;
-    padding: 7px 6px;
+    gap: 6px;
+    font-size: 14px;
+    padding: 9px 6px;
+    border-radius: 12px;
   }
   .tabs-top .icon {
-    display: none;
+    width: 17px;
+    height: 17px;
   }
   .top-actions button {
     font-size: 0;
     gap: 0;
-    padding: 8px;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .top-actions .icon {
+    width: 21px;
+    height: 21px;
   }
   .goal-line {
     font-size: 15px;
@@ -2258,11 +2286,43 @@ kbd {
     width: 55px;
   }
 }
-/* Mòbils de 380 px o més: logo un 20 % més gran (als més estrets no hi cap). */
-@media (min-width: 380px) and (max-width: 650px) {
-  .brand img {
-    width: 41px;
+/* Mòbils molt estrets: pestanyes sense icona perquè el text hi càpiga. */
+@media (max-width: 359px) {
+  .tabs-top .icon {
+    display: none;
   }
+}
+/* Botó i finestra de menú (el botó només es veu al mòbil horitzontal). */
+.menu-btn {
+  display: none;
+}
+.menu-sheet h2 {
+  margin: 0 0 14px;
+  font-size: 20px;
+}
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  gap: 10px;
+}
+.menu-grid button {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 14px 6px;
+  border-radius: 16px;
+  font-size: 13.5px;
+  background: #f4f9fc;
+  border-color: transparent;
+}
+.menu-grid button.on {
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--green-dark);
+}
+.menu-grid .icon {
+  width: 24px;
+  height: 24px;
 }
 /* Avís de girar el mòbil (només al mòbil vertical). */
 .rotate-tip {
@@ -2341,6 +2401,24 @@ kbd {
     z-index: 3;
     top: 8px;
     left: max(8px, env(safe-area-inset-left));
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .menu-btn {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 12px;
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+    box-shadow: 0 2px 6px #1d3a2230;
+  }
+  .menu-btn .icon {
+    width: 22px;
+    height: 22px;
   }
   .stage-stats {
     gap: 5px;

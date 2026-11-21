@@ -9,7 +9,7 @@ Un trencaclosques ferroviari en català: pocs vagons, poques vies i molt de cap.
 
 **[Juga ara a ja.cat/maniobres](https://ja.cat/maniobres)**
 
-![Versió](https://img.shields.io/badge/versió-2.9.0-1f9d6b)
+![Versió](https://img.shields.io/badge/versió-2.9.1-1f9d6b)
 ![Català](https://img.shields.io/badge/llengua-català-e5533d)
 ![PWA](https://img.shields.io/badge/PWA-funciona%20sense%20connexió-2f80d1)
 ![Codi AGPLv3](https://img.shields.io/badge/codi-AGPLv3-5b6b7a)
@@ -73,7 +73,7 @@ Sembla fàcil: només hi ha vuit vagons. Però l’espai és el repte, i cada so
 - **Rànquing públic** general i per nivells, amb la fitxa de partides de cada jugador.
 - **Preferències** amb interruptors: so discret, menys animacions i mostrar o amagar el mínim. Des d’aquí també es pot **instal·lar el joc com una app**.
 - **Disseny adaptat a cada pantalla:** sense desplaçament a 1366 × 768, també amb escalat del 125 % i del 150 %, i una disposició pròpia per al mòbil.
-- **Mòbil horitzontal:** en girar el mòbil, només es veu el tauler, a pantalla completa, amb els vagons gairebé el doble de grans; els comptadors i els botons queden petits als racons. Amb el dit, un toc una mica fora d’un vagó també l’agafa.
+- **Mòbil horitzontal:** en girar el mòbil, només es veu el tauler, a pantalla completa, amb els vagons gairebé el doble de grans; els comptadors, els botons i un botó de menú (Rànquing, Sobre el joc, Com s’hi juga, Preferències) queden petits als racons. Amb el dit, un toc una mica fora d’un vagó també l’agafa.
 - **Accessible:** números a més de colors, teclat complet, etiquetes per a lectors de pantalla i opció de moviment reduït.
 - **Sense connexió:** és una PWA; després de la primera càrrega, el joc funciona sense xarxa. El rànquing sí que necessita connexió.
 

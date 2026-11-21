@@ -1,5 +1,11 @@
 # Registre de canvis
 
+## 2.9.1 · 21 de novembre de 2026
+
+- Mòbil horitzontal: botó de menú a dalt a l’esquerra amb Continua la partida, Rànquing, Sobre el joc, Com s’hi juga i Preferències.
+- Capçalera del mòbil redissenyada en dues files: icona, títol i lema amb els botons rodons a dalt; a sota, les pestanyes amb icona a tota l’amplada. «Sobre el joc» ja no queda tallat.
+- «Com s’hi juga» té ara una icona d’interrogant pròpia (abans compartia la d’informació amb «Sobre el joc»).
+
 ## 2.9.0 · 21 de novembre de 2026
 
 - Mòbil horitzontal: només es veu el tauler, a pantalla completa, amb els vagons gairebé el doble de grans. Moviments, mínim i temps queden en petit a dalt a l’esquerra, i els botons (desfer, reiniciar, pista, nou repte) a baix a l’esquerra. El resultat es compacta perquè hi càpiga.
