@@ -1,5 +1,9 @@
 # Registre de canvis
 
+## 2.8.4 · 21 de novembre de 2026
+
+- Sortida del tren: si la locomotora encara porta vagons, primer els deixa a la via auxiliar (B o C) que tingui lloc, torna enrere i després s’emporta el tren de la via A, sense passar per damunt de cap vagó.
+
 ## 2.8.3 · 21 de novembre de 2026
 
 - Interruptors de Preferències refets: la bola queda centrada (l’estil general dels camps hi afegia vora i farciment) i llisca amb suavitat.

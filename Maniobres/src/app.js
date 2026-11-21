@@ -434,6 +434,16 @@ function locations(state) {
 }
 // Quan el tren és format, la locomotora s'enganxa a la via A i se l'emporta.
 let departToken = 0;
+// Si la locomotora encara porta vagons, primer els deixa en una via auxiliar amb lloc.
+function departDrop(L) {
+  const s = game.state,
+    n0 = s[0].length;
+  if (!n0) return null;
+  const v = [2, 3]
+    .filter((i) => s[i].length + n0 <= L.caps[i - 1])
+    .sort((a, b) => L.caps[b - 1] - s[b].length - (L.caps[a - 1] - s[a].length))[0];
+  return v ? { v, n0, k: s[v].length } : { v: 0, n0 };
+}
 function depart(wait = 0) {
   if (prefs.reduced || autoplay) return sound("whistle");
   const token = ++departToken;
@@ -446,8 +456,8 @@ function depart(wait = 0) {
       cars = [...svg.querySelectorAll('[data-src="1"]')];
     if (!loco || !cars.length) return;
     loco.querySelector("text")?.remove();
-    const put = (el, s, half) => {
-        const [x, y, a] = along(r, s);
+    const put = (el, s, half, rr = r) => {
+        const [x, y, a] = along(rr, s);
         el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) translate(${-half} 0)`);
       },
       sc = cars.map((_, j) => parked(L, 1, j)),
@@ -458,26 +468,67 @@ function depart(wait = 0) {
       left = wrap && m ? (wrap.left - m.e) / m.a : 0,
       away = sc.at(-1) - left + 70,
       ease = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
-      t0 = performance.now(),
+      drop = departDrop(L),
+      held = [...svg.querySelectorAll('[data-src="0"]')].sort((a, b) => a.dataset.idx - b.dataset.idx),
+      // Fase prèvia: empènyer els vagons de la locomotora cap a la via auxiliar i tornar.
+      push = drop ? (drop.v ? 900 : 450) : 0,
+      back = drop?.v ? 700 : 0,
+      pre = push ? push + 150 + back + 150 : 0,
       approach = 750,
       pause = 180,
-      leave = 1500;
+      leave = 1500,
+      t0 = performance.now();
+    let moved = [];
+    if (drop?.v) {
+      const rv = route(L, drop.v),
+        gap = parked(L, 0, 0) - l0;
+      moved = [
+        ...held.map((el, j) => ({ el, a: parked(L, 0, j), b: parked(L, drop.v, j) })),
+        ...[...svg.querySelectorAll(`[data-src="${drop.v}"]`)].map((el) => ({ el, a: parked(L, drop.v, +el.dataset.idx), b: parked(L, drop.v, +el.dataset.idx + drop.n0) })),
+      ];
+      moved.rv = rv;
+      moved.lp = parked(L, drop.v, 0) - gap;
+    }
     let whistled = false;
     const frame = (now) => {
       if (token !== departToken || !loco.isConnected) return;
       const e = now - t0;
-      if (e < approach) put(loco, l0 + (l1 - l0) * ease(e / approach), 28);
-      else if (e < approach + pause) put(loco, l1, 28);
-      else {
-        if (!whistled) {
-          whistled = true;
-          sound("whistle");
+      if (e < pre) {
+        if (drop.v) {
+          const rv = moved.rv;
+          if (e < push) {
+            const t = ease(e / push);
+            put(loco, l0 + (moved.lp - l0) * t, 28, rv);
+            moved.forEach((x) => put(x.el, x.a + (x.b - x.a) * t, 26, rv));
+          } else if (e < push + 150) {
+            const tag = svg.querySelector(`[data-via="${drop.v}"] .track-label tspan`);
+            if (tag) tag.textContent = `${drop.k + drop.n0}/${L.caps[drop.v - 1]}`;
+            put(loco, moved.lp, 28, rv);
+            moved.forEach((x) => put(x.el, x.b, 26, rv));
+          } else {
+            const t = ease(Math.min(1, (e - push - 150) / back));
+            put(loco, moved.lp + (l0 - moved.lp) * t, 28, rv);
+          }
+        } else {
+          // Sense lloc a cap via auxiliar: els vagons s'esvaeixen.
+          const t = Math.min(1, e / push);
+          held.forEach((el) => el.setAttribute("opacity", (1 - t).toFixed(2)));
         }
-        const t = Math.min(1, (e - approach - pause) / leave),
-          d = away * t * t;
-        put(loco, l1 - d, 28);
-        cars.forEach((el, j) => put(el, sc[j] - d, 26));
-        if (t >= 1) return;
+      } else {
+        const f = e - pre;
+        if (f < approach) put(loco, l0 + (l1 - l0) * ease(f / approach), 28);
+        else if (f < approach + pause) put(loco, l1, 28);
+        else {
+          if (!whistled) {
+            whistled = true;
+            sound("whistle");
+          }
+          const t = Math.min(1, (f - approach - pause) / leave),
+            d = away * t * t;
+          put(loco, l1 - d, 28);
+          cars.forEach((el, j) => put(el, sc[j] - d, 26));
+          if (t >= 1) return;
+        }
       }
       requestAnimationFrame(frame);
     };
@@ -723,7 +774,7 @@ function finish() {
     () => {
       if (game === g && view === "play" && !dialog.open) showResult();
     },
-    prefs.reduced ? 1200 : 3300,
+    prefs.reduced ? 1200 : 3300 + (game.state[0].length ? 1900 : 0),
   );
 }
 function modal(html, locked = false) {
@@ -951,7 +1002,7 @@ function renderAbout() {
       ["swap", "#ff8a3d", "Anar i tornar", "compta 1 moviment"],
     ],
     skills = ["Planificar", "Pensar enrere", "Dividir el problema", "Provar i ajustar", "Pensament computacional"];
-  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.8.3 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
+  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.8.4 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
 }
 // Escenes del «Com s'hi juga»: una estació petita (via de maniobra, via A amb corba i via B recta).
 function scene(step) {
