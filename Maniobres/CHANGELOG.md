@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 2.7.0 · 21 de novembre de 2026
+
+- «Com s’hi juga» nou: cinc passos curts, cadascun amb una escena animada de l’estació (el vagó llisca amb el dit a sobre) i una sola frase. Acaba amb una partida de pràctica.
+- «Sobre el joc» redissenyat: capçalera petita, les regles en quatre fitxes amb icona, la puntuació en etiquetes de colors, el que s’hi aprèn en xips, l’origen en una línia i les xifres de l’estació. Molt menys text.
+
 ## 2.6.0 · 20 de novembre de 2026
 
 - Els vagons llisquen pels rails: en arrossegar-los segueixen el recorregut de la via (també les corbes, girant amb la via) en lloc de volar, i s'aturen en tocar la locomotora o els vagons de la via. Des de la locomotora, el tren entra a la via més propera al dit. L'animació de cada maniobra també segueix els rails.
