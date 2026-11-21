@@ -1,5 +1,10 @@
 # Registre de canvis
 
+## 2.8.5 · 21 de novembre de 2026
+
+- Fora el text «de les agulles cap al fons» al costat del tren objectiu.
+- README renovat amb captures noves.
+
 ## 2.8.4 · 21 de novembre de 2026
 
 - Sortida del tren: si la locomotora encara porta vagons, primer els deixa a la via auxiliar (B o C) que tingui lloc, torna enrere i després s’emporta el tren de la via A, sense passar per damunt de cap vagó.

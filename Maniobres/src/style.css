@@ -273,11 +273,6 @@ input {
 .goal-line b {
   color: var(--green-dark);
 }
-.goal-line small {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 500;
-}
 .target-train {
   display: flex;
   gap: 5px;
@@ -1934,9 +1929,6 @@ kbd {
   }
 }
 @media (max-width: 1150px) and (min-width: 651px) {
-  .goal-line small {
-    display: none;
-  }
   .stage-stats > div {
     min-width: 66px;
     padding: 5px 8px;
@@ -1983,10 +1975,6 @@ kbd {
   }
   .goal-line {
     gap: 10px 12px;
-  }
-  .goal-line small {
-    flex-basis: 100%;
-    margin-top: -4px;
   }
   .stage-stats > div {
     padding: 9px 8px;
