@@ -1,5 +1,9 @@
 # Registre de canvis
 
+## 2.8.3 · 21 de novembre de 2026
+
+- Interruptors de Preferències refets: la bola queda centrada (l’estil general dels camps hi afegia vora i farciment) i llisca amb suavitat.
+
 ## 2.8.2 · 21 de novembre de 2026
 
 - Fora el botó «Repta un amic»: l’avís de l’enllaç copiat quedava borrós darrere el diàleg.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-const CACHE = "maniobres-v2.8.2-1";
+const CACHE = "maniobres-v2.8.3-1";
 const FILES = [
   "./",
   "./index.html",
