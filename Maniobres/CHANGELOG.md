@@ -1,5 +1,9 @@
 # Registre de canvis
 
+## 2.8.1 · 21 de novembre de 2026
+
+- Títol «Maniobres» i icona un 20 % més grans. Al mòbil, la icona creix només a partir de 380 px d’amplada perquè als més estrets no hi cap.
+
 ## 2.8.0 · 21 de novembre de 2026
 
 - Resultat nou: el tren format dibuixat, estrelles animades, fitxes amb moviments, mínim, temps i punts, i el lloc al rànquing («Ocupes el 3r lloc: has pujat!»).

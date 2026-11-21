@@ -188,11 +188,11 @@ input {
   background: none;
 }
 .brand img {
-  width: 40px;
+  width: 48px;
 }
 .brand strong {
   display: block;
-  font-size: 22px;
+  font-size: 26.5px;
   letter-spacing: -0.6px;
 }
 .brand small {
@@ -2261,6 +2261,12 @@ kbd {
   }
   .felip-app-footer img {
     width: 55px;
+  }
+}
+/* Mòbils de 380 px o més: logo un 20 % més gran (als més estrets no hi cap). */
+@media (min-width: 380px) and (max-width: 650px) {
+  .brand img {
+    width: 41px;
   }
 }
 .reduced * {
