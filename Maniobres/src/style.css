@@ -2264,6 +2264,193 @@ kbd {
     width: 41px;
   }
 }
+/* Avís de girar el mòbil (només al mòbil vertical). */
+.rotate-tip {
+  display: none;
+}
+@media (orientation: portrait) and (max-width: 650px) and (pointer: coarse) {
+  .rotate-tip {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 99px;
+    border: 0;
+    background: #ffffffd9;
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px #1d3a2222;
+  }
+  .rotate-tip .icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+/* Mòbil horitzontal: el tauler ocupa tota la pantalla i els controls van als racons buits. */
+@media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+  body:has(.stage) {
+    overflow: hidden;
+  }
+  body:has(.stage) .felip-app-footer,
+  .shell:has(.stage) .topbar,
+  .stage .goal,
+  .board-caption {
+    display: none;
+  }
+  .shell:has(.stage) {
+    padding: 0;
+    min-height: 0;
+  }
+  .board-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    min-height: 0;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .board-wrap.complete {
+    box-shadow: inset 0 0 0 4px var(--gold);
+  }
+  .board-wrap .board {
+    position: absolute;
+    inset: max(4px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 4px max(8px, env(safe-area-inset-left));
+    width: auto;
+    height: auto;
+  }
+  .board-caption.warning {
+    display: block;
+    position: fixed;
+    z-index: 3;
+    left: 50%;
+    right: auto;
+    bottom: 8px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    font-size: 12px;
+  }
+  .stage-head {
+    position: fixed;
+    z-index: 3;
+    top: 8px;
+    left: max(8px, env(safe-area-inset-left));
+  }
+  .stage-stats {
+    gap: 5px;
+  }
+  .stage-stats > div {
+    min-width: 0;
+    padding: 3px 9px;
+    border-radius: 10px;
+    background: #ffffffd9;
+    box-shadow: 0 2px 6px #1d3a2218;
+  }
+  .stage-stats b {
+    font-size: 15px;
+  }
+  .stage-stats small {
+    font-size: 9.5px;
+  }
+  .stage-controls {
+    position: fixed;
+    z-index: 3;
+    left: max(8px, env(safe-area-inset-left));
+    bottom: 8px;
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 6px;
+    max-width: 44vw;
+  }
+  .tool-row {
+    margin: 0;
+    gap: 6px;
+  }
+  .tool-row button {
+    font-size: 0;
+    gap: 0;
+    padding: 9px;
+    border-radius: 12px;
+    background: #ffffffe6;
+  }
+  .tool-row button.primary {
+    background: var(--green);
+  }
+  .tool-row .icon {
+    width: 19px;
+    height: 19px;
+  }
+  .choice-row {
+    gap: 5px;
+  }
+  .choice-label {
+    flex-basis: 100%;
+    font-size: 11.5px;
+  }
+  .choice-row .chip {
+    padding: 4px 9px;
+    font-size: 12px;
+    background: #fffffff0;
+  }
+  .choice-row .amb {
+    display: none;
+  }
+  .choice-row > button:not(.chip) {
+    font-size: 12.5px;
+    padding: 6px 11px;
+  }
+  dialog {
+    padding: 18px 22px;
+  }
+  .result-art {
+    padding: 34px 10px 6px;
+  }
+  .result-train {
+    width: auto;
+    max-width: 100%;
+    height: 54px;
+    margin: 0 auto;
+  }
+  .result-stars .icon {
+    width: 26px;
+    height: 26px;
+  }
+  .result-stars span:nth-child(2) .icon {
+    width: 32px;
+    height: 32px;
+  }
+  .result-art {
+    margin-bottom: 8px;
+  }
+  .result .eyebrow,
+  .result-msg,
+  .result .your-solution {
+    display: none;
+  }
+  .result h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  .result-tiles div {
+    padding: 4px;
+  }
+  .result-tiles b {
+    font-size: 17px;
+  }
+  .result .rank-note {
+    padding: 7px 12px;
+    font-size: 13px;
+  }
+  .result .dialog-actions {
+    margin-top: 10px;
+  }
+}
 .reduced *:not(.switch) {
   animation: none !important;
   transition: none !important;

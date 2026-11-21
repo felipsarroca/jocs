@@ -53,6 +53,7 @@ const paths = {
   target: "M12 3a9 9 0 100 18 9 9 0 000-18zm0 4a5 5 0 100 10 5 5 0 000-10zm0 4.2a.8.8 0 100 1.6.8.8 0 000-1.6",
   train: "M7 4h10a3 3 0 013 3v8a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3zM4 11h16M8.5 14.5h.01M15.5 14.5h.01M8 18l-2 3m10-3l2 3",
   swap: "M4 8h15m0 0l-3-3m3 3l-3 3M20 16H5m0 0l3-3m-3 3l3 3",
+  rotate: "M7 3h7a2 2 0 012 2v8M3 14h14a2 2 0 012 2v3a2 2 0 01-2 2H5a2 2 0 01-2-2zM18 4l2 2-2 2M20 6h-2",
   keyboard: "M3 6h18v12H3zM7 10h.01M11 10h.01M15 10h.01M7 14h10",
   motion: "M3 12h4l3-8 4 16 3-8h4",
   eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zm10-3a3 3 0 100 6 3 3 0 000-6",
@@ -708,7 +709,7 @@ function renderGame() {
             ? `Arrossega vagons entre les vies i la locomotora.`
             : `<b>1</b> Arrossega vagons: d’una via a la locomotora per endur-te’ls, o del tren de la locomotora a una via per deixar-los.`;
   $("#main").innerHTML =
-    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${game.mode === "tutorial" ? "Partida de pràctica · no puntua" : game.min ? levelOf(game.min) + " · " + score(game.min, game.min) + " punts amb el mínim" : "Preparant…"}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<svg class="mini-wagon" viewBox="-7 -24 66 48" aria-hidden="true">${wagonArt(game.labels?.[i] ?? i + 1, 0, 0).replace(" data-wagon=", " data-mini=")}</svg>`).join("")}</span></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div></div></div><div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? `<span class="choice-label">Via ${"ABC"[selected - 1]} · la locomotora torna</span>` + Array.from({ length: c.h + 1 }, (_, k) => `<button class="chip" data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "sola" : `<span class="amb">amb </span>${k} ${k === 1 ? "vagó" : "vagons"}`}</button>`).join("") + `<button class="ghost chip" data-action="cancel">Cancel·la</button>` : ""}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="primary" data-action="new-menu">${icon("play")} Nou repte</button></div></div></div>`;
+    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${game.mode === "tutorial" ? "Partida de pràctica · no puntua" : game.min ? levelOf(game.min) + " · " + score(game.min, game.min) + " punts amb el mínim" : "Preparant…"}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<svg class="mini-wagon" viewBox="-7 -24 66 48" aria-hidden="true">${wagonArt(game.labels?.[i] ?? i + 1, 0, 0).replace(" data-wagon=", " data-mini=")}</svg>`).join("")}</span></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div></div></div><div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${read("rotate-tip", true) ? `<button class="rotate-tip" data-action="rotate-tip">${icon("rotate")} Gira el mòbil per veure-ho més gran</button>` : ""}${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? `<span class="choice-label">Via ${"ABC"[selected - 1]} · la locomotora torna</span>` + Array.from({ length: c.h + 1 }, (_, k) => `<button class="chip" data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "sola" : `<span class="amb">amb </span>${k} ${k === 1 ? "vagó" : "vagons"}`}</button>`).join("") + `<button class="ghost chip" data-action="cancel">Cancel·la</button>` : ""}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="primary" data-action="new-menu">${icon("play")} Nou repte</button></div></div></div>`;
 }
 function select(v) {
   if (!game || game.finished || autoplay) return;
@@ -1002,7 +1003,7 @@ function renderAbout() {
       ["swap", "#ff8a3d", "Anar i tornar", "compta 1 moviment"],
     ],
     skills = ["Planificar", "Pensar enrere", "Dividir el problema", "Provar i ajustar", "Pensament computacional"];
-  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.8.5 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
+  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.9.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
 }
 // Escenes del «Com s'hi juga»: una estació petita (via de maniobra, via A amb corba i via B recta).
 function scene(step) {
@@ -1106,6 +1107,10 @@ async function handle(action) {
     return;
   }
   if (action === "settings") return settings();
+  if (action === "rotate-tip") {
+    save("rotate-tip", false);
+    return document.querySelector(".rotate-tip")?.remove();
+  }
   if (action === "install") {
     if (!installEvent) return;
     installEvent.prompt();
@@ -1305,13 +1310,21 @@ function wagonAt(e) {
   if (!svg) return null;
   const direct = e.target.closest("[data-src]");
   if (direct) return direct;
-  const p = svgPoint(svg, e);
-  return (
-    [...svg.querySelectorAll("[data-src]")].find((el) => {
-      const [x, y] = el.getAttribute("transform").match(/[-\d.]+/g).map(Number);
-      return p.x >= x - 6 && p.x <= x + 58 && p.y >= y - 27 && p.y <= y + 27;
-    }) || null
-  );
+  // Amb el dit, s'accepta un toc una mica fora del vagó (uns 22 px de pantalla): el més proper.
+  const p = svgPoint(svg, e),
+    k = svg.getScreenCTM()?.a || 1,
+    tol = e.pointerType === "mouse" ? 0 : Math.min(34, 22 / k);
+  let best = null,
+    bd = Infinity;
+  svg.querySelectorAll("[data-src]").forEach((el) => {
+    const [x, y] = el.getAttribute("transform").match(/[-\d.]+/g).map(Number),
+      d = Math.hypot(Math.max(x - 6 - p.x, 0, p.x - x - 58), Math.max(y - 27 - p.y, 0, p.y - y - 27));
+    if (d <= tol && d < bd) {
+      best = el;
+      bd = d;
+    }
+  });
+  return best;
 }
 document.addEventListener("pointerdown", (e) => {
   const el = wagonAt(e);
@@ -1593,6 +1606,16 @@ addEventListener("appinstalled", () => {
 if ("serviceWorker" in navigator)
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 
+// Mòbil horitzontal: només el tauler. Quan s'hi gira, l'avís de girar ja no cal.
+const landscape = matchMedia("(orientation: landscape) and (max-height: 500px) and (pointer: coarse)");
+const onLandscape = () => {
+  if (landscape.matches) {
+    save("rotate-tip", false);
+    document.querySelector(".rotate-tip")?.remove();
+  }
+};
+landscape.addEventListener("change", onLandscape);
+onLandscape();
 matchMedia("(max-width:650px)").addEventListener("change", () => {
   if (view === "play") renderGame();
 });

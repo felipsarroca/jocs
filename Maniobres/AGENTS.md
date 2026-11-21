@@ -6,7 +6,7 @@
 - Els identificadors de puzle del rànquing són la clau canònica de la posició inicial (`v1-classic-<clau>`): no canviïs la codificació de `key()` sense migrar els resultats.
 - Estètica clara (cel, gespa, vagons de colors vius): Felip va trobar la versió fosca «molt fosca i trista» (2.0).
 - L’estació (SVG) és la protagonista: Felip va rebutjar un tauler petit envoltat de columnes i títols (1.1). El tauler ocupa tota l’alçada restant; objectiu i xifres van en una franja fina, i el menú és una barra d’icones.
-- Pantalla: a 1366 × 768 el joc no ha de fer desplaçament vertical; comprova també 1920 × 1080, escalat del 125 % i mòbil (390 px).
+- Pantalla: a 1366 × 768 el joc no ha de fer desplaçament vertical; comprova també 1920 × 1080, escalat del 125 %, mòbil vertical (390 px) i horitzontal (844 × 390). En mòbil horitzontal (2.9) només es veu el tauler, a pantalla completa, amb els controls als racons.
 - Llicència doble dins del codi: SPDX AGPL-3.0-or-later a cada fitxer propi; `LICENSE` amb continguts CC BY-NC-SA 4.0; formulari `.github/ISSUE_TEMPLATE/maniobres.yml`.
 - A cada canvi de recursos, incrementa `CACHE` a `sw.js` i la versió a `package.json`, `CHANGELOG.md` i «Sobre el joc», i comprova que la versió publicada és la nova.
 - Proves: `npm test`; amb `npm run serve` en marxa, `node tests/browser.mjs` i `node tests/flows.mjs` (Playwright a `%LOCALAPPDATA%\maniobres-test-tools`).

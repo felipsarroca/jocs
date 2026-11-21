@@ -1,5 +1,11 @@
 # Registre de canvis
 
+## 2.9.0 · 21 de novembre de 2026
+
+- Mòbil horitzontal: només es veu el tauler, a pantalla completa, amb els vagons gairebé el doble de grans. Moviments, mínim i temps queden en petit a dalt a l’esquerra, i els botons (desfer, reiniciar, pista, nou repte) a baix a l’esquerra. El resultat es compacta perquè hi càpiga.
+- Mòbil vertical: un avís discret suggereix girar el mòbil; desapareix en tocar-lo o en girar-lo.
+- Amb el dit, un toc fins a uns 22 px fora d’un vagó també l’agafa (el més proper).
+
 ## 2.8.5 · 21 de novembre de 2026
 
 - Fora el text «de les agulles cap al fons» al costat del tren objectiu.
