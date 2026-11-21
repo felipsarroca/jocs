@@ -14,7 +14,7 @@ La versió 2.0 és deliberadament senzilla: **Jugar**, **Rànquing** i **Sobre e
 
 - **Jugar:** quatre dificultats (fàcil, mitjà, difícil i expert) segons el mínim de moviments. S’eviten els puzles que ja has resolt en aquest navegador.
 - Guia visual, mínim i moviments restants, pistes visuals (vagó marcat i fletxa), desfer, reinici, reproducció de la solució òptima i so opcional.
-- En acabar, la locomotora s’emporta el tren; el resultat mostra estrelles, xifres i un botó per reptar algú amb el mateix puzle.
+- En acabar, la locomotora s’emporta el tren; el resultat mostra estrelles i xifres.
 - Rànquing general i per nivell; instal·lable com a app des de Preferències.
 - SVG originals, números a més de colors, teclat, moviment reduït i disseny adaptable.
 - PWA: el joc funciona sense connexió després de la primera càrrega; el rànquing necessita connexió.
