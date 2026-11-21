@@ -13,7 +13,9 @@ Forma el tren objectiu a la via A, en l’ordre indicat des de les agulles fins 
 La versió 2.0 és deliberadament senzilla: **Jugar**, **Rànquing** i **Sobre el joc**.
 
 - **Jugar:** quatre dificultats (fàcil, mitjà, difícil i expert) segons el mínim de moviments. S’eviten els puzles que ja has resolt en aquest navegador.
-- Tutorial, mínim i moviments restants, pistes, desfer, reinici, reproducció de la solució òptima i so opcional.
+- Guia visual, mínim i moviments restants, pistes visuals (vagó marcat i fletxa), desfer, reinici, reproducció de la solució òptima i so opcional.
+- En acabar, la locomotora s’emporta el tren; el resultat mostra estrelles, xifres i un botó per reptar algú amb el mateix puzle.
+- Rànquing general i per nivell; instal·lable com a app des de Preferències.
 - SVG originals, números a més de colors, teclat, moviment reduït i disseny adaptable.
 - PWA: el joc funciona sense connexió després de la primera càrrega; el rànquing necessita connexió.
 
@@ -23,7 +25,7 @@ La versió 2.0 és deliberadament senzilla: **Jugar**, **Rànquing** i **Sobre e
 
 ### Controls
 
-Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per endur-te’l (amb els que té davant), o un vagó del tren de la locomotora fins a una via per deixar-lo (amb els que té darrere). També pots tocar una via i després el darrer vagó que vols endur-te. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Z** desfà.
+Ratolí o tacte: **arrossega** un vagó d’una via fins a la locomotora per endur-te’l (amb els que té davant), o un vagó del tren de la locomotora fins a una via per deixar-lo (amb els que té darrere). També pots tocar una via i després el darrer vagó que vols endur-te. Teclat: **A/B/C**, després **0–3** o fletxes i Retorn; **Ctrl+Z** o **Z** desfà, **P** demana una pista, **N** obre un nou repte i **Esc** cancel·la.
 
 ## Rànquing públic
 

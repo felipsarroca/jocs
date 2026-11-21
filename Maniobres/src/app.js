@@ -53,6 +53,10 @@ const paths = {
   target: "M12 3a9 9 0 100 18 9 9 0 000-18zm0 4a5 5 0 100 10 5 5 0 000-10zm0 4.2a.8.8 0 100 1.6.8.8 0 000-1.6",
   train: "M7 4h10a3 3 0 013 3v8a3 3 0 01-3 3H7a3 3 0 01-3-3V7a3 3 0 013-3zM4 11h16M8.5 14.5h.01M15.5 14.5h.01M8 18l-2 3m10-3l2 3",
   swap: "M4 8h15m0 0l-3-3m3 3l-3 3M20 16H5m0 0l3-3m-3 3l3 3",
+  share: "M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7M16 6l-4-4-4 4M12 2v13",
+  keyboard: "M3 6h18v12H3zM7 10h.01M11 10h.01M15 10h.01M7 14h10",
+  motion: "M3 12h4l3-8 4 16 3-8h4",
+  eye: "M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zm10-3a3 3 0 100 6 3 3 0 000-6",
   star: "M12 3.5l2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z",
   check: "M20 6L9 17l-5-5",
   medal: "M12 15a6 6 0 100-12 6 6 0 000 12zM8.5 13.5L7 22l5-3 5 3-1.5-8.5",
@@ -124,6 +128,9 @@ let view = "play",
   autoplay = false,
   preview = null,
   tutorialStep = 0,
+  hintMove = null,
+  rankLevel = "all",
+  installEvent = null,
   player = null,
   board_ = null;
 const LEVELS = {
@@ -132,6 +139,8 @@ const LEVELS = {
   dificil: ["Difícil", 13, 15],
   expert: ["Expert", 16, 17],
 };
+// Ordinals en català: 1r, 2n, 3r, 4t, 5è…
+const ord = (n) => n + (n === 1 || n === 3 ? "r" : n === 2 ? "n" : n === 4 ? "t" : "è");
 const levelOf = (min) =>
   Object.values(LEVELS).find(([, lo, hi]) => min >= lo && min <= hi)?.[0] || "";
 
@@ -298,6 +307,7 @@ function start(p, mode = "free", extra = {}) {
   remaining = null;
   nextMove = null;
   preview = null;
+  hintMove = null;
   view = "play";
   persist();
   solve();
@@ -308,7 +318,7 @@ function puzzleKey(g = game) {
   return g.config === "classic" ? String(key(canonical(g.initial, 5))) : null;
 }
 function render() {
-  root.innerHTML = `<div class="shell"><header class="topbar"><button class="brand" data-nav="play" aria-label="Maniobres, anar al joc"><img src="assets/favicon.svg" alt=""><span><strong>Maniobres</strong><small>Cada moviment compta</small></span></button><nav class="tabs-top" aria-label="Seccions"><button data-nav="play" class="${view === "play" ? "active" : ""}">${icon("play")} Jugar</button><button data-nav="ranking" class="${view === "ranking" ? "active" : ""}">${icon("trophy")} Rànquing</button><button data-nav="about" class="${view === "about" ? "active" : ""}">${icon("info")} Sobre el joc</button></nav><div class="top-actions"><button data-action="tutorial">${icon("info")} Com s’hi juga</button><button data-action="settings" aria-label="Preferències">${icon("settings")}</button></div></header><main id="main"></main></div>`;
+  root.innerHTML = `<div class="shell"><header class="topbar"><button class="brand" data-nav="play" aria-label="Maniobres, anar al joc"><img src="assets/favicon.svg" alt=""><span><strong>Maniobres</strong><small>Cada moviment compta</small></span></button><nav class="tabs-top" aria-label="Seccions"><button data-nav="play" class="${view === "play" ? "active" : ""}">${icon("play")} Jugar</button><button data-nav="ranking" class="${view === "ranking" ? "active" : ""}">${icon("trophy")} Rànquing</button><button data-nav="about" class="${view === "about" ? "active" : ""}">${icon("info")} Sobre el joc</button></nav><div class="top-actions"><button data-action="tutorial">${icon("info")} Com s’hi juga</button>${installEvent && !standalone() ? `<button class="install-btn" data-action="install" aria-label="Instal·la el joc">${icon("download")} Instal·la</button>` : ""}<button data-action="settings" aria-label="Preferències">${icon("settings")}</button></div></header><main id="main"></main></div>`;
   if (view === "play") renderGame();
   else if (view === "about") renderAbout();
   else renderRanking();
@@ -359,14 +369,15 @@ function layout(c = config()) {
   const narrow = innerWidth < 650;
   return {
     narrow,
-    ys: [100, 220, 340],
-    loco: narrow ? 8 : 16,
-    headX: narrow ? 72 : 84,
-    headStep: narrow ? 56 : 64,
-    pt: narrow ? 250 : 300,
-    cv: narrow ? 268 : 340,
-    tx: narrow ? 300 : 400,
-    step: 70,
+    ys: narrow ? [64, 220, 376] : [100, 220, 340],
+    view: narrow ? [4, 404] : [36, 340],
+    loco: narrow ? 4 : 16,
+    headX: narrow ? 66 : 84,
+    headStep: narrow ? 54 : 64,
+    pt: narrow ? 232 : 300,
+    cv: narrow ? 250 : 340,
+    tx: narrow ? 280 : 400,
+    step: narrow ? 64 : 70,
     caps: c.caps,
   };
 }
@@ -422,6 +433,58 @@ function locations(state) {
   state.forEach((line, src) => line.forEach((w, j) => m.set(String(game.labels?.[w - 1] ?? w), [src, j])));
   return m;
 }
+// Quan el tren és format, la locomotora s'enganxa a la via A i se l'emporta.
+let departToken = 0;
+function depart(wait = 0) {
+  if (prefs.reduced || autoplay) return sound("whistle");
+  const token = ++departToken;
+  setTimeout(() => {
+    const svg = $("#main .board");
+    if (!svg || token !== departToken || !game?.finished) return;
+    const L = layout(),
+      r = route(L, 1),
+      loco = svg.querySelector(".loco"),
+      cars = [...svg.querySelectorAll('[data-src="1"]')];
+    if (!loco || !cars.length) return;
+    loco.querySelector("text")?.remove();
+    const put = (el, s, half) => {
+        const [x, y, a] = along(r, s);
+        el.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) translate(${-half} 0)`);
+      },
+      sc = cars.map((_, j) => parked(L, 1, j)),
+      l0 = L.loco + 28,
+      l1 = sc[0] - 63,
+      wrap = svg.closest(".board-wrap")?.getBoundingClientRect(),
+      m = svg.getScreenCTM(),
+      left = wrap && m ? (wrap.left - m.e) / m.a : 0,
+      away = sc.at(-1) - left + 70,
+      ease = (t) => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2),
+      t0 = performance.now(),
+      approach = 750,
+      pause = 180,
+      leave = 1500;
+    let whistled = false;
+    const frame = (now) => {
+      if (token !== departToken || !loco.isConnected) return;
+      const e = now - t0;
+      if (e < approach) put(loco, l0 + (l1 - l0) * ease(e / approach), 28);
+      else if (e < approach + pause) put(loco, l1, 28);
+      else {
+        if (!whistled) {
+          whistled = true;
+          sound("whistle");
+        }
+        const t = Math.min(1, (e - approach - pause) / leave),
+          d = away * t * t;
+        put(loco, l1 - d, 28);
+        cars.forEach((el, j) => put(el, sc[j] - d, 26));
+        if (t >= 1) return;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }, wait + 120);
+}
 // Fa lliscar els vagons que canvien de lloc seguint els rails de la via v.
 let rideToken = 0;
 function ride(before, v, from) {
@@ -456,15 +519,57 @@ function ride(before, v, from) {
   requestAnimationFrame(frame);
   return duration;
 }
+// Decorat discret als racons buits: andana, edifici de l'estació, arbres i matolls.
+function scenery(narrow, pt) {
+  const tree = ([x, y, r]) =>
+      `<g transform="translate(${x} ${y})"><circle cx="3" cy="4" r="${r + 1}" fill="#1d3a2224"/><circle r="${r}" fill="#6fae58"/><circle cx="${-r * 0.28}" cy="${-r * 0.28}" r="${r * 0.6}" fill="#8ccb6f"/><circle cx="${r * 0.3}" cy="${r * 0.25}" r="${r * 0.35}" fill="#5d9c4a" opacity=".7"/></g>`,
+    [bx, bw] = narrow ? [26, 112] : [62, 140],
+    trees = narrow
+      ? [[178, 96, 15], [204, 58, 10], [14, 66, 9], [30, 330, 13], [56, 352, 8], [178, 352, 14]]
+      : [[238, 96, 18], [268, 58, 11], [26, 74, 12], [40, 330, 15], [70, 352, 10], [218, 338, 16], [250, 362, 9]];
+  return `<g class="scenery" aria-hidden="true"><rect x="10" y="180" width="${pt - 48}" height="19" rx="3" fill="#e4dfd2" stroke="#cbc3b0"/><path d="M12 195.5H${pt - 40}" stroke="#f5c542" stroke-width="2" stroke-dasharray="7 4"/><g transform="translate(${bx} 116)"><rect x="4" y="5" width="${bw}" height="60" rx="3" fill="#1d3a2226"/><rect width="${bw}" height="30" rx="2" fill="#e27d62"/><rect y="30" width="${bw}" height="30" rx="2" fill="#c65a41"/><path d="M0 9H${bw}M0 19H${bw}M0 41H${bw}M0 51H${bw}" stroke="#00000014"/><path d="M0 30H${bw}" stroke="#a9442f" stroke-width="2.5"/><rect x="${bw * 0.72}" y="10" width="11" height="13" rx="1.5" fill="#9c7b68" stroke="#6b4f40"/><rect x="${bw * 0.2}" y="58" width="${bw * 0.6}" height="6" rx="2" fill="#5b4636" opacity=".55"/></g>${trees.map(tree).join("")}</g>`;
+}
+// Pista visual: el vagó que cal arrossegar i el recorregut fins on ha d'anar.
+function hintInfo(s, c) {
+  if (!hintMove || game.finished) return null;
+  const [v, k] = hintMove,
+    n0 = s[0].length,
+    [src, idx] = k > n0 ? [v, k - n0 - 1] : [0, k];
+  if (!s[src]?.[idx]) return null;
+  let after;
+  try {
+    after = move(s, c, v, k);
+  } catch {
+    return null;
+  }
+  const w = s[src][idx],
+    dst = after.findIndex((line) => line.includes(w)),
+    L = layout(c),
+    r = route(L, v),
+    s0 = parked(L, src, idx),
+    s1 = parked(L, dst, after[dst].indexOf(w)),
+    pts = [];
+  for (let i = 0; i <= 40; i++) pts.push(along(r, s0 + ((s1 - s0) * i) / 40));
+  const [ex, ey, ea] = pts.at(-1),
+    a = ea + (s1 < s0 ? 180 : 0),
+    d = "M" + pts.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join("L");
+  return {
+    src,
+    moving: (j) => (src ? j <= idx : j >= idx),
+    svg: `<g class="hint-route" aria-hidden="true"><path d="${d}" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" opacity=".85"/><path class="hint-dash" d="${d}" stroke="#ff8a3d" stroke-width="4.5" fill="none" stroke-linecap="round" stroke-dasharray="10 8"/><g transform="translate(${ex.toFixed(1)} ${ey.toFixed(1)}) rotate(${a.toFixed(1)})"><path d="M8 0L-8 -10L-4 0L-8 10z" fill="#ff8a3d" stroke="#fff" stroke-width="2.5" stroke-linejoin="round" paint-order="stroke"/></g></g>`,
+  };
+}
 function board(s = game.state, c = config(), interactive = true) {
-  const { narrow, ys, loco, headX, headStep, pt, cv, tx, step } = layout(c),
+  const { narrow, ys, view: vb, loco, headX, headStep, pt, cv, tx, step } = layout(c),
+    hint = interactive ? hintInfo(s, c) : null,
+    hinted = (src, j, html) => (hint && hint.src === src && hint.moving(j) ? `<g class="hint-wagon">${html}</g>` : html),
     width = tx + Math.max(...c.caps) * step + 22,
     lbl = (w) => game.labels?.[w - 1] ?? w,
     lineTxt = (a) => a.map(lbl).join(", ") || "buida";
-  let a = `<svg class="board" data-pt="${pt}" viewBox="0 36 ${width} 340" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Estació. Via de maniobra: ${lineTxt(s[0])}. ${s
+  let a = `<svg class="board" data-pt="${pt}" viewBox="0 ${vb[0]} ${width} ${vb[1]}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Estació. Via de maniobra: ${lineTxt(s[0])}. ${s
     .slice(1)
     .map((x, i) => `Via ${"ABC"[i]}: ${lineTxt(x)}`)
-    .join(". ")}"><defs>${ART_DEFS}</defs>`;
+    .join(". ")}"><defs>${ART_DEFS}</defs>${scenery(narrow, pt)}`;
   // Via de maniobra
   a += `<path class="maniobra-halo" d="M10 220H${pt}" stroke="#8bd7bd55" stroke-width="66" stroke-linecap="round"/>${trackPath([[2, 220], [pt, 220]])}<text x="${headX}" y="276" fill="#53625c" font-family="system-ui" font-size="13" font-weight="700">${narrow ? "Maniobra" : "Via de maniobra"} <tspan font-weight="400">· màx. ${c.h}${narrow ? "" : " vagons"}</tspan></text>`;
   a += `<g transform="translate(${pt - 2} 246)"><rect x="-7" y="-4" width="14" height="8" rx="2" fill="#4d5b5c"/><path d="M0 0l7 -9" stroke="#e5533d" stroke-width="3" stroke-linecap="round"/><circle cx="7" cy="-9" r="2.6" fill="#fff" stroke="#e5533d" stroke-width="1.4"/></g><text x="${pt - 14}" y="250" text-anchor="end" font-family="system-ui" font-size="11" fill="#64736b">Agulles</text>`;
@@ -488,7 +593,7 @@ function board(s = game.state, c = config(), interactive = true) {
     s[i].forEach(
       (w, j) =>
         (a += cutTarget(
-          wagon(w, tx + j * step, y, interactive ? `data-src="${i}" data-idx="${j}"` : ""),
+          hinted(i, j, wagon(w, tx + j * step, y, interactive ? `data-src="${i}" data-idx="${j}"` : "")),
           i,
           s[0].length + j + 1,
           s,
@@ -510,7 +615,7 @@ function board(s = game.state, c = config(), interactive = true) {
   s[0].forEach(
     (w, j) =>
       (a += cutTarget(
-        wagon(w, headX + j * headStep, 220, interactive ? `data-src="0" data-idx="${j}"` : ""),
+        hinted(0, j, wagon(w, headX + j * headStep, 220, interactive ? `data-src="0" data-idx="${j}"` : "")),
         selected,
         j + 1,
         s,
@@ -518,6 +623,7 @@ function board(s = game.state, c = config(), interactive = true) {
         interactive,
       )),
   );
+  if (hint) a += hint.svg;
   a += "</svg>";
   return a;
 }
@@ -541,20 +647,24 @@ function renderGame() {
     blocked = remaining === null && !solving && !isWon,
     show = (x) => (prefs.minimum ? (x ?? "—") : "?"),
     notation = game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "),
+    played = read("played", 0),
     instruction = isWon
       ? `<b class="ok">✓</b> Tren format amb ${game.log.length} moviments: <span class="solution">${notation}</span>`
       : blocked
         ? "Aquest repartiment no té solució: cap seqüència de maniobres pot formar el tren."
         : selected
           ? `<b>2</b> Via ${"ABC"[selected - 1]}: toca el darrer vagó que vols endur-te, o la locomotora per tornar sola.`
-          : `<b>1</b> Arrossega vagons: d’una via a la locomotora per endur-te’ls, o del tren de la locomotora a una via per deixar-los.`;
+          : played >= 3
+            ? `Arrossega vagons entre les vies i la locomotora.`
+            : `<b>1</b> Arrossega vagons: d’una via a la locomotora per endur-te’ls, o del tren de la locomotora a una via per deixar-los.`;
   $("#main").innerHTML =
-    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${game.mode === "tutorial" ? "Partida de pràctica · no puntua" : game.min ? levelOf(game.min) + " · " + score(game.min, game.min) + " punts amb el mínim" : "Preparant…"}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<span class="wagon-chip" style="--w:${colors[game.labels?.[i] ?? i + 1]}">${game.labels?.[i] ?? i + 1}</span>`).join("")}</span><small>de les agulles cap al fons</small></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div></div></div><div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? Array.from({ length: c.h + 1 }, (_, k) => `<button data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "Locomotora sola" : k + " " + (k === 1 ? "vagó" : "vagons")}</button>`).join("") + `<button class="ghost" data-action="cancel">Cancel·la</button>` : ""}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="primary" data-action="new-menu">${icon("play")} Nou repte</button></div></div></div>`;
+    `<div class="stage"><div class="stage-head"><div class="goal"><div class="eyebrow">${game.mode === "tutorial" ? "Partida de pràctica · no puntua" : game.min ? levelOf(game.min) + " · " + score(game.min, game.min) + " punts amb el mínim" : "Preparant…"}</div><div class="goal-line"><span>Forma aquest tren a la <b>via A</b></span><span class="target-train" aria-label="Tren objectiu: ${Array.from({ length: c.t }, (_, i) => game.labels?.[i] ?? i + 1).join(", ")}">${Array.from({ length: c.t }, (_, i) => `<svg class="mini-wagon" viewBox="-7 -24 66 48" aria-hidden="true">${wagonArt(game.labels?.[i] ?? i + 1, 0, 0).replace(" data-wagon=", " data-mini=")}</svg>`).join("")}</span><small>de les agulles cap al fons</small></div></div><div class="stage-stats"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${show(game.min)}</b><small>mínim${prefs.minimum && !isWon && remaining != null && game.log.length ? ` · en queden ${solving ? "…" : remaining}` : ""}</small></div><div><b id="timer">${time(game.finished ? game.seconds : elapsed())}</b><small>temps</small></div></div></div><div class="board-wrap ${selected ? "choosing" : ""} ${isWon ? "complete" : ""}">${board()}<p class="board-caption ${blocked ? "warning" : ""}">${instruction}${preview ? `<span class="hint-line">${esc(preview)}</span>` : ""}</p></div><div class="stage-controls">${isWon ? `<div class="choice-row"><button class="primary" data-action="result">Veure el resultat</button><button data-action="share">${icon("share")} Repta un amic</button><button data-action="new">Una altra partida ${icon("arrow")}</button></div>` : `<div class="choice-row">${selected ? `<span class="choice-label">Via ${"ABC"[selected - 1]} · la locomotora torna</span>` + Array.from({ length: c.h + 1 }, (_, k) => `<button class="chip" data-cut="${k}" ${!moves(game.state, c).some((m) => m[0] === selected && m[1] === k) || autoplay ? "disabled" : ""}>${k === 0 ? "sola" : `<span class="amb">amb </span>${k} ${k === 1 ? "vagó" : "vagons"}`}</button>`).join("") + `<button class="ghost chip" data-action="cancel">Cancel·la</button>` : ""}</div>`}<div class="tool-row"><button data-action="undo" ${!game.log.length || autoplay ? "disabled" : ""}>${icon("undo")} Desfer</button><button data-action="restart">${icon("reset")} Reiniciar</button><button data-action="hint" ${isWon || autoplay || solving ? "disabled" : ""}>${icon("bulb")} Pista</button><button class="primary" data-action="new-menu">${icon("play")} Nou repte</button></div></div></div>`;
 }
 function select(v) {
   if (!game || game.finished || autoplay) return;
   selected = v;
   preview = null;
+  hintMove = null;
   renderGame();
   $("#main .choice-row button:not(:disabled)")?.focus({ preventScroll: true });
 }
@@ -571,6 +681,7 @@ function doMove(v, k) {
     game.log.push([v, k]);
     selected = 0;
     preview = null;
+    hintMove = null;
     sound("couple");
     persist();
     if (won(game.state, config())) finish();
@@ -580,6 +691,7 @@ function doMove(v, k) {
     }
     const took = ride(before, v, from);
     if (took) animationUntil = Date.now() + took;
+    if (game.finished) depart(took);
     if (!prefs.reduced)
       document.querySelector("#main .board .loco-body")?.animate(
         [{ transform: "translateX(0)" }, { transform: "translateX(5px)" }, { transform: "translateX(-1px)" }, { transform: "translateX(0)" }],
@@ -596,8 +708,8 @@ function finish() {
   nextMove = null;
   requestId++;
   solving = false;
-  sound("whistle");
   const k = puzzleKey();
+  if (!autoplay) save("played", read("played", 0) + 1);
   if (!autoplay && k && !solvedLocal.includes(k)) {
     solvedLocal = [...solvedLocal, k].slice(-5000);
     save("solved", solvedLocal);
@@ -612,7 +724,7 @@ function finish() {
     () => {
       if (game === g && view === "play" && !dialog.open) showResult();
     },
-    prefs.reduced ? 1200 : 2600,
+    prefs.reduced ? 1200 : 3300,
   );
 }
 function modal(html, locked = false) {
@@ -649,13 +761,19 @@ function rankingNote() {
   if (g.ranked === "pending") return "Desant el resultat al rànquing…";
   if (g.ranked === "kept") return "Ja tenies aquest puzle resolt amb menys moviments o igual: el rànquing conserva el millor resultat.";
   if (g.ranked === "error") return `No s’ha pogut desar el resultat. <button class="ghost" data-action="retry">Torna-ho a provar</button>`;
-  return `+${score(g.min, g.log.length)} punts al rànquing per a <b>${esc(player.name)}</b>.`;
+  return `+${score(g.min, g.log.length)} punts al rànquing per a <b>${esc(player.name)}</b>.${g.rank ? ` Ocupes el <b>${ord(g.rank)} lloc</b>${g.rankUp ? ": has pujat!" : "."}` : ""}`;
+}
+function resultArt() {
+  const c = config(),
+    W = 70 + c.t * 62;
+  return `<svg class="result-train" viewBox="0 2 ${W + 8} 56" aria-hidden="true"><defs>${ART_DEFS}</defs>${trackPath([[0, 30], [W + 8, 30]])}<g transform="translate(6 30)">${LOCO}</g>${Array.from({ length: c.t }, (_, i) => wagonArt(game.labels?.[i] ?? i + 1, 76 + i * 62, 30).replace(" data-wagon=", " data-mini=")).join("")}</svg>`;
 }
 function showResult() {
   const n = stars(game.log.length, game.min),
-    extra = game.min != null ? game.log.length - game.min : null;
+    extra = game.min != null ? game.log.length - game.min : null,
+    counts = game.mode !== "tutorial" && !game.hints && game.min != null;
   modal(
-    `<div class="eyebrow">Tren format</div><h2>${extra === 0 ? "Una maniobra perfecta." : "El tren ja pot sortir."}</h2><div class="big-stars" aria-label="${n} estrelles">${"★".repeat(n)}${"☆".repeat(3 - n)}</div><p><b>${game.log.length} moviments</b> · mínim ${game.min ?? "?"} · ${time(game.seconds)}</p><p class="your-solution">La teva solució: <b>${esc(game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "))}</b></p><p>${extra === 0 ? "Has trobat un dels camins més curts possibles." : extra === 1 ? "A 1 moviment del mínim!" : extra != null ? `T’has quedat a ${extra} moviments del mínim.` : ""}</p><div class="rank-note" id="rank-note">${rankingNote()}</div><div class="dialog-actions"><button class="primary" data-action="next">Següent repte</button><button data-action="optimal">Veure la solució òptima</button></div>`,
+    `<div class="result"><div class="result-art">${resultArt()}<div class="result-stars" aria-label="${n} de 3 estrelles">${[0, 1, 2].map((i) => `<span class="${i < n ? "on" : ""}" style="--d:${0.15 + i * 0.18}s">${icon("star")}</span>`).join("")}</div></div><div class="eyebrow">Tren format</div><h2>${extra === 0 ? "Una maniobra perfecta." : "El tren ja pot sortir."}</h2><p class="result-msg">${extra === 0 ? "Has trobat un dels camins més curts possibles." : extra === 1 ? "A 1 moviment del mínim!" : extra != null ? `T’has quedat a ${extra} moviments del mínim.` : ""}</p><div class="result-tiles"><div><b>${game.log.length}</b><small>moviments</small></div><div><b>${game.min ?? "?"}</b><small>mínim</small></div><div><b>${time(game.seconds)}</b><small>temps</small></div><div class="${counts ? "pts" : ""}"><b>${counts ? "+" + score(game.min, game.log.length) : "—"}</b><small>punts</small></div></div><p class="your-solution">La teva solució: <b>${esc(game.log.map(([v, k]) => "ABC"[v - 1] + k).join(" · "))}</b></p><div class="rank-note" id="rank-note">${rankingNote()}</div><div class="dialog-actions"><button class="primary" data-action="next">Següent repte ${icon("arrow")}</button><button data-action="share">${icon("share")} Repta un amic</button><button class="ghost" data-action="optimal">Veure la solució òptima</button></div></div>`,
   );
 }
 function refreshNote() {
@@ -670,6 +788,19 @@ async function publish() {
     const x = await online.submit(puzzleKey(g), g.log, g.seconds);
     g.ranked = x.kept ? "kept" : "done";
     board_ = null;
+    if (!x.kept) {
+      refreshNote();
+      try {
+        const mine = (await fetchBoard()).rows.find((r) => r.me),
+          before = read("rank", null);
+        if (mine) {
+          g.rank = mine.rank;
+          g.rankUp = before != null && mine.rank < before;
+          save("rank", mine.rank);
+          if (g.rankUp) toast(`Has pujat al ${ord(mine.rank)} lloc del rànquing!`);
+        }
+      } catch {}
+    }
   } catch {
     g.ranked = "error";
   }
@@ -724,39 +855,61 @@ function avatar(name) {
 function meCard() {
   if (player?.name) {
     const mine = board_?.rows.find((r) => r.me);
-    return `<div class="me-head">${avatar(player.name)}<div><small>Jugues com a</small><strong>${esc(player.name)}</strong></div></div><div class="me-stats"><div><b>${mine ? mine.rank + "r" : "—"}</b><small>lloc</small></div><div><b>${mine?.points ?? 0}</b><small>punts</small></div><div><b>${mine?.solved ?? 0}</b><small>puzles</small></div><div><b>${mine?.perfect ?? 0}</b><small>perfectes</small></div></div><div class="me-actions"><button class="ghost" data-action="rename">Canvia el nom</button><button class="ghost" data-action="erase">Esborra’m</button></div>`;
+    return `<div class="me-head">${avatar(player.name)}<div><small>Jugues com a</small><strong>${esc(player.name)}</strong></div></div><div class="me-stats"><div><b>${mine ? ord(mine.rank) : "—"}</b><small>lloc</small></div><div><b>${mine?.points ?? 0}</b><small>punts</small></div><div><b>${mine?.solved ?? 0}</b><small>puzles</small></div><div><b>${mine?.perfect ?? 0}</b><small>perfectes</small></div></div><div class="me-actions"><button class="ghost" data-action="rename">Canvia el nom</button><button class="ghost" data-action="erase">Esborra’m</button></div>`;
   }
   return `<b>Tria un nom de jugador</b><span class="name-form"><input id="name-input" maxlength="16" placeholder="El teu nom" aria-label="Nom de jugador"><button class="primary" data-action="register">Desa</button></span><small>Serà públic. No hi posis el teu nom i cognoms reals.</small>`;
 }
 function renderRanking() {
-  $("#main").innerHTML = `<div class="page rank-page"><header class="rank-top"><span class="rank-icon">${icon("trophy")}</span><div class="rank-title"><h1>Rànquing</h1><p>Puzles resolts sense pistes · cada puzle compta una vegada · toca un jugador per veure’n les partides</p></div><div class="rank-chips" id="hero-stats"></div></header><div class="rank-layout"><div id="rank-list"><div class="panel empty">Carregant el rànquing…</div></div><aside class="rank-side"><section class="panel me-card">${meCard()}</section><section class="panel how-card"><h3>Com es puntua</h3><ul><li><b>+10</b> per cada moviment del mínim</li><li><b>−5</b> per cada moviment de més</li><li><b>1×</b> cada puzle, amb el millor resultat</li><li><b>1 any</b> dura cada resultat</li><li><b class="star">${icon("star")}</b> perfecte: resolt amb el mínim</li></ul></section></aside></div></div>`;
+  $("#main").innerHTML = `<div class="page rank-page"><header class="rank-top"><span class="rank-icon">${icon("trophy")}</span><div class="rank-title"><h1>Rànquing</h1><p>Puzles resolts sense pistes · cada puzle compta una vegada · toca un jugador per veure’n les partides</p></div><div class="rank-chips" id="hero-stats"></div></header><div class="rank-layout"><div class="rank-main"><div class="level-tabs" id="level-tabs" role="group" aria-label="Nivell"></div><div id="rank-list"><div class="panel empty">Carregant el rànquing…</div></div></div><aside class="rank-side"><section class="panel me-card">${meCard()}</section><section class="panel how-card"><h3>Com es puntua</h3><ul><li><b>+10</b> per cada moviment del mínim</li><li><b>−5</b> per cada moviment de més</li><li><b>1×</b> cada puzle, amb el millor resultat</li><li><b>1 any</b> dura cada resultat</li><li><b class="star">${icon("star")}</b> perfecte: resolt amb el mínim</li></ul></section></aside></div></div>`;
   loadRanking();
+}
+// Ordena i numera (empats amb el mateix lloc).
+function rankRows(rows) {
+  rows.sort((a, b) => b.points - a.points || b.perfect - a.perfect || b.solved - a.solved || a.name.localeCompare(b.name));
+  let last = null,
+    rank = 0;
+  rows.forEach((r, i) => {
+    if (r.points !== last) rank = i + 1;
+    r.rank = rank;
+    last = r.points;
+  });
+  return rows;
+}
+let boardLoading = null;
+function fetchBoard() {
+  if (board_ && Date.now() - board_.at < 30e3) return Promise.resolve(board_);
+  return (boardLoading ||= (async () => {
+    const { uid, list } = await online.players(),
+      rows = (await verify(list))
+        .map((r) => ({ ...r, solved: r.solved ?? 0, perfect: r.perfect ?? 0, games: r.games ?? [], me: r.uid === uid }))
+        .filter((r) => r.points > 0);
+    board_ = { rows: rankRows(rows), at: Date.now() };
+    return board_;
+  })().finally(() => (boardLoading = null)));
+}
+// Rànquing d'un sol nivell: només compten les partides d'aquell nivell.
+function levelRows(level) {
+  if (level === "all") return board_.rows;
+  const name = LEVELS[level][0];
+  return rankRows(
+    board_.rows
+      .map((r) => {
+        const games = r.games.filter((g) => levelOf(g.min) === name);
+        return { ...r, points: games.reduce((t, g) => t + g.points, 0), solved: games.length, perfect: games.filter((g) => g.n === g.min).length };
+      })
+      .filter((r) => r.points > 0),
+  );
 }
 async function loadRanking() {
   try {
-    if (!board_ || Date.now() - board_.at > 30e3) {
-      const { uid, list } = await online.players(),
-        rows = (await verify(list))
-          .map((r) => ({ ...r, solved: r.solved ?? 0, perfect: r.perfect ?? 0, games: r.games ?? [] }))
-          .filter((r) => r.points > 0);
-      rows.sort(
-        (a, b) => b.points - a.points || b.perfect - a.perfect || b.solved - a.solved || a.name.localeCompare(b.name),
-      );
-      let last = null,
-        rank = 0;
-      rows.forEach((r, i) => {
-        if (r.points !== last) rank = i + 1;
-        r.rank = rank;
-        last = r.points;
-        r.me = r.uid === uid;
-      });
-      board_ = { rows, at: Date.now() };
-    }
+    await fetchBoard();
     if (view !== "ranking") return;
-    const rows = board_.rows,
-      mine = rows.find((r) => r.me),
+    const rows = levelRows(rankLevel),
       top = rows[0]?.points || 1,
       total = rows.reduce((t, r) => t + r.solved, 0);
+    $("#level-tabs").innerHTML = [["all", "Tots", "#1d2b38"], ...Object.entries(LEVELS).map(([v, [n]]) => [v, n, LEVEL_COLORS[n]])]
+      .map(([v, n, col]) => `<button class="${rankLevel === v ? "on" : ""}" data-rank-level="${v}" style="--l:${col}">${n}</button>`)
+      .join("");
     $("#hero-stats").innerHTML = `<span><b>${rows.length}</b> ${rows.length === 1 ? "jugador" : "jugadors"}</span><span><b>${total}</b> ${total === 1 ? "puzle resolt" : "puzles resolts"}</span>`;
     if (player?.name && !$("#name-input")) $(".me-card").innerHTML = meCard();
     const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`,
@@ -764,7 +917,9 @@ async function loadRanking() {
         `<li><button class="ranking-row ${r.rank <= 3 ? "top t" + r.rank : ""} ${r.me ? "me" : ""}" data-player="${esc(r.uid)}" aria-label="Estadístiques de ${esc(r.name)}"><span class="pos">${r.rank}</span>${avatar(r.name)}<span class="who"><strong>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</strong><span class="bar"><i style="width:${Math.max(3, (100 * r.points) / top)}%"></i></span><small class="mini">${plural(r.solved, "puzle", "puzles")} · ${plural(r.perfect, "perfecte", "perfectes")}</small></span><span class="num solved" title="Puzles resolts">${r.solved}</span><span class="num perfect" title="Puzles amb el mínim de moviments">${icon("star")}${r.perfect}</span><span class="score">${r.points}<small>punts</small></span></button></li>`;
     $("#rank-list").innerHTML = rows.length
       ? `<section class="panel rank-table"><div class="rank-head" aria-hidden="true"><span>#</span><span>Jugador</span><span>Puzles</span><span>Perfectes</span><span>Punts</span></div><ol>${rows.map(row).join("")}</ol></section>`
-      : `<div class="panel empty">${icon("trophy")}<h3>Encara no hi ha ningú al rànquing.</h3><p>Resol un puzle sense pistes i el primer lloc pot ser teu.</p><button class="primary" data-nav="play">Juga</button></div>`;
+      : rankLevel !== "all"
+        ? `<div class="panel empty">${icon("trophy")}<h3>Ningú no ha resolt encara cap puzle d’aquest nivell.</h3><p>Tria’l a «Nou repte» i el primer lloc pot ser teu.</p></div>`
+        : `<div class="panel empty">${icon("trophy")}<h3>Encara no hi ha ningú al rànquing.</h3><p>Resol un puzle sense pistes i el primer lloc pot ser teu.</p><button class="primary" data-nav="play">Juga</button></div>`;
   } catch (e) {
     if (view === "ranking")
       $("#rank-list").innerHTML =
@@ -786,7 +941,7 @@ function showPlayer(uid) {
       return `<li class="game-row"><span class="lvl" style="--l:${LEVEL_COLORS[level] || "#5b6b7a"}">${level}</span><span class="when">${day(g.t)}</span><span class="moves ${perfect ? "perfect" : ""}">${perfect ? icon("star") : ""}<b>${g.n}</b> <small>/ mínim ${g.min}</small></span><span class="secs">${icon("clock")}${g.s != null ? time(g.s) : "—"}</span><span class="pts">+${g.points}</span><button class="ghost play-again" data-puzzle="v1-classic-${esc(g.k)}" aria-label="Juga aquest puzle">${icon("play")}</button></li>`;
     };
   modal(
-    `<div class="player-card"><header class="player-head">${avatar(r.name)}<div><small>${r.rank}r lloc del rànquing</small><h2>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</h2></div></header><div class="me-stats player-stats"><div><b>${r.points}</b><small>punts</small></div><div><b>${r.solved}</b><small>puzles</small></div><div><b>${r.perfect}</b><small>perfectes</small></div><div><b>${best != null ? time(best) : "—"}</b><small>millor temps</small></div></div><p class="player-sub">${games.length ? (extra === 0 ? "Tots els puzles, amb el mínim de moviments." : `De mitjana, ${extra.toLocaleString("ca", { maximumFractionDigits: 1 })} ${extra === 1 ? "moviment" : "moviments"} més que el mínim.`) : ""}</p><h3>Partides</h3><ol class="game-list">${games.map(item).join("")}</ol><small class="player-note">Es desa el millor resultat de cada puzle. El temps es registra des de la versió 2.4. Toca ${icon("play")} per jugar el mateix puzle.</small></div>`,
+    `<div class="player-card"><header class="player-head">${avatar(r.name)}<div><small>${ord(r.rank)} lloc del rànquing</small><h2>${esc(r.name)}${r.me ? ' <span class="badge">Tu</span>' : ""}</h2></div></header><div class="me-stats player-stats"><div><b>${r.points}</b><small>punts</small></div><div><b>${r.solved}</b><small>puzles</small></div><div><b>${r.perfect}</b><small>perfectes</small></div><div><b>${best != null ? time(best) : "—"}</b><small>millor temps</small></div></div><p class="player-sub">${games.length ? (extra === 0 ? "Tots els puzles, amb el mínim de moviments." : `De mitjana, ${extra.toLocaleString("ca", { maximumFractionDigits: 1 })} ${extra === 1 ? "moviment" : "moviments"} més que el mínim.`) : ""}</p><h3>Partides</h3><ol class="game-list">${games.map(item).join("")}</ol><small class="player-note">Es desa el millor resultat de cada puzle. El temps es registra des de la versió 2.4. Toca ${icon("play")} per jugar el mateix puzle.</small></div>`,
   );
 }
 function renderAbout() {
@@ -797,7 +952,7 @@ function renderAbout() {
       ["swap", "#ff8a3d", "Anar i tornar", "compta 1 moviment"],
     ],
     skills = ["Planificar", "Pensar enrere", "Dividir el problema", "Provar i ajustar", "Pensament computacional"];
-  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.7.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
+  $("#main").innerHTML = `<div class="page about-page"><header class="about-top"><img src="assets/favicon.svg" alt=""><div><div class="eyebrow">Sobre el joc</div><h1>Pocs vagons, poques vies, molt de cap</h1><p>Un trencaclosques de lògica: forma un tren amb el mínim de maniobres.</p></div></header><section class="panel about-rules"><h3>Les regles</h3><div class="rule-tiles">${rules.map(([ic, c, t, d]) => `<div><span style="--c:${c}">${icon(ic)}</span><b>${t}</b><small>${d}</small></div>`).join("")}</div></section><div class="about-trio"><section class="panel about-card"><h3>${icon("trophy")} Com puntua</h3><div class="score-pills"><span class="plus"><b>+10</b> per moviment del mínim</span><span class="minus"><b>−5</b> per moviment de més</span><span class="gold"><b>${icon("star")}</b> perfecte: el mínim exacte</span></div><small>Sense pistes · un cop per puzle · dura un any</small></section><section class="panel about-card"><h3>${icon("bulb")} Què s’hi aprèn</h3><div class="skill-chips">${skills.map((x) => `<span>${x}</span>`).join("")}</div></section><section class="panel about-card"><h3>${icon("route")} D’on ve</h3><p class="origin"><b>1979</b><span><strong>Inglenook Sidings</strong>, d’Alan Wright: un clàssic del modelisme ferroviari britànic basat en una feina real d’estació.</span></p></section></div><section class="panel about-facts"><div class="facts"><div><strong>8</strong><small>vagons a l’estació</small></div><div><strong>5</strong><small>formen el tren</small></div><div><strong>356.160</strong><small>situacions diferents</small></div><div><strong>17</strong><small>moviments, el repte més llarg</small></div></div></section><p class="credits">Versió 2.8.0 · Creat per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA · Codi AGPLv3 i continguts CC BY-NC-SA 4.0 · <a href="https://github.com/felipsarroca/jocs/tree/main/Maniobres" target="_blank" rel="noopener noreferrer">Codi font</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=maniobres.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a> · El rànquing només desa el nom de jugador i les solucions.</p></div>`;
 }
 // Escenes del «Com s'hi juga»: una estació petita (via de maniobra, via A amb corba i via B recta).
 function scene(step) {
@@ -841,20 +996,30 @@ function tutorial(step = 0) {
     `<div class="guide"><div class="guide-art ${step === 4 ? "tools" : ""}">${scene(step)}</div><div class="guide-dots" aria-hidden="true">${pages.map((_, i) => `<i class="${i === step ? "on" : i < step ? "done" : ""}"></i>`).join("")}</div><div class="eyebrow">Com s’hi juga · ${step + 1} de ${pages.length}</div><h2>${pages[step][0]}</h2><p>${pages[step][1]}</p><div class="guide-actions">${step ? '<button data-action="tutorial-back">Enrere</button>' : '<button class="ghost" data-action="close">Ara no</button>'}<button class="primary" data-action="tutorial-next">${step === 4 ? `${icon("play")} Prova-ho` : `Següent ${icon("arrow")}`}</button></div></div>`,
   );
 }
+const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1),
+  standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+function installRow() {
+  if (standalone()) return "";
+  if (installEvent)
+    return `<div class="pref-row install-row"><span class="pref-ic" style="--c:#2f80d1">${icon("download")}</span><span class="pref-txt"><b>Instal·la el joc</b><small>S’obre com una app i recorda millor el teu nom</small></span><button class="primary" data-action="install">Instal·la</button></div>`;
+  if (ios)
+    return `<div class="pref-row install-row"><span class="pref-ic" style="--c:#2f80d1">${icon("download")}</span><span class="pref-txt"><b>Afegeix-lo a la pantalla d’inici</b><small>Toca el botó Comparteix del Safari i tria «Afegeix a la pantalla d’inici»</small></span></div>`;
+  return "";
+}
 function settings() {
   modal(
-    `<div class="eyebrow">Al teu gust</div><h2>Preferències de l’estació</h2>${[
-      ["sound", "Efectes de so discrets"],
-      ["reduced", "Reduir les animacions"],
-      ["minimum", "Mostrar el mínim de moviments"],
+    `<div class="eyebrow">Al teu gust</div><h2>Preferències</h2><div class="pref-list">${[
+      ["sound", "sound", "#ff8a3d", "So", "Efectes discrets en enganxar vagons i en acabar"],
+      ["reduced", "motion", "#5b6b7a", "Menys animacions", "Sense lliscaments ni sortida del tren"],
+      ["minimum", "eye", "#1f9d6b", "Mostra el mínim", "Quants moviments calen com a mínim"],
     ]
       .map(
-        ([k, n]) =>
-          `<label class="label-check"><input type="checkbox" data-pref="${k}" ${prefs[k] ? "checked" : ""}>${n}</label>`,
+        ([k, ic, col, n, d]) =>
+          `<label class="pref-row"><span class="pref-ic" style="--c:${col}">${icon(ic)}</span><span class="pref-txt"><b>${n}</b><small>${d}</small></span><input type="checkbox" class="switch" data-pref="${k}" ${prefs[k] ? "checked" : ""}></label>`,
       )
       .join(
         "",
-      )}<p>Els canvis es guarden en aquest dispositiu. No hi ha notificacions ni anuncis.</p><button class="primary" data-action="close">Fet</button>`,
+      )}${installRow()}</div><div class="keys"><h3>${icon("keyboard")} Dreceres de teclat</h3><div class="keys-grid"><span><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd> tria una via</span><span><kbd>0</kbd>–<kbd>3</kbd> torna amb tants vagons</span><span><kbd>Ctrl</kbd>+<kbd>Z</kbd> desfer</span><span><kbd>P</kbd> pista</span><span><kbd>N</kbd> nou repte</span><span><kbd>Esc</kbd> cancel·la</span></div></div><div class="dialog-actions"><button class="primary" data-action="close">Fet</button><small class="pref-note">Es desa en aquest dispositiu.</small></div>`,
   );
 }
 async function optimal() {
@@ -891,18 +1056,51 @@ async function handle(action) {
     return;
   }
   if (action === "settings") return settings();
+  if (action === "share") {
+    const n = game.log.length,
+      url = `${location.origin}${location.pathname}?p=${encodeURIComponent(game.id)}`,
+      text =
+        game.min != null && n === game.min
+          ? `He format aquest tren a Maniobres amb el mínim de moviments (${n}). T’hi atreveixes?`
+          : `He format aquest tren a Maniobres amb ${n} moviments. Ho millores?`;
+    if (navigator.share && matchMedia("(pointer: coarse)").matches) {
+      try {
+        await navigator.share({ title: "Maniobres", text, url });
+      } catch {}
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      toast("Repte copiat: enganxa’l on vulguis per enviar-lo.");
+    } catch {
+      toast("Copia aquest enllaç per reptar algú: " + url);
+    }
+    return;
+  }
+  if (action === "install") {
+    if (!installEvent) return;
+    installEvent.prompt();
+    const { outcome } = await installEvent.userChoice.catch(() => ({}));
+    installEvent = null;
+    document.querySelector(".install-btn")?.remove();
+    dialog.querySelector(".install-row")?.remove();
+    if (outcome === "accepted") toast("Fet! Ja tens Maniobres a la pantalla d’inici.");
+    return;
+  }
   if (action === "cancel") {
     selected = 0;
+    hintMove = null;
+    preview = null;
     return renderGame();
   }
   if (action === "new-menu") {
     modal(
-      `<div class="eyebrow">Nou repte</div><h2>Tria la dificultat</h2><p>El número és el mínim de moviments de la millor solució. Com més difícil, més punts.</p><div class="difficulty-grid">${Object.entries(
+      `<div class="eyebrow">Nou repte</div><h2>Tria la dificultat</h2><p>Com més moviments calen, més punts val el repte.</p><div class="difficulty-grid">${Object.entries(
         LEVELS,
       )
         .map(
-          ([v, [n, lo, hi]]) =>
-            `<button class="${difficulty === v ? "primary" : ""}" data-difficulty="${v}"><b>${n}</b><small>${lo === 2 ? "fins a " + hi : lo + " a " + hi} moviments</small><small>${score(lo, lo)}–${score(hi, hi)} punts</small></button>`,
+          ([v, [n, lo, hi]], i) =>
+            `<button class="level-card ${difficulty === v ? "on" : ""}" data-difficulty="${v}" style="--l:${LEVEL_COLORS[n]}"><span class="bars" aria-hidden="true">${[0, 1, 2, 3].map((j) => `<i class="${j <= i ? "f" : ""}" style="height:${7 + j * 4}px"></i>`).join("")}</span><b>${n}</b><small>${lo === 2 ? "fins a " + hi : lo + " a " + hi} moviments</small><span class="pts">${score(lo, lo)}–${score(hi, hi)} punts</span></button>`,
         )
         .join("")}</div>`,
     );
@@ -929,6 +1127,9 @@ async function handle(action) {
     game.log.pop();
     game.finished = false;
     selected = 0;
+    hintMove = null;
+    preview = null;
+    departToken++;
     persist();
     renderGame();
     solve();
@@ -942,8 +1143,9 @@ async function handle(action) {
   if (action === "hint") {
     if (!nextMove) return toast("No hi ha cap pista disponible.");
     game.hints++;
-    selected = nextMove[0];
-    preview = `Pista: ${"ABC"[nextMove[0] - 1]}${nextMove[1]}, torna amb ${nextMove[1]} ${nextMove[1] === 1 ? "vagó" : "vagons"}. Amb pistes, la partida no puntua.`;
+    selected = 0;
+    hintMove = nextMove;
+    preview = `Pista: arrossega el vagó marcat on indica la fletxa (${"ABC"[nextMove[0] - 1]}${nextMove[1]}). Amb pistes, la partida no puntua.`;
     persist();
     renderGame();
     return;
@@ -1103,7 +1305,7 @@ document.addEventListener("pointerdown", (e) => {
     start,
     s0: els.map((x) => parked(L, src, +x.dataset.idx)),
     sp0: src ? project(route(L, src), start).s : Math.min(start.x, L.pt),
-    via: src || [100, 220, 340].reduce((b, y, i) => (Math.abs(start.y - y) < Math.abs(start.y - [100, 220, 340][b - 1]) ? i + 1 : b), 1),
+    via: src || L.ys.reduce((b, y, i) => (Math.abs(start.y - y) < Math.abs(start.y - L.ys[b - 1]) ? i + 1 : b), 1),
     moved: false,
     plan: null,
   };
@@ -1195,6 +1397,10 @@ document.addEventListener("click", async (e) => {
       render();
     } else if (b.dataset.action) await handle(b.dataset.action);
     else if (b.dataset.player) showPlayer(b.dataset.player);
+    else if (b.dataset.rankLevel) {
+      rankLevel = b.dataset.rankLevel;
+      loadRanking();
+    }
     else if (b.dataset.puzzle) {
       const p = puzzleFromKey(b.dataset.puzzle);
       if (!p) return;
@@ -1212,7 +1418,7 @@ document.addEventListener("click", async (e) => {
       if (e.detail && svg) {
         const p = svgPoint(svg, e);
         if (p.x >= +svg.dataset.pt - 10)
-          v = [100, 220, 340].reduce((best, y, i) => (Math.abs(p.y - y) < Math.abs(p.y - [100, 220, 340][best - 1]) ? i + 1 : best), 1);
+          v = layout().ys.reduce((best, y, i) => (Math.abs(p.y - y) < Math.abs(p.y - layout().ys[best - 1]) ? i + 1 : best), 1);
       }
       select(v);
     }
@@ -1238,7 +1444,23 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("keydown", (e) => {
   if (e.target.closest("input,select,textarea") || dialog.open) return;
   if (view !== "play" || autoplay) return;
-  if (/^[abc]$/i.test(e.key)) {
+  if (e.ctrlKey || e.metaKey || e.altKey) {
+    if (e.key.toLowerCase() === "z" && !e.altKey) {
+      e.preventDefault();
+      handle("undo");
+    }
+    return;
+  }
+  if (e.key === "Escape" && (selected || hintMove)) {
+    e.preventDefault();
+    handle("cancel");
+  } else if (e.key.toLowerCase() === "p") {
+    e.preventDefault();
+    handle("hint");
+  } else if (e.key.toLowerCase() === "n") {
+    e.preventDefault();
+    handle("new-menu");
+  } else if (/^[abc]$/i.test(e.key)) {
     e.preventDefault();
     select("abc".indexOf(e.key.toLowerCase()) + 1);
   } else if (selected && /^[0-3]$/.test(e.key)) {
@@ -1328,6 +1550,17 @@ if (!storageOK)
     "El navegador no permet desar el progrés. Pots jugar, però no es conservarà en tancar.",
   );
 navigator.storage?.persist?.().catch(() => {});
+addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  installEvent = e;
+  const top = $(".top-actions");
+  if (top && !top.querySelector(".install-btn"))
+    top.insertAdjacentHTML("afterbegin", `<button class="install-btn" data-action="install" aria-label="Instal·la el joc">${icon("download")} Instal·la</button>`);
+});
+addEventListener("appinstalled", () => {
+  installEvent = null;
+  document.querySelector(".install-btn")?.remove();
+});
 if ("serviceWorker" in navigator)
   navigator.serviceWorker.register("./sw.js").catch(() => {});
 

@@ -1,5 +1,20 @@
 # Registre de canvis
 
+## 2.8.0 · 21 de novembre de 2026
+
+- Resultat nou: el tren format dibuixat, estrelles animades, fitxes amb moviments, mínim, temps i punts, i el lloc al rànquing («Ocupes el 3r lloc: has pujat!»).
+- En acabar, la locomotora s’enganxa al tren de la via A i se l’emporta.
+- L’objectiu de dalt es mostra amb vagons petits com els del tauler.
+- Nou repte amb targetes del color de cada nivell i barres de dificultat.
+- Preferències amb interruptors i icones, dreceres de teclat i opció d’instal·lar el joc.
+- Decorat discret: andana, edifici de l’estació i arbres.
+- Mòbil: vies més separades i estació més gran.
+- Pista visual: el vagó que cal moure batega i una fletxa marca el recorregut.
+- Botons «sola / 1 vagó…» més discrets; la instrucció es redueix a una línia després de tres partides.
+- Repta un amic: comparteix o copia l’enllaç del mateix puzle.
+- Rànquing amb pestanyes per nivell. Ordinals corregits (2n, 4t, 5è…).
+- Dreceres: Ctrl+Z, P (pista), N (nou repte) i Esc.
+
 ## 2.7.0 · 21 de novembre de 2026
 
 - «Com s’hi juga» nou: cinc passos curts, cadascun amb una escena animada de l’estació (el vagó llisca amb el dit a sobre) i una sola frase. Acaba amb una partida de pràctica.
