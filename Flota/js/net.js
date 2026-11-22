@@ -61,6 +61,7 @@ export class OnlineRoomClient {
     this.unsub = null;
     this.roomCode = null;
     this.role = null;
+    this.lastData = null;
     this.playerId = getPlayerId();
   }
 
@@ -71,6 +72,7 @@ export class OnlineRoomClient {
     }
     this.roomCode = null;
     this.role = null;
+    this.lastData = null;
   }
 
   async createRoom(onUpdate, onError) {
@@ -194,12 +196,14 @@ export class OnlineRoomClient {
 
   _subscribe(db, fs, code, onUpdate, onError) {
     if (this.unsub) this.unsub();
+    this.lastData = null;
     const ref = fs.doc(db, 'sales', code);
     this.unsub = fs.onSnapshot(
       ref,
       (snap) => {
         if (!snap.exists()) return;
-        onUpdate(snap.data());
+        this.lastData = snap.data();
+        onUpdate(this.lastData);
       },
       (err) => {
         if (onError) onError(err);
@@ -240,91 +244,77 @@ export class OnlineRoomClient {
     });
   }
 
+  /* Trets i respostes: escriptures directes (updateDoc), sense transaccions.
+   * Una transacció fa dues peticions HTTP separades (lectura + confirmació) i no
+   * té compensació de latència; una escriptura directa viatja pel canal obert,
+   * es veu a la pantalla pròpia a l'instant i arriba abans al rival. No hi ha
+   * conflictes possibles: només escriu qui té el torn (tret) o qui el rep
+   * (resposta), i les regles del joc es validen amb l'última instantània. */
   async sendShot(r, c) {
-    if (!this.roomCode || !this.role) return;
+    if (!this.roomCode || !this.role) return false;
+    const data = this.lastData;
+    if (!data || data.status !== 'playing' || data.turn !== this.role || data.pendingShot) return false;
+    const shots = Array.isArray(data.shots) ? data.shots : [];
+    if (shots.some((s) => s.by === this.role && s.r === r && s.c === c)) return false;
+
     const { db, fs } = await loadFirebase();
     const ref = fs.doc(db, 'sales', this.roomCode);
-
-    await fs.runTransaction(db, async (tx) => {
-      const snap = await tx.get(ref);
-      if (!snap.exists()) return;
-      const data = snap.data();
-      if (data.status !== 'playing') return;
-      if (data.turn !== this.role) return;
-      if (data.pendingShot) return;
-
-      const shots = Array.isArray(data.shots) ? data.shots : [];
-      const already = shots.some((s) => s.by === this.role && s.r === r && s.c === c);
-      if (already) return;
-
-      const now = Date.now();
-      tx.update(ref, {
-        pendingShot: {
-          seq: shots.length + 1,
-          by: this.role,
-          r,
-          c
-        },
-        updatedMs: now
-      });
+    await fs.updateDoc(ref, {
+      pendingShot: { seq: shots.length + 1, by: this.role, r, c },
+      updatedMs: Date.now()
     });
+    return true;
   }
 
   async resolvePendingShot(seq, outcome, ownRevealIfFinished = null) {
     if (!this.roomCode || !this.role) return;
+    const data = this.lastData;
+    const pending = data?.pendingShot;
+    if (!pending || pending.seq !== seq || pending.by === this.role) return;
+
     const { db, fs } = await loadFirebase();
     const ref = fs.doc(db, 'sales', this.roomCode);
+    const shot = {
+      seq: pending.seq,
+      by: pending.by,
+      r: pending.r,
+      c: pending.c,
+      result: outcome.result,
+      sunkShip: outcome.sunkShip
+        ? {
+            id: outcome.sunkShip.id,
+            name: outcome.sunkShip.name,
+            size: outcome.sunkShip.size,
+            r: outcome.sunkShip.r,
+            c: outcome.sunkShip.c,
+            o: outcome.sunkShip.o
+          }
+        : null
+    };
 
-    await fs.runTransaction(db, async (tx) => {
-      const snap = await tx.get(ref);
-      if (!snap.exists()) return;
-      const data = snap.data();
-      const pending = data.pendingShot;
-      if (!pending || pending.seq !== seq || pending.by === this.role) return;
+    const currentSunk = (data[this.role]?.sunkCount || 0) + (outcome.result === 'enfonsat' ? 1 : 0);
+    const now = Date.now();
+    // arrayUnion afegeix el tret sense reescriure tota la llista i no el duplica
+    // si, per una reconnexió, la mateixa resposta s'envia dues vegades.
+    const patch = {
+      shots: fs.arrayUnion(shot),
+      pendingShot: null,
+      [`${this.role}.sunkCount`]: currentSunk,
+      [`${this.role}.seenMs`]: now,
+      updatedMs: now
+    };
 
-      const shots = Array.isArray(data.shots) ? [...data.shots] : [];
-      shots.push({
-        seq: pending.seq,
-        by: pending.by,
-        r: pending.r,
-        c: pending.c,
-        result: outcome.result,
-        sunkShip: outcome.sunkShip
-          ? {
-              id: outcome.sunkShip.id,
-              name: outcome.sunkShip.name,
-              size: outcome.sunkShip.size,
-              r: outcome.sunkShip.r,
-              c: outcome.sunkShip.c,
-              o: outcome.sunkShip.o
-            }
-          : null
-      });
-
-      const currentSunk = (data[this.role]?.sunkCount || 0) + (outcome.result === 'enfonsat' ? 1 : 0);
-      const nextTurn = this.role; // El defensor passa a tenir el torn
-      const now = Date.now();
-
-      const patch = {
-        shots,
-        pendingShot: null,
-        [`${this.role}.sunkCount`]: currentSunk,
-        [`${this.role}.seenMs`]: now,
-        updatedMs: now
-      };
-
-      if (outcome.allSunk) {
-        patch.status = 'finished';
-        patch.winner = pending.by;
-        if (ownRevealIfFinished) {
-          patch[`${this.role}.reveal`] = ownRevealIfFinished;
-        }
-      } else {
-        patch.turn = nextTurn;
+    if (outcome.allSunk) {
+      patch.status = 'finished';
+      patch.winner = pending.by;
+      if (ownRevealIfFinished) {
+        patch[`${this.role}.reveal`] = ownRevealIfFinished;
       }
+    } else {
+      patch.turn = this.role; // El defensor passa a tenir el torn
+    }
 
-      tx.update(ref, patch);
-    });
+    await fs.updateDoc(ref, patch);
   }
 
   async submitReveal(revealData) {

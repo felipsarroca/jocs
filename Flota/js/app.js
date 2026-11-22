@@ -79,7 +79,7 @@ const state = {
 
   // Mòbil i PWA
   pendingAim: null,
-  flashTimer: null,
+  rivalShotNews: null, // resultat de l'últim tret rival encara no vist al mòbil
   deferredPrompt: null
 };
 
@@ -591,6 +591,7 @@ function setupBattleBoards() {
     onCellClick: handleEnemyBoardClick
   });
   $('gameover-banner').hidden = true;
+  state.rivalShotNews = null;
   setMobileBoardView('enemy');
 }
 
@@ -601,17 +602,34 @@ function setMobileBoardView(view) {
     tab.classList.toggle('active', active);
     tab.setAttribute('aria-selected', String(active));
   });
+  if (view === 'mine') state.rivalShotNews = null;
+  renderRivalShotNews();
 }
 
-function flashOwnBoardOnMobile() {
-  if (window.innerWidth > 820) return;
-  clearTimeout(state.flashTimer);
-  setMobileBoardView('mine');
-  state.flashTimer = setTimeout(() => {
-    if (state.screen === 'battle' && !state.winner) {
-      setMobileBoardView('enemy');
-    }
-  }, 1150);
+/* Al mòbil, el tauler no canvia mai sol: quan el rival dispara, la pestanya
+ * «La teva flota» s'il·lumina amb un punt (blau si és aigua, vermell si t'ha
+ * tocat) fins que la mires. El text del torn ja diu on ha disparat. */
+function noteRivalShot(result) {
+  if ($('battle-boards').dataset.mobileView === 'mine') return;
+  state.rivalShotNews = result;
+  renderRivalShotNews();
+}
+
+function renderRivalShotNews() {
+  const tab = document.querySelector('.mobile-tab[data-tab="mine"]');
+  if (!tab) return;
+  const news = state.rivalShotNews;
+  tab.classList.toggle('has-news', Boolean(news));
+  if (news) {
+    tab.dataset.news = news === 'aigua' ? 'aigua' : 'tocat';
+    // Reinicia l'animació del punt a cada tret nou
+    tab.classList.remove('news-pop');
+    void tab.offsetWidth;
+    tab.classList.add('news-pop');
+  } else {
+    delete tab.dataset.news;
+    tab.classList.remove('news-pop');
+  }
 }
 
 function getShotsMapsFromOnlineRoom(room) {
@@ -675,7 +693,12 @@ async function handleEnemyBoardClick(r, c) {
       state.turn = 'pending';
       state.pendingShotKey = k;
       renderBattle();
-      await roomClient.sendShot(r, c);
+      const sent = await roomClient.sendShot(r, c);
+      if (!sent) {
+        state.pendingShotKey = null;
+        state.turn = state.room?.turn === roomClient.role && !state.room?.pendingShot ? 'me' : 'rival';
+        renderBattle();
+      }
     } catch (err) {
       state.pendingShotKey = null;
       state.turn = 'me';
@@ -719,7 +742,8 @@ function fireAgainstAi(r, c) {
   state.turn = 'rival';
   renderBattle();
 
-  const delayMs = outcome.result === 'aigua' ? 560 : 760;
+  // Pausa justa perquè soni el tret propi abans que dispari la màquina
+  const delayMs = outcome.result === 'aigua' ? 420 : outcome.result === 'tocat' ? 480 : 720;
   setTimeout(() => {
     if (state.screen !== 'battle' || state.mode !== 'ai' || state.winner) return;
     performAiTurn();
@@ -770,7 +794,7 @@ function performAiTurn() {
     state.turn = 'done';
   } else {
     state.turn = 'me';
-    flashOwnBoardOnMobile();
+    noteRivalShot(outcome.result);
   }
   renderBattle();
 }
@@ -881,6 +905,10 @@ function renderBattle() {
   } else if (state.turn === 'me') {
     turnPill.dataset.turn = 'me';
     turnText.textContent = 'El teu torn · Dispara al mar enemic';
+  } else if (state.turn === 'pending' && state.pendingShotKey) {
+    const [pr, pc] = state.pendingShotKey.split(',').map(Number);
+    turnPill.dataset.turn = 'me';
+    turnText.textContent = `Tret a ${coordLabel(pr, pc)}…`;
   } else {
     turnPill.dataset.turn = 'rival';
     turnText.textContent = state.mode === 'ai' ? 'Torn de la màquina…' : 'Torn del rival…';
@@ -925,7 +953,6 @@ function renderBattle() {
 
     if (!state.endSoundPlayed) {
       state.endSoundPlayed = true;
-      clearTimeout(state.flashTimer);
       setMobileBoardView('enemy');
       if (state.winner === 'me') soundFX.win();
       else soundFX.lose();
@@ -993,7 +1020,7 @@ async function handleOnlineRoomUpdate(room) {
       else soundFX.sunk();
 
       if (last.by !== myRole && room.status === 'playing') {
-        flashOwnBoardOnMobile();
+        noteRivalShot(last.result);
       }
     }
   } else {
@@ -1044,7 +1071,14 @@ async function handleOnlineRoomUpdate(room) {
     }
   } else {
     state.winner = null;
-    state.turn = room.turn === myRole ? 'me' : 'rival';
+    const myPendingShot = room.pendingShot && room.pendingShot.by === myRole;
+    if (myPendingShot) {
+      // El tret ja ha sortit: s'espera la resposta del rival
+      state.turn = 'pending';
+      state.pendingShotKey = keyOf(room.pendingShot.r, room.pendingShot.c);
+    } else {
+      state.turn = room.turn === myRole ? 'me' : 'rival';
+    }
   }
 
   renderBattle();
@@ -1159,7 +1193,6 @@ function init() {
 
   // Navegació i sortida
   const exitToHome = () => {
-    clearTimeout(state.flashTimer);
     soundFX.stopAll?.();
     if (state.mode === 'online') {
       roomClient.disconnect();
@@ -1322,7 +1355,6 @@ function init() {
   // Tabs mòbils de combat
   document.querySelectorAll('.mobile-tab').forEach((tab) => {
     tab.addEventListener('click', () => {
-      clearTimeout(state.flashTimer);
       setMobileBoardView(tab.dataset.tab);
     });
   });

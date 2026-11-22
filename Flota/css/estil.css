@@ -1213,6 +1213,43 @@ body {
   font-size: 0.75rem;
 }
 
+/* Avís de tret rival no vist a la pestanya «La teva flota» (mòbil) */
+.mobile-tab {
+  position: relative;
+}
+
+.mobile-tab.has-news::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--sunk);
+}
+
+.mobile-tab.has-news[data-news="aigua"]::after {
+  background: var(--sea-1);
+}
+
+.mobile-tab.news-pop::after {
+  animation: newsPop 0.5s ease-out;
+}
+
+@keyframes newsPop {
+  0% { transform: scale(0.2); }
+  60% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mobile-tab.news-pop::after {
+    animation: none;
+  }
+}
+
 /* Banner final de partida */
 .gameover-banner {
   display: flex;
