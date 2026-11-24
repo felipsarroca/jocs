@@ -1,7 +1,7 @@
 # Pròxima sortida · Agència de viatges en tren
 
-[![HTML · CSS · JS](https://img.shields.io/badge/HTML_·_CSS_·_JS-mòduls_ES_natius-14233f?style=flat-square)](#arquitectura)
-[![Codi](https://img.shields.io/badge/codi-AGPLv3-14233f?style=flat-square)](LICENSE)
+[![HTML · CSS · JS](https://img.shields.io/badge/HTML_·_CSS_·_JS-mòduls_ES_natius-3a63e0?style=flat-square)](#arquitectura)
+[![Codi](https://img.shields.io/badge/codi-AGPLv3-3a63e0?style=flat-square)](LICENSE)
 [![Continguts](https://img.shields.io/badge/continguts-CC_BY--NC--SA_4.0-8A5A00?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca)
 
 **Pròxima sortida** és l'app de la situació d'aprenentatge de ferrocarril de matemàtiques (1r a 4t d'ESO). Cada grup porta una oficina d'una agència de viatges en tren. Els clients li fan encàrrecs cada vegada més difícils: llegir una sortida, canviar de tren, fer una excursió, organitzar un viatge de quatre dies per 180 € i salvar-lo quan es talla una via. Cada encàrrec ben resolt dona punts de reputació, fins a 4.000.
@@ -14,11 +14,17 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 ## Captures de pantalla
 
-### El gran viatge: l'encàrrec, la guixeta i el viatge amb les preguntes
+### La pantalla de treball: 1 encàrrec, 2 guixeta, 3 el vostre viatge
 ![Encàrrec R7 a 1366 × 768](docs/captures/01-gran-viatge-1366x768.png)
 
 ### Accés: codi de la tanda, grup i PIN
 ![Accés a 1366 × 768](docs/captures/02-acces-1366x768.png)
+
+### «Com funciona»: la guia de tres passos que surt en entrar
+![Guia a 1366 × 768](docs/captures/05-com-funciona-1366x768.png)
+
+### Cada nivell aconseguit es celebra i diu què es pot fer després
+![Nivell aconseguit a 1366 × 768](docs/captures/06-nivell-aconseguit-1366x768.png)
 
 ### Panell del professorat: calendari de les trobades, nivells i punts de cada grup
 ![Panell docent a 1366 × 768](docs/captures/03-panell-docent-1366x768.png)
@@ -30,10 +36,14 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 ## Disseny
 
-- **La línia dels encàrrecs.** Els nou encàrrecs són les parades d'una línia de tren. Cada bloc té el seu color: blau (llegir la guixeta), verd (visites, nits i diners), taronja (el gran viatge) i vermell (via tallada). Els trams dels blocs que encara no s'han obert surten amb una línia discontínua.
-- **La guixeta és un panell de sortides:** hores en groc sobre fons fosc, destinació i parades. Si toqueu un tren, s'obren les seves parades amb l'hora, el preu i el botó «Compra».
-- **Cada bitllet comprat sembla un bitllet de veritat,** amb el número, el dia, la sortida, l'arribada i el preu. L'app no suma mai els preus.
-- **Una barra de punts** a la capçalera mostra la reputació de l'oficina, fins a 4.000 punts.
+- **Clar i juvenil.** Fons blau molt clar, targetes blanques, tipografia arrodonida (Nunito, inclosa a l'app) i un logo nou: un tren de cara, groc sobre blau, que es reconeix a 16 px.
+- **Tres passos numerats.** La pantalla de treball té tres columnes: **1 Encàrrec**, **2 Guixeta** i **3 El vostre viatge**. El pas que toca (comprar o calcular) es ressalta sol, i la guia «Com funciona» (botó **?**) ho explica amb tres dibuixos.
+- **La petició del client, ben visible.** Cada encàrrec mostra el nivell que toca (Regional, Exprés o Alta velocitat) amb els seus punts. Als encàrrecs de millora (7, 8 i 9) es veuen els tres objectius alhora.
+- **La línia dels encàrrecs.** Els nou encàrrecs són les parades d'una línia de tren, amb el nom de cada bloc i un color per bloc: blau (llegir la guixeta), verd (visites, nits i diners), taronja (el gran viatge) i vermell (via tallada).
+- **La guixeta.** Un botó gran per triar l'estació (totes en una graella), els dies en pestanyes i les sortides amb l'hora en groc. Si toqueu un tren, les parades es dibuixen com una línia amb l'hora, el preu i el botó «Compra».
+- **Bitllets amb forma de bitllet,** del color del bloc. L'app no suma mai els preus.
+- **Celebració de cada nivell,** amb els punts guanyats i el pas següent (provar el nivell següent, passar a l'encàrrec següent o lliurar).
+- **Aprofita la pantalla.** S'escala a l'espai útil: es redueix als portàtils de 1366 × 768 (també amb l'escalat del sistema al 125 %) i s'amplia una mica a les pantalles grans.
 
 ---
 
@@ -59,7 +69,7 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 - `dades/dades.json` (horari, encàrrecs, reparacions mínimes) i `proves/vectors.json` es generen amb el verificador de la SdA (`Verificador/exporta.py`). No s'editen a mà.
 - `js/avaluador.js` és una còpia exacta de l'avaluador de referència en Python. Prova: `node proves/prova-avaluador.mjs` (2.926 casos idèntics).
 - Les regles de Firestore es proven amb l'emulador local: `firebase/prova-regles.mjs` (57 casos; instruccions a la capçalera del fitxer).
-- La interfície s'escala a l'espai útil de la finestra (referència 1440 × 800) i passa a una columna en pantalles estretes.
+- La interfície s'escala a l'espai útil de la finestra (referència 1440 × 740, entre el 72 % i el 125 %) i passa a una columna en pantalles estretes.
 
 | Fitxer | Funció |
 |---|---|

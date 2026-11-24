@@ -22,6 +22,8 @@ Aquesta obra té una llicència doble:
 
 Elements de tercers:
   - Firebase JavaScript SDK (Google), carregat des de gstatic.com: llicència Apache 2.0.
+  - Tipografia Nunito (The Nunito Project Authors), a assets/fonts: SIL Open Font
+    License 1.1 (text a assets/fonts/OFL.txt).
 
 Suggeriments i errors:
   https://github.com/felipsarroca/jocs/issues/new?template=ferrocarril.yml

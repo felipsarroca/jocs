@@ -58,8 +58,8 @@ function obreATrobada(n) {
   return parts.length ? `S'obre: ${parts.join(' i ')}` : 'Continuen el bloc 3';
 }
 
-function campsCalendari(valors) {
-  return h('div', { class: 'calendari' }, [1, 2, 3, 4].map((n) => h('label', { class: 'dia-trobada' },
+function campsCalendari(valors, marcaAvui = false) {
+  return h('div', { class: 'calendari' }, [1, 2, 3, 4].map((n) => h('label', { class: `dia-trobada ${marcaAvui && valors[n - 1] === avui() ? 'avui' : ''}` },
     h('span', { class: 'dia-trobada-n' }, `Trobada ${n}`),
     h('input', { type: 'date', value: aInput(valors[n - 1]), 'data-n': n, 'aria-label': `Data de la trobada ${n}` }),
     h('span', { class: 'dia-trobada-obre' }, obreATrobada(n)))));
@@ -231,7 +231,7 @@ function pintaTanda() {
       : h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'));
   const bActual = S.AG.blocActual(t);
   const viaActiva = S.AG.viaTalladaActiva(t);
-  const cal = t.calendari ? campsCalendari(t.calendari) : null;
+  const cal = t.calendari ? campsCalendari(t.calendari, true) : null;
   cal?.addEventListener('change', () => {
     const c = llegeixCalendari(cal);
     if (c.error) return avis(c.error, 'error');
@@ -270,7 +270,7 @@ function pintaTanda() {
 function graellaGrups() {
   const reptes = S.D.reptes.reptes;
   const taula = h('table', { class: 'graella-grups-docent' },
-    h('thead', {}, h('tr', {}, h('th', {}, 'Grup'), reptes.map((r) => h('th', { title: r.titol, class: 'b', style: `--c: var(--b${S.AG.BLOC[r.codi]})` }, r.codi)),
+    h('thead', {}, h('tr', {}, h('th', {}, 'Grup'), reptes.map((r) => h('th', { title: r.titol, class: 'b', style: `--c: var(--b${S.AG.BLOC[r.codi]})` }, r.codi, h('span', { 'aria-hidden': 'true' }))),
       h('th', {}, 'Punts'), h('th', {}, 'Nota'), h('th', {}, 'Aparells'))));
   const tbody = h('tbody');
   for (const g of S.grups) {
@@ -285,7 +285,7 @@ function graellaGrups() {
         const p = perRepte[r.codi];
         const est = estats[r.codi];
         const ajut = ajudesDe(g.id).some((a) => a.startsWith(r.codi + '.'));
-        return h('td', { class: `cel ${est} ${g.repteActual === r.codi && est === 'obert' ? 'ara' : ''}`, title: `${r.titol}: ${p.punts} punts` },
+        return h('td', { class: `cel ${est} ${g.repteActual === r.codi && est === 'obert' ? 'ara' : ''}`, style: `--c: var(--b${S.AG.BLOC[r.codi]})`, title: `${r.titol}: ${p.punts} punts` },
           h('span', { class: 'punts-nivell' }, [1, 2, 3].map((n) => h('i', { class: n <= p.nivell ? 'ple' : '' }))),
           est === 'lliurat' ? icona('check', 'mini') : null, ajut ? h('span', { class: 'marca-ajuda', title: 'Amb ajuda' }, 'A') : null);
       }),
@@ -295,7 +295,12 @@ function graellaGrups() {
   }
   taula.append(tbody);
   return h('section', { class: 'targeta graella-docent' }, taula,
-    h('p', { class: 'llegenda' }, 'Cercles: nivells assolits (Regional, Exprés, Alta velocitat). A: nivell fet amb ajuda (val la meitat). Nota = punts / 1000.'));
+    h('p', { class: 'llegenda' },
+      h('span', {}, h('span', { class: 'punts-nivell' }, h('i', { class: 'ple' }), h('i', { class: 'ple' }), h('i')), 'Nivells: Regional, Exprés, Alta velocitat'),
+      h('span', {}, icona('check', 'mini'), 'Lliurat'),
+      h('span', {}, h('span', { class: 'marca-ajuda' }, 'A'), 'Amb ajuda (val la meitat)'),
+      h('span', {}, h('span', { class: 'punt-actiu on' }), 'Treballant ara'),
+      h('span', {}, 'Nota = punts / 1000')));
 }
 
 /* ---------------------------------------------------------------- detall d'un grup */
@@ -313,7 +318,7 @@ function detallGrup(gid) {
     if (!doc) continue;
     const p = S.AG.puntsRepte(r.codi, prog, ajudes);
     const bloc = h('div', { class: 'detall-repte' },
-      h('h3', {}, `${r.codi} · ${r.titol}`, h('span', { class: 'detall-punts' }, `${punts(p.punts)} punts`),
+      h('h3', { style: `--c: var(--b${S.AG.BLOC[r.codi]})` }, h('span', { class: 'codi-repte' }, r.codi), r.titol, h('span', { class: 'detall-punts' }, `${punts(p.punts)} punts`),
         doc.estat === 'lliurat' ? h('button', { class: 'boto petit', onclick: () => reobre(gid, r.codi) }, 'Reobre') : null));
     const files = h('div', { class: 'detall-nivells' });
     for (const n of r.nivells) {

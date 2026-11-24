@@ -47,6 +47,7 @@ export const TEXTOS = {
   lema: 'Agència de viatges en tren',
   acces: {
     titol: 'Entreu a la vostra agència',
+    lema: 'La vostra agència de viatges en tren. Resoleu els encàrrecs dels clients i guanyeu punts.',
     codi: 'Codi de la tanda',
     grup: 'Quin és el vostre grup?',
     pin: 'PIN del grup',

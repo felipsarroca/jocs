@@ -41,7 +41,13 @@ const P = {
   impressora: '<path d="M6 9V3h12v6M6 18H4v-7h16v7h-2"/><rect x="6" y="14" width="12" height="7"/>',
   baixa: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
   ajuda: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 16.5v.5"/>',
-  menys: '<path d="M6 12h12"/>'
+  menys: '<path d="M6 12h12"/>',
+  calculadora: '<rect x="5" y="3" width="14" height="18" rx="2.5"/><rect x="8" y="6" width="8" height="4" rx="1"/><path d="M8.5 14h.01M12 14h.01M15.5 14h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/>',
+  encarrec: '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H11l-4.5 4v-4h0A2.5 2.5 0 0 1 4 13.5z"/><path d="M8 8h8M8 11.5h5"/>',
+  ma: '<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6.5 6.5 0 0 1-6.5 6.5h-.6a6 6 0 0 1-4.6-2.2L4.2 15a1.6 1.6 0 0 1 2.5-2L9 15"/>',
+  estacio: '<path d="M3 10l9-6 9 6"/><path d="M5 10v10h14V10M9 20v-5h6v5"/>',
+  xevro: '<path d="M9 6l6 6-6 6"/>',
+  avall: '<path d="M6 9l6 6 6-6"/>'
 };
 
 export function icona(nom, cls = '') {

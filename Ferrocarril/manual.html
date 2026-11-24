@@ -6,50 +6,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pròxima sortida · Manual del professorat</title>
   <meta name="description" content="Manual del professorat de Pròxima sortida: com es prepara la tanda, què passa a cada trobada i què fer si hi ha algun imprevist.">
-  <meta name="theme-color" content="#13213c">
+  <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <style>
-    :root { --navy: #13213c; --navy-2: #1f3560; --amber: #ffb627; --amber-fosc: #c98400; --paper: #f3f1ea; --ink: #1b2333; --soft: #5b6475; --line: #dedad0;
-      --b1: #2f76d2; --b2: #1c9a68; --b3: #e2752b; --b4: #c63d3d; --ok: #1d7f55; --ok-bg: #e6f4ec; }
+    @font-face { font-family: "Nunito"; src: url("assets/fonts/nunito.woff2") format("woff2"); font-weight: 200 1000; font-display: swap; }
+    :root { --pri: #3a63e0; --pri-2: #2c50c4; --pri-bg: #e9efff; --sol: #ffcf3a; --sol-bg: #fff6d6; --bg: #edf2fb; --ink: #1c2541; --soft: #5b6684; --line: #d9e1ef;
+      --b1: #2f8cf0; --b2: #1fb37a; --b3: #ff8a1f; --b4: #ef476f; --ok: #16a067; --ok-bg: #e2f7ec; }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.5; }
-    header { background: var(--navy); color: #fff; border-bottom: 3px solid var(--amber); }
-    .cap { max-width: 860px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
-    .cap img { width: 42px; height: 42px; }
-    .cap h1 { margin: 0; font-size: 1.3rem; }
-    .cap p { margin: 0; color: #c7d1e6; font-size: .9rem; }
-    .cap a { margin-left: auto; color: #fff; border: 1px solid #3a4f78; border-radius: 10px; padding: 7px 12px; text-decoration: none; font-weight: 600; font-size: .9rem; }
-    .cap a:hover { border-color: var(--amber); }
+    body { margin: 0; font-family: "Nunito", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; }
+    header { position: relative; background: #fff; box-shadow: 0 1px 0 var(--line); }
+    header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, var(--b1) 0 25%, var(--b2) 25% 50%, var(--b3) 50% 75%, var(--b4) 75%); }
+    .cap { max-width: 860px; margin: 0 auto; padding: 14px 20px 18px; display: flex; align-items: center; gap: 14px; }
+    .cap img { width: 46px; height: 46px; }
+    .cap h1 { margin: 0; font-size: 1.4rem; font-weight: 900; }
+    .cap p { margin: 0; color: var(--soft); font-size: .92rem; font-weight: 700; }
+    .cap a { margin-left: auto; color: #fff; background: var(--pri); border-radius: 12px; padding: 8px 14px; text-decoration: none; font-weight: 800; font-size: .92rem; box-shadow: 0 3px 0 var(--pri-2); }
+    .cap a:hover { background: var(--pri-2); }
     main { max-width: 860px; margin: 0 auto; padding: 22px 20px 30px; }
-    h2 { font-size: 1.2rem; margin: 30px 0 10px; display: flex; align-items: center; gap: 10px; }
-    h2 .n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: var(--amber); font-size: .95rem; flex: none; }
+    h2 { font-size: 1.25rem; font-weight: 900; margin: 30px 0 10px; display: flex; align-items: center; gap: 10px; }
+    h2 .n { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--pri); color: #fff; font-size: 1rem; flex: none; }
     p, li { text-align: justify; }
-    .resum { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--amber); border-radius: 12px; padding: 14px 18px; font-size: 1.05rem; }
+    .resum { background: #fff; border: 1.5px solid var(--line); border-left: 6px solid var(--pri); border-radius: 16px; padding: 14px 18px; font-size: 1.05rem; }
     .clau { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
-    .clau div { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
-    .clau b { display: block; color: var(--navy-2); margin-bottom: 2px; }
-    .clau span { font-size: .9rem; color: var(--soft); }
-    .clau .url { color: var(--amber); font-size: 1rem; }
+    .clau div { background: #fff; border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px; }
+    .clau b { display: block; color: var(--pri-2); margin-bottom: 2px; font-weight: 900; }
+    .clau span { font-size: .92rem; color: var(--soft); }
+    .clau .url { font-size: 1rem; }
     ol.passos { list-style: none; padding: 0; margin: 0; counter-reset: p; display: flex; flex-direction: column; gap: 8px; }
-    ol.passos li { counter-increment: p; position: relative; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px 10px 52px; }
-    ol.passos li::before { content: counter(p); position: absolute; left: 12px; top: 10px; width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: var(--navy); font-weight: 800; display: grid; place-items: center; }
-    .url { font-family: ui-monospace, Consolas, monospace; font-weight: 700; background: var(--navy); color: var(--amber); padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
-    table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid #ece9e1; font-size: .95rem; }
-    th { background: #faf9f6; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--soft); }
+    ol.passos li { counter-increment: p; position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px 10px 54px; }
+    ol.passos li::before { content: counter(p); position: absolute; left: 12px; top: 10px; width: 30px; height: 30px; border-radius: 50%; background: var(--sol); color: var(--ink); font-weight: 900; display: grid; place-items: center; }
+    .url { font-weight: 900; background: var(--sol-bg); color: var(--ink); padding: 1px 8px; border-radius: 8px; white-space: nowrap; border: 1px solid #ffe08a; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1.5px solid var(--line); border-radius: 16px; overflow: hidden; }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1.5px solid #edf1f8; font-size: .95rem; }
+    th { background: #f6f8fd; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--soft); font-weight: 900; }
     tr:last-child td { border-bottom: 0; }
-    td:first-child { font-weight: 800; white-space: nowrap; }
-    .linia { display: inline-block; width: 26px; height: 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
-    .be { background: var(--ok-bg); border: 1px solid #b9dcc8; border-radius: 12px; padding: 12px 16px; }
+    td:first-child { font-weight: 900; white-space: nowrap; }
+    .linia { display: inline-block; width: 26px; height: 7px; border-radius: 4px; margin-right: 6px; vertical-align: middle; }
+    .be { background: var(--ok-bg); border: 1.5px solid #b6e6cd; border-radius: 14px; padding: 12px 16px; }
     .be strong { color: var(--ok); }
     .faq { display: flex; flex-direction: column; gap: 8px; }
-    details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
-    summary { cursor: pointer; font-weight: 700; }
+    details { background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px; }
+    summary { cursor: pointer; font-weight: 900; }
     details p { margin: 8px 0 2px; }
     footer { border-top: 1px solid var(--line); padding: 10px 20px; font-size: .78rem; color: var(--soft); }
     footer .dins { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
     footer img { width: 70px; }
-    footer a { color: var(--navy-2); font-weight: 600; text-decoration: none; }
+    footer a { color: var(--pri-2); font-weight: 800; text-decoration: none; }
     @media (max-width: 640px) { .clau { grid-template-columns: 1fr; } .cap a { display: none; } td:first-child { white-space: normal; } }
     @media print {
       header, footer { display: none; } body { background: #fff; font-size: 10.5pt; } main { padding: 0; max-width: none; }
@@ -90,7 +92,7 @@
   <table>
     <thead><tr><th>Trobada</th><th>Què s'obre a l'app</th><th>Què feu vosaltres</th></tr></thead>
     <tbody>
-      <tr><td>1 · 60 min</td><td><span class="linia" style="background:var(--b1)"></span>Bloc 1: llegir la guixeta (encàrrecs 1 a 4)</td><td>Repartiu les targetes i resoleu junts el primer encàrrec amb la cara 2 del full de regles.</td></tr>
+      <tr><td>1 · 60 min</td><td><span class="linia" style="background:var(--b1)"></span>Bloc 1: llegir la guixeta (encàrrecs 1 a 4)</td><td>Repartiu les targetes. En entrar, cada grup veu la guia «Com funciona» en tres passos (es pot tornar a obrir amb el botó <b>?</b>). Resoleu junts el primer encàrrec amb la cara 2 del full de regles.</td></tr>
       <tr><td>2 · 120 min</td><td><span class="linia" style="background:var(--b2)"></span>Bloc 2: visites, nits i diners (5 i 6)<br><span class="linia" style="background:var(--b3)"></span>Bloc 3: el gran viatge (7 i 8)</td><td>Passeu per les taules. Els grups que acaben el bloc 2 continuen sols amb el gran viatge.</td></tr>
       <tr><td>3 · 60 min</td><td>Continuen el gran viatge.</td><td>Animeu els grups a lliurar l'encàrrec 7 abans d'acabar.</td></tr>
       <tr><td>4 · 120 min</td><td><span class="linia" style="background:var(--b4)"></span>Via tallada: cada grup rep un avís diferent (encàrrec 9)</td><td>Ajudeu a reparar els viatges. Al final, prova individual en paper.</td></tr>

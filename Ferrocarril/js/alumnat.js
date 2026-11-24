@@ -14,7 +14,8 @@ const S = {
   D: null, A: null, M: null, AG: null,
   acces: null, tanda: null, grup: null, valoracio: null, progres: {}, progresCarregat: false,
   actiu: null, esb: null, vista: { estacio: 'B', dia: 1, tren: null },
-  resultat: null, confirma: false, desarTimer: null, desubs: []
+  resultat: null, confirma: false, desarTimer: null, desubs: [],
+  triaEstacio: false, puntsVistos: null, guiaVista: false, bitlletNou: -1
 };
 
 const $main = () => document.getElementById('main');
@@ -85,11 +86,7 @@ function pantallaAcces(pas = 'codi', tanda = null, missatge = '') {
   const passos = ['codi', 'grup', 'pin'];
   const k = passos.indexOf(pas);
   const caixa = h('section', { class: 'acces targeta' },
-    h('div', { class: 'acces-panell', 'aria-hidden': 'true' },
-      h('div', { class: 'panell-titol' }, h('span', {}, 'Sortides'), h('span', { class: 'panell-rellotge' }, horaDia(new Date().getHours() * 60 + new Date().getMinutes()))),
-      [['08.00', 'Madrid', '1'], ['08.35', 'Lisboa', '2'], ['09.10', 'València', '3']].map(([hh, d, v], i) =>
-        h('div', { class: `panell-fila ${i ? 'tenue' : ''}` }, h('span', { class: 'panell-hora' }, hh), h('span', { class: 'panell-desti' }, d), h('span', { class: 'panell-via' }, v)))),
-    h('h1', {}, TEXTOS.acces.titol),
+    h('h2', {}, TEXTOS.acces.titol),
     h('ol', { class: 'passos', 'aria-label': 'Passos' }, ['Codi', 'Grup', 'PIN'].map((t, i) =>
       h('li', { class: i < k ? 'fet' : i === k ? 'actual' : '' }, h('span', {}, i < k ? icona('check', 'mini') : i + 1), t))));
   if (pas === 'codi') {
@@ -107,8 +104,8 @@ function pantallaAcces(pas = 'codi', tanda = null, missatge = '') {
     setTimeout(() => inp.focus(), 50);
   } else if (pas === 'grup') {
     caixa.append(h('p', { class: 'etiqueta' }, TEXTOS.acces.grup),
-      h('div', { class: 'graella-grups' }, tanda.grups.map((g) =>
-        h('button', { class: 'boto-grup', onclick: () => pantallaAcces('pin', { ...tanda, grup: g }) }, icona('tren'), g.nom))),
+      h('div', { class: 'graella-grups' }, tanda.grups.map((g, i) =>
+        h('button', { class: 'boto-grup', style: `--c: var(--b${(i % 4) + 1})`, onclick: () => pantallaAcces('pin', { ...tanda, grup: g }) }, icona('tren'), g.nom))),
       h('button', { class: 'boto enrere', onclick: () => pantallaAcces('codi') }, 'Enrere'));
   } else {
     const inp = h('input', { id: 'pin', class: 'camp-codi', maxlength: 4, inputmode: 'numeric', autocomplete: 'off', 'aria-label': TEXTOS.acces.pin, placeholder: '····' });
@@ -132,7 +129,11 @@ function pantallaAcces(pas = 'codi', tanda = null, missatge = '') {
   }
   if (missatge) caixa.append(h('p', { class: 'missatge-error', role: 'alert' }, missatge));
   if (S.M.mode === 'local') caixa.append(h('p', { class: 'nota-local' }, TEXTOS.acces.local));
-  $main().replaceChildren(h('div', { class: 'pantalla-acces' }, caixa));
+  const heroi = h('div', { class: 'acces-heroi' },
+    h('img', { src: 'assets/escena.svg', alt: '', width: 640, height: 400 }),
+    h('h1', {}, 'Pròxima ', h('em', {}, 'sortida')),
+    h('p', {}, TEXTOS.acces.lema));
+  $main().replaceChildren(h('div', { class: 'pantalla-acces' }, h('div', { class: 'acces-graella' }, heroi, caixa)));
 }
 
 function surt() {
@@ -140,7 +141,9 @@ function surt() {
   S.desubs = [];
   localStorage.removeItem(STORAGE_KEYS.ACCES);
   S.acces = null; S.actiu = null; S.esb = null; S.progres = {}; S.progresCarregat = false;
-  S.tanda = null; S.grup = null; S.valoracio = null;
+  S.tanda = null; S.grup = null; S.valoracio = null; S.puntsVistos = null; S.guiaVista = false;
+  const nom = document.getElementById('nom-agencia');
+  nom.classList.remove('oficina');
   pantallaAcces();
 }
 
@@ -189,15 +192,73 @@ function pinta() {
 function pintaCapcalera() {
   barraDemo();
   const { total } = S.AG.puntsGrup(S.progres, ajudes());
-  document.getElementById('nom-agencia').textContent = `Oficina ${S.grup.nom}`;
+  const nom = document.getElementById('nom-agencia');
+  nom.classList.add('oficina');
+  nom.replaceChildren(icona('tren', 'mini'), `Oficina ${S.grup.nom}`);
+  const salta = S.puntsVistos != null && total > S.puntsVistos;
+  S.puntsVistos = total;
   document.getElementById('capcalera-dreta').replaceChildren(
-    h('div', { class: 'reputacio', title: 'Punts de reputació de l\'agència' },
+    h('button', { class: 'boto-rodo', onclick: mostraGuia, title: 'Com funciona', 'aria-label': 'Com funciona' }, icona('ajuda')),
+    h('div', { class: `reputacio ${salta ? 'punts-salt' : ''}`, title: 'Punts de reputació de l\'agència' },
       icona('estrella'),
       h('div', { class: 'reputacio-cos' },
         h('p', {}, h('strong', {}, punts(total)), h('span', {}, ' / 4.000 punts')),
         h('div', { class: 'reputacio-barra', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 4000, 'aria-valuenow': total, 'aria-label': 'Punts de reputació' },
           h('i', { style: `width:${Math.min(100, total / 40)}%` })))),
-    ...(DEMO ? [] : [h('button', { class: 'boto petit', onclick: surt, title: 'Surt d\'aquest aparell' }, icona('sortida'), TEXTOS.botons.surt)]));
+    ...(DEMO ? [] : [h('button', { class: 'boto petit fantasma boto-surt', onclick: surt, title: 'Surt d\'aquest aparell' }, icona('sortida'), h('span', {}, TEXTOS.botons.surt))]));
+  if (!S.guiaVista) {
+    S.guiaVista = true;
+    const clau = `${STORAGE_KEYS.ACCES}:guia:${S.acces.tandaId}:${S.acces.grupId}`;
+    if (!localStorage.getItem(clau)) { localStorage.setItem(clau, '1'); mostraGuia(); }
+  }
+}
+
+/* ================================================================ guia «Com funciona» */
+function mostraGuia() {
+  const pas = (n, ic, titol, text) => h('li', {},
+    h('span', { class: 'guia-dibuix', 'aria-hidden': 'true' }, h('b', {}, n), icona(ic)),
+    h('div', {}, h('strong', {}, titol), h('br'), h('span', {}, text)));
+  obreModal(h('div', { class: 'modal guia', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'guia-titol' },
+    h('h2', { id: 'guia-titol' }, 'Com funciona'),
+    h('ol', { class: 'guia-passos' },
+      pas(1, 'encarrec', 'Llegiu l\'encàrrec', 'Un client us demana un viatge.'),
+      pas(2, 'bitllet', 'Compreu els bitllets', 'Toqueu un tren a la guixeta i compreu fins on baixeu.'),
+      pas(3, 'calculadora', 'Calculeu i comproveu', 'Escriviu les respostes i premeu «Comprova».')),
+    h('div', { class: 'guia-nivells' },
+      h('span', {}, 'Cada encàrrec té tres nivells:'),
+      TEXTOS.nivells.flatMap((n, i) => [i ? icona('fletxa', 'mini') : null, h('span', { class: 'xip' }, icona('estrella', 'mini'), n)]),
+      h('span', { class: 'guia-nota' }, 'El Regional obre l\'encàrrec següent. Els altres nivells donen més punts.')),
+    h('div', { class: 'fila-botons' }, h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, 'Som-hi!', icona('fletxa')))));
+}
+
+function obreModal(contingut) {
+  tancaModal();
+  const capa = h('div', { class: 'capa-modal', id: 'capa-modal', onclick: (e) => { if (e.target === capa) tancaModal(); } }, contingut);
+  document.body.append(capa);
+  document.addEventListener('keydown', escModal);
+  setTimeout(() => (capa.querySelector('[autofocus]') || capa.querySelector('button'))?.focus(), 30);
+}
+
+function tancaModal() {
+  document.getElementById('capa-modal')?.remove();
+  document.removeEventListener('keydown', escModal);
+}
+
+function escModal(e) { if (e.key === 'Escape') tancaModal(); }
+
+/** finestra de celebració quan s'aconsegueix un nivell */
+function celebra({ titol, pts, text, pendents, botons }) {
+  const colors = ['var(--b1)', 'var(--b2)', 'var(--b3)', 'var(--b4)', 'var(--sol)'];
+  const confeti = h('div', { class: 'confeti', 'aria-hidden': 'true' }, Array.from({ length: 36 }, (_, i) =>
+    h('i', { style: `left:${(i * 37) % 100}%; background:${colors[i % colors.length]}; animation-delay:${(i % 9) * 0.07}s; animation-duration:${1.4 + (i % 5) * 0.2}s` })));
+  obreModal(h('div', { class: 'modal celebra', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'celebra-titol' },
+    confeti,
+    h('div', { class: 'celebra-estrella', 'aria-hidden': 'true' }, icona('estrella')),
+    pts ? h('p', { class: 'celebra-punts' }, `+${punts(pts)} punts`) : null,
+    h('h2', { id: 'celebra-titol' }, titol),
+    text ? h('p', {}, text) : null,
+    pendents,
+    h('div', { class: 'fila-botons' }, botons)));
 }
 
 function pintaCarril() {
@@ -207,7 +268,8 @@ function pintaCarril() {
   nav.replaceChildren(...S.D.reptes.blocs.map((b) => {
     const tancat = b.bloc > S.AG.blocActual(S.tanda);
     return h('div', { class: `tram ${tancat ? 'tancat' : ''}`, style: `--bloc: var(--b${b.bloc}); flex: ${b.reptes.length} 1 0`, title: `Bloc ${b.bloc} · ${b.titol}` },
-      b.reptes.map((c) => {
+      h('p', { class: 'tram-nom' }, h('b', {}, tancat ? icona('cadenat', 'mini') : b.bloc), h('span', {}, b.titol)),
+      h('div', { class: 'tram-parades' }, b.reptes.map((c) => {
         const r = S.AG.R[c];
         const est = estats[c];
         const actiu = c === S.esb?.codi;
@@ -220,7 +282,7 @@ function pintaCarril() {
         h('span', { class: 'parada-punt' }, est === 'lliurat' ? icona('check') : est === 'bloquejat' ? icona('cadenat') : c.slice(1)),
         h('span', { class: 'parada-titol' }, r.titol),
         h('span', { class: 'carril-punts' }, [1, 2, 3].map((n) => h('i', { class: n <= niv ? 'ple' : '' }))));
-      }));
+      })));
   }));
 }
 
@@ -302,13 +364,24 @@ function pintaPrincipal() {
       h('p', {}, codi === 'R9' ? 'El docent us avisarà quan arribi la notícia de la via.' : 'Acabeu l\'encàrrec anterior o espereu que el docent obri el bloc.')));
     return;
   }
+  // el pas que toca ara: comprar bitllets (2) o calcular i comprovar (3)
+  const fixos = codi === 'R9' ? 1 : 0;
+  const pas = estat === 'lliurat' ? 0 : S.esb.bitllets.length > fixos ? 3 : 2;
   const graella = h('div', { class: 'graella-agencia' },
     columnaRepte(r, doc, estat),
-    estat === 'lliurat' ? columnaLliurat(r, doc) : columnaGuixeta(r),
-    estat === 'lliurat' ? null : columnaResposta(r, doc));
+    estat === 'lliurat' ? columnaLliurat(r, doc) : columnaGuixeta(r, pas === 2),
+    estat === 'lliurat' ? null : columnaResposta(r, doc, pas === 3));
   graella.classList.toggle('lliurat', estat === 'lliurat');
   graella.style.setProperty('--bloc', `var(--b${S.AG.BLOC[codi]})`);
+  // es conserva la posició de la guixeta en tornar a pintar
+  const scroll = [...document.querySelectorAll('.graella-agencia > .col')].map((c) => c.scrollTop);
   $main().replaceChildren(graella);
+  [...graella.children].forEach((c, k) => { if (scroll[k]) c.scrollTop = scroll[k]; });
+}
+
+/** capçalera numerada de cada columna: 1 encàrrec, 2 guixeta, 3 viatge */
+function capCol(n, ic, titol, ...extra) {
+  return h('div', { class: 'cap-col' }, h('span', { class: 'pas-num', 'aria-hidden': 'true' }, n), h('h2', {}, icona(ic), titol), ...extra);
 }
 
 function nivellActual(r) {
@@ -330,41 +403,59 @@ const preuReparacio = (n, doc) => {
   return String(m + (n.viatge.marge_reparacio ?? 0));
 };
 
-/* ---------------------------------------------------------------- columna del repte */
+/* ---------------------------------------------------------------- 1 · encàrrec */
 function columnaRepte(r, doc, estat) {
   const col = h('section', { class: 'col col-repte', 'aria-label': 'Encàrrec' });
-  col.append(h('div', { class: 'client' },
-    h('div', { class: 'client-icona', 'aria-hidden': 'true' }, inicials(r.client)),
-    h('div', {}, h('p', { class: 'client-nom' }, r.client), h('h2', { class: 'repte-titol' }, r.titol))),
-  h('p', { class: 'encarrec' }, r.encarrec));
+  col.append(capCol(1, 'encarrec', 'Encàrrec'),
+    h('div', { class: 'client' },
+      h('div', { class: 'client-icona', 'aria-hidden': 'true' }, inicials(r.client)),
+      h('div', {}, h('p', { class: 'client-nom' }, r.client), h('h3', { class: 'repte-titol' }, r.titol))),
+    h('p', { class: 'encarrec' }, r.encarrec));
 
   if (r.codi === 'R9' && doc.tall) col.append(avisTall(doc.tall));
 
-  // nivells
   const assolit = S.AG.puntsRepte(r.codi, S.progres, ajudes()).nivell;
-  const tira = h('div', { class: 'nivells', role: 'list' });
-  for (const n of r.nivells) {
-    const fet = n.nivell <= assolit;
-    const actual = r.modalitat === 'escala' && estat !== 'lliurat' && n.nivell === S.esb.nivell;
-    const ajut = ajudes().includes(`${r.codi}.${n.nivell}`);
-    tira.append(h('div', { class: `nivell ${fet ? 'fet' : ''} ${actual ? 'actual' : ''}`, role: 'listitem' },
-      h('span', { class: 'nivell-pips', 'aria-hidden': 'true' }, [1, 2, 3].map((x) => h('i', { class: x <= n.nivell ? 'ple' : '' }))),
-      h('span', { class: 'nivell-nom' }, fet ? icona('check') : null, TEXTOS.nivells[n.nivell - 1]),
-      h('span', { class: 'nivell-punts' }, `${ajut ? n.punts / 2 : n.punts} punts`)));
-  }
-  col.append(tira);
+  const ptsNivell = (n) => (ajudes().includes(`${r.codi}.${n.nivell}`) ? n.punts / 2 : n.punts);
+  const pips = (k) => h('span', { class: 'pips', 'aria-hidden': 'true' }, [1, 2, 3].map((x) => h('i', { class: x <= k ? 'ple' : '' })));
+  const tic = () => h('span', { class: 'tic', 'aria-label': 'aconseguit' }, icona('check'));
 
-  if (estat !== 'lliurat') {
-    if (r.modalitat === 'escala' && assolit === 3) {
-      col.append(h('div', { class: 'enunciat fet' }, h('p', {}, 'Heu aconseguit els tres nivells. Lliureu l\'encàrrec.')));
-    } else if (r.modalitat === 'escala') {
-      const n = nivellActual(r);
-      col.append(h('div', { class: 'enunciat' }, h('p', { class: 'enunciat-nivell' }, TEXTOS.nivells[n.nivell - 1]), h('p', {}, n.enunciat)));
-    } else {
-      col.append(h('div', { class: 'enunciat' }, h('p', {}, r.enunciat),
-        h('ol', { class: 'llista-nivells' }, r.nivells.map((n) =>
-          h('li', {}, h('strong', {}, `${TEXTOS.nivells[n.nivell - 1]}: `), n.enunciat.replace('[PREU]', preuReparacio(n, doc)))))));
+  if (r.modalitat === 'escala') {
+    // la petició del nivell que toca, ben visible
+    if (estat !== 'lliurat') {
+      if (assolit === 3) {
+        col.append(h('div', { class: 'missio fet' },
+          h('p', { class: 'missio-text' }, 'Heu aconseguit els tres nivells! Lliureu l\'encàrrec.')));
+      } else {
+        const n = nivellActual(r);
+        col.append(h('div', { class: 'missio' },
+          h('div', { class: 'missio-cap' },
+            h('span', { class: 'missio-etiqueta' }, pips(n.nivell), TEXTOS.nivells[n.nivell - 1]),
+            h('span', { class: 'missio-punts' }, `+${ptsNivell(n)} punts`)),
+          h('p', { class: 'missio-text' }, n.enunciat)));
+      }
     }
+    col.append(h('div', { class: 'nivells', role: 'list', 'aria-label': 'Nivells' }, r.nivells.map((n) => {
+      const fet = n.nivell <= assolit;
+      const actual = estat !== 'lliurat' && n.nivell === S.esb.nivell && assolit < 3;
+      return h('div', { class: `nivell ${fet ? 'fet' : ''} ${actual ? 'actual' : ''}`, role: 'listitem' },
+        fet ? tic() : null,
+        h('span', { class: 'nivell-nom' }, TEXTOS.nivells[n.nivell - 1]),
+        h('span', { class: 'nivell-punts' }, `${ptsNivell(n)} punts`));
+    })));
+  } else {
+    // encàrrecs de millora: un sol viatge i tres objectius
+    if (estat !== 'lliurat') {
+      col.append(h('div', { class: 'missio' },
+        h('div', { class: 'missio-cap' }, h('span', { class: 'missio-etiqueta' }, icona('mapa', 'mini'), 'Un sol viatge')),
+        h('p', { class: 'missio-text' }, r.enunciat)));
+    }
+    col.append(h('ol', { class: 'objectius', 'aria-label': 'Nivells' }, r.nivells.map((n) => {
+      const fet = n.nivell <= assolit;
+      return h('li', { class: `objectiu ${fet ? 'fet' : ''}` },
+        h('span', { class: 'objectiu-nom' }, fet ? tic() : null, TEXTOS.nivells[n.nivell - 1]),
+        h('span', { class: 'objectiu-text' }, n.enunciat.replace('[PREU]', preuReparacio(n, doc))),
+        h('span', { class: 'objectiu-punts' }, `${ptsNivell(n)} punts`));
+    })));
   }
   if (r.regles.length) {
     col.append(h('div', { class: 'regles' }, r.regles.map((id) => {
@@ -398,29 +489,46 @@ function viatgeOriginal() {
     llistaBitllets(descodifica(orig.bitllets), { fix: true }));
 }
 
-/* ---------------------------------------------------------------- guixeta */
-function columnaGuixeta(r) {
+/* ---------------------------------------------------------------- 2 · guixeta */
+function columnaGuixeta(r, ara) {
   const dies = maxDia(r);
   if (S.vista.dia > dies) S.vista.dia = 1;
-  const col = h('section', { class: 'col col-guixeta', 'aria-label': 'Guixeta' });
-  const sel = h('select', { id: 'estacio', 'aria-label': 'Estació', onchange: (e) => { S.vista.estacio = e.target.value; S.vista.tren = null; pintaPrincipal(); } },
-    Object.keys(S.D.estacions).sort((x, y) => nomEst(x).localeCompare(nomEst(y), 'ca'))
-      .filter((s) => sortidesDe(s, 1).length)
-      .map((s) => h('option', { value: s, selected: s === S.vista.estacio }, nomEst(s))));
-  col.append(h('div', { class: 'guixeta-cap' },
-    h('p', { class: 'guixeta-titol' }, icona('bitllet'), 'Guixeta · sortides de'),
-    h('label', { class: 'estacio' }, sel)));
+  const col = h('section', { class: `col col-guixeta ${ara ? 'pas-ara' : ''}`, 'aria-label': 'Guixeta' });
+  col.append(capCol(2, 'bitllet', 'Guixeta'),
+    h('button', { class: 'tria-estacio-boto', 'aria-haspopup': 'dialog', onclick: () => { S.triaEstacio = true; pintaPrincipal(); } },
+      h('span', { class: 'icona-estacio', 'aria-hidden': 'true' }, icona('estacio')),
+      h('span', {}, h('small', {}, 'Sortides de'), h('strong', {}, nomEst(S.vista.estacio))),
+      h('span', { class: 'canvia' }, 'Canvia', icona('avall', 'mini'))));
   if (dies > 1) {
-    col.append(h('div', { class: 'dies', role: 'tablist' }, Array.from({ length: dies }, (_, i) => i + 1).map((d) =>
+    col.append(h('div', { class: 'dies', role: 'tablist', 'aria-label': 'Dia' }, Array.from({ length: dies }, (_, i) => i + 1).map((d) =>
       h('button', { role: 'tab', class: `dia ${d === S.vista.dia ? 'actiu' : ''}`, 'aria-selected': d === S.vista.dia ? 'true' : 'false',
         onclick: () => { S.vista.dia = d; S.vista.tren = null; pintaPrincipal(); } }, icona('calendari'), `Dia ${d}`))));
   }
+  if (!S.vista.tren && ara) col.append(h('p', { class: 'pista' }, icona('ma'), 'Toqueu un tren per veure on para i comprar el bitllet.'));
   const panell = h('div', { class: 'panell-sortides' },
-    h('div', { class: 'panell-cap' }, h('span', {}, 'Hora'), h('span', {}, 'Destinació'), h('span', {}, 'Para a')));
+    h('div', { class: 'panell-cap', 'aria-hidden': 'true' }, h('span', {}, 'Surt'), h('span', {}, 'Destinació'), h('span', {}, 'Para a'), h('span')));
   for (const s of sortidesDe(S.vista.estacio, S.vista.dia)) panell.append(filaSortida(s));
   if (panell.children.length === 1) panell.append(h('p', { class: 'buit' }, 'Avui no surt cap tren d\'aquesta estació.'));
   col.append(panell);
+  if (S.triaEstacio) col.append(triaEstacio());
   return col;
+}
+
+/** totes les estacions amb sortides, en una graella per triar-ne una */
+function triaEstacio() {
+  const tanca = () => { S.triaEstacio = false; pintaPrincipal(); };
+  const tria = (s) => { S.triaEstacio = false; S.vista.estacio = s; S.vista.tren = null; pintaPrincipal(); };
+  const estacions = Object.keys(S.D.estacions)
+    .filter((s) => sortidesDe(s, 1).length)
+    .sort((x, y) => nomEst(x).localeCompare(nomEst(y), 'ca'));
+  const capa = h('div', { class: 'estacions-capa', role: 'dialog', 'aria-label': 'Trieu l\'estació',
+    onkeydown: (e) => { if (e.key === 'Escape') tanca(); } },
+    h('div', { class: 'estacions-cap' }, icona('estacio'), h('h3', {}, 'De quina estació sortiu?'),
+      h('button', { class: 'boto-icona', 'aria-label': 'Tanca', onclick: tanca }, icona('creu'))),
+    h('div', { class: 'estacions' }, estacions.map((s) =>
+      h('button', { class: `estacio-boto ${s === S.vista.estacio ? 'actual' : ''}`, onclick: () => tria(s) }, nomEst(s)))));
+  setTimeout(() => { capa.closest('.col')?.scrollTo(0, 0); capa.querySelector('.estacio-boto.actual')?.focus(); }, 0);
+  return capa;
 }
 
 function sortidesDe(est, dia) {
@@ -457,14 +565,17 @@ function filaSortida(s) {
       onclick: () => { S.vista.tren = obert ? null : s.codi; pintaPrincipal(); } },
     h('span', { class: 'sortida-hora' }, horaDia(s.hora)),
     h('span', { class: 'sortida-desti' }, nomEst(desti), tallada ? h('span', { class: 'etiqueta-tall' }, icona('avis'), 'Via tallada') : null),
-    h('span', { class: 'sortida-parades' }, seguents.length > 1 ? seguents.slice(0, -1).join(' · ') : 'Directe')));
+    h('span', { class: 'sortida-parades' }, seguents.length > 1 ? seguents.slice(0, -1).join(' · ') : 'Directe'),
+    h('span', { class: 'sortida-obre', 'aria-hidden': 'true' }, icona('xevro'))));
   if (obert) fila.append(paradesTren(s));
   return fila;
 }
 
+/** les parades del tren com una línia: hora d'arribada, preu des d'aquí i «Compra» */
 function paradesTren(s) {
   const t = S.D.trens[s.codi];
-  const llista = h('ol', { class: 'parades' });
+  const llista = h('ol', { class: 'parades' },
+    h('li', { class: 'parada-origen' }, `Surt de ${nomEst(S.vista.estacio)} a les ${horaDia(s.hora)}`));
   const tall = primeraParadaTallada(s);
   let preu = 0;
   for (let j = s.i + 1; j < t.parades.length; j++) {
@@ -472,7 +583,7 @@ function paradesTren(s) {
       llista.append(h('li', { class: 'parada suprimida' },
         h('span', { class: 'parada-hora' }, horaDia(t.parades[j][1])),
         h('span', { class: 'parada-nom' }, nomEst(t.parades[j][0])),
-        h('span', { class: 'parada-preu' }, ''),
+        h('span', { class: 'parada-preu-buit' }),
         h('span', { class: 'parada-suprimida' }, icona('creu', 'mini'), 'Suprimit')));
       continue;
     }
@@ -485,7 +596,7 @@ function paradesTren(s) {
       h('span', { class: 'parada-hora' }, horaDia(hora)),
       h('span', { class: 'parada-nom' }, nomEst(est)),
       h('span', { class: 'parada-preu' }, euros(preuAra)),
-      h('button', { class: 'boto compra', onclick: () => compra(s, est) }, TEXTOS.botons.compra)));
+      h('button', { class: 'boto compra', onclick: () => compra(s, est), 'aria-label': `${TEXTOS.botons.compra} fins a ${nomEst(est)}` }, TEXTOS.botons.compra)));
   }
   return llista;
 }
@@ -493,10 +604,13 @@ function paradesTren(s) {
 function compra(s, desti) {
   if (S.esb.bitllets.length >= LIMITS.MAX_BITLLETS) return avis('Massa bitllets.', 'error');
   S.esb.bitllets.push([s.dia, s.codi, S.vista.estacio, desti]);
+  S.bitlletNou = S.esb.bitllets.length - 1;
   S.vista = { estacio: desti, dia: s.dia, tren: null };
   S.resultat = null; S.confirma = false;
   desaAviat();
   pintaPrincipal();
+  S.bitlletNou = -1;
+  avis(`Bitllet comprat fins a ${nomEst(desti)}`, 'ok', 1800);
 }
 
 /* ---------------------------------------------------------------- resposta */
@@ -510,7 +624,7 @@ function llistaBitllets(bitllets, { fix = false, esborrable = false } = {}) {
     let preu = 0;
     for (let x = i; x < j; x++) preu += t.tarifes[x];
     const fixat = fix || (S.esb?.codi === 'R9' && k === 0);
-    ol.append(h('li', { class: 'bitllet' },
+    ol.append(h('li', { class: `bitllet ${esborrable && k === S.bitlletNou ? 'nou' : ''}` },
       h('div', { class: 'bitllet-talo' }, h('span', { class: 'bitllet-num' }, k + 1), h('span', { class: 'bitllet-dia' }, `Dia ${dia}`)),
       h('div', { class: 'bitllet-cos' },
         h('div', { class: 'bitllet-punt' }, h('strong', {}, horaDia(t.parades[i][1])), h('span', {}, nomEst(de))),
@@ -536,15 +650,16 @@ function preguntesActuals(r) {
   return S.AG.preguntesDe(r, nivellActual(r));
 }
 
-function columnaResposta(r, doc) {
-  const col = h('section', { class: 'col col-resposta', 'aria-label': 'Resposta' });
+function columnaResposta(r, doc, ara) {
+  const col = h('section', { class: `col col-resposta ${ara ? 'pas-ara' : ''}`, 'aria-label': 'El vostre viatge' });
   const nb = S.esb.bitllets.length;
-  col.append(h('h2', {}, icona('mapa'), 'El vostre viatge', nb ? h('span', { class: 'comptador' }, `${nb} ${nb === 1 ? 'bitllet' : 'bitllets'}`) : null));
-  if (!nb) col.append(h('div', { class: 'buit-viatge' }, icona('bitllet', 'gran'), h('p', {}, 'Compreu els bitllets a la guixeta.')));
+  col.append(capCol(3, 'mapa', 'El vostre viatge', nb ? h('span', { class: 'comptador' }, `${nb} ${nb === 1 ? 'bitllet' : 'bitllets'}`) : null));
+  if (!nb) col.append(h('div', { class: 'buit-viatge' }, icona('bitllet', 'gran'), h('p', {}, 'Encara no teniu bitllets.'),
+    h('p', { class: 'nota' }, icona('fletxa', 'fletxa-esq'), ' Compreu-los a la guixeta.')));
   else col.append(llistaBitllets(S.esb.bitllets, { esborrable: true }));
   const pq = preguntesActuals(r);
   if (pq.length) {
-    const form = h('div', { class: 'preguntes' }, h('h3', {}, 'Calculeu i responeu'));
+    const form = h('div', { class: 'preguntes' }, h('h3', {}, icona('calculadora'), 'Calculeu i responeu'));
     for (const q of pq) form.append(campPregunta(q, r));
     col.append(form);
   }
@@ -655,7 +770,7 @@ function zonaResultat(r, doc) {
   const seg = S.AG.ORDRE[S.AG.ORDRE.indexOf(r.codi) + 1];
   if (pot && seg && S.AG.estatReptes(S.tanda, S.progres)[seg] === 'obert') {
     botons.append(h('button', { class: 'boto', title: 'Podeu tornar a aquest encàrrec mentre no el lliureu',
-      onclick: async () => { await desaEsborrany(); S.actiu = seg; obreRepte(seg); pinta(); } }, 'Següent', icona('fletxa')));
+      onclick: async () => { await desaEsborrany(); S.actiu = seg; obreRepte(seg); pinta(); } }, 'Encàrrec següent', icona('fletxa')));
   }
   zona.append(botons);
   if (S.confirma && pot) {
@@ -682,7 +797,7 @@ async function comprova(r) {
   const refs = S.AG.referencies(S.progres);
   const pq = preguntesActuals(r);
   const respostes = normalitza(pq, r);
-  let errors = [], registre = null, extra = {};
+  let errors = [], registre = null, extra = {}, festa = null;
   if (r.modalitat === 'escala') {
     const n = nivellActual(r);
     const [errs, der] = S.A.avaluaNivell(n, bitllets);
@@ -693,11 +808,13 @@ async function comprova(r) {
         registre = { bitllets: bitllets.map(codificaBitllet), respostes, intents: S.esb.intents, ms: Date.now() };
         const nivells = { ...(doc.nivells || {}), [n.nivell]: registre };
         const seguent = r.nivells.find((x) => x.nivell === n.nivell + 1);
-        S.resultat = { ok: true, missatge: `Encàrrec aconseguit! +${n.punts} punts de reputació.` };
+        const nom = TEXTOS.nivells[n.nivell - 1];
+        S.resultat = { ok: true, missatge: `Nivell ${nom} aconseguit: +${n.punts} punts.` };
         extra = { nivells };
         S.esb = { ...S.esb, nivell: seguent ? seguent.nivell : n.nivell, bitllets: seguent ? [] : bitllets, entrades: seguent ? {} : S.esb.entrades, intents: 0 };
-        if (seguent) S.resultat.missatge += ` Ara podeu provar el nivell ${TEXTOS.nivells[seguent.nivell - 1]}, lliurar l'encàrrec o passar al següent.`;
+        if (seguent) S.resultat.missatge += ` Ara podeu provar el nivell ${TEXTOS.nivells[seguent.nivell - 1]}.`;
         S.vista = { estacio: 'B', dia: 1, tren: null };
+        festa = { titol: `Nivell ${nom} aconseguit!`, pts: n.punts, seguent: seguent ? TEXTOS.nivells[seguent.nivell - 1] : null };
       } else {
         S.resultat = { ok: false, missatge: 'El viatge és correcte. Reviseu les respostes marcades.', correctes: c.correctes };
       }
@@ -720,6 +837,10 @@ async function comprova(r) {
           registre = { bitllets: bitllets.map(codificaBitllet), respostes, nivell: assolit, intents: S.esb.intents, ms: Date.now() };
           extra = { millor: registre };
         }
+        if (assolit > millor) {
+          const pts = r.nivells.filter((x) => x.nivell > millor && x.nivell <= assolit).reduce((a, x) => a + x.punts, 0);
+          festa = { titol: `El viatge arriba al nivell ${nom}!`, pts, millora: true, seguent: seg ? TEXTOS.nivells[seg.nivell - 1] : null, pendents: seg ? pendents : [] };
+        }
         S.resultat = { ok: true, missatge: `El viatge arriba al nivell ${nom}.`, pendents: seg ? pendents : [], seguent: seg ? `Per arribar al nivell ${TEXTOS.nivells[seg.nivell - 1]}:` : '', correctes: c.correctes };
       } else {
         S.resultat = { ok: false, missatge: `El viatge arriba al nivell ${nom}. Reviseu les respostes marcades.`, correctes: c.correctes };
@@ -733,6 +854,35 @@ async function comprova(r) {
   }).catch(() => {});
   await desaEsborrany(extra);
   pintaPrincipal();
+  if (festa) celebraNivell(r, festa, extra);
+}
+
+/** finestra de celebració amb el pas següent ben clar */
+function celebraNivell(r, f, extra) {
+  const progres = { ...S.progres, [r.codi]: { ...(S.progres[r.codi] || {}), ...extra } };
+  const seg = S.AG.ORDRE[S.AG.ORDRE.indexOf(r.codi) + 1];
+  const segObert = seg && S.AG.estatReptes(S.tanda, progres)[seg] === 'obert';
+  const vesSeguent = () => { tancaModal(); S.actiu = seg; obreRepte(seg); pinta(); };
+  const lliuraAra = () => { tancaModal(); S.confirma = true; pintaPrincipal(); };
+  const botons = [];
+  let text;
+  if (f.millora) {
+    text = f.seguent ? 'Encara el podeu millorar.' : 'Viatge perfecte! Ja el podeu lliurar.';
+    botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, f.seguent ? 'Continueu millorant' : 'D\'acord'));
+    botons.push(h('button', { class: 'boto lliura gran', onclick: lliuraAra }, icona('copa'), TEXTOS.botons.lliura));
+  } else if (f.seguent) {
+    text = `Ara podeu provar el nivell ${f.seguent}${segObert ? ' o passar a l\'encàrrec següent' : ''}.`;
+    botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, `Proveu el nivell ${f.seguent}`));
+    if (segObert) botons.push(h('button', { class: 'boto gran', onclick: vesSeguent }, 'Encàrrec següent', icona('fletxa')));
+  } else {
+    text = 'Heu fet els tres nivells. Ja podeu lliurar l\'encàrrec.';
+    botons.push(h('button', { class: 'boto lliura gran', onclick: lliuraAra, autofocus: true }, icona('copa'), TEXTOS.botons.lliura));
+    if (segObert) botons.push(h('button', { class: 'boto gran', onclick: vesSeguent }, 'Encàrrec següent', icona('fletxa')));
+  }
+  const ctx = { nom: nomEst, bitllets: S.esb.bitllets, horaText };
+  const pendents = f.pendents?.length ? h('div', { class: 'pendents' }, h('p', {}, h('strong', {}, `Per arribar al nivell ${f.seguent}:`)),
+    h('ul', {}, f.pendents.slice(0, 2).map((e) => h('li', {}, textError(e, ctx))))) : null;
+  celebra({ titol: f.titol, pts: f.pts, text, pendents, botons });
 }
 
 async function lliura(r) {
@@ -748,20 +898,19 @@ async function lliura(r) {
 
 /* ---------------------------------------------------------------- repte lliurat */
 function columnaLliurat(r, doc) {
-  const col = h('section', { class: 'col col-lliurat' });
+  const col = h('section', { class: 'col col-lliurat', 'aria-label': 'Encàrrec lliurat' });
   const { punts: pts } = S.AG.puntsRepte(r.codi, S.progres, ajudes());
-  col.append(h('div', { class: 'segell' }, icona('copa', 'gran'), h('h2', {}, 'Encàrrec lliurat'),
-    h('p', { class: 'segell-punts' }, `${punts(pts)} punts de reputació`)));
+  const seg = S.AG.ORDRE[S.AG.ORDRE.indexOf(r.codi) + 1];
+  const segObert = seg && S.AG.estatReptes(S.tanda, S.progres)[seg] === 'obert';
+  col.append(h('div', { class: 'segell' }, icona('copa', 'gran'),
+    h('div', {}, h('h2', {}, 'Encàrrec lliurat'), h('p', { class: 'segell-punts' }, `${punts(pts)} punts de reputació`)),
+    segObert ? h('button', { class: 'boto primari gran', onclick: () => { S.actiu = seg; obreRepte(seg); pinta(); } }, 'Encàrrec següent', icona('fletxa')) : null));
   if (r.modalitat === 'escala') {
     for (const n of r.nivells) {
       const reg = doc.nivells?.[n.nivell];
       if (reg) col.append(h('h3', {}, TEXTOS.nivells[n.nivell - 1]), llistaBitllets(descodifica(reg.bitllets), { fix: true }));
     }
   } else if (doc.millor) col.append(llistaBitllets(descodifica(doc.millor.bitllets), { fix: true }));
-  const seg = S.AG.ORDRE[S.AG.ORDRE.indexOf(r.codi) + 1];
-  if (seg && S.AG.estatReptes(S.tanda, S.progres)[seg] === 'obert') {
-    col.append(h('button', { class: 'boto primari', onclick: () => { S.actiu = seg; obreRepte(seg); pinta(); } }, 'Següent encàrrec', icona('fletxa')));
-  }
   return col;
 }
 
