@@ -32,6 +32,11 @@
     .clau b { display: block; color: var(--pri-2); margin-bottom: 2px; font-weight: 900; }
     .clau span { font-size: .92rem; color: var(--soft); }
     .clau .url { font-size: 1rem; }
+    .docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 10px 0 12px; }
+    .docs a { display: flex; flex-direction: column; gap: 2px; padding: 11px 14px; border-radius: 14px; background: #fff; border: 1.5px solid var(--line); border-left: 5px solid var(--pri); text-decoration: none; color: inherit; }
+    .docs a:hover { border-color: var(--pri); }
+    .docs b { color: var(--pri-2); font-weight: 900; }
+    .docs span { font-size: .88rem; color: var(--soft); }
     ol.passos { list-style: none; padding: 0; margin: 0; counter-reset: p; display: flex; flex-direction: column; gap: 8px; }
     ol.passos li { counter-increment: p; position: relative; background: #fff; border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 14px 10px 54px; }
     ol.passos li::before { content: counter(p); position: absolute; left: 12px; top: 10px; width: 30px; height: 30px; border-radius: 50%; background: var(--sol); color: var(--ink); font-weight: 900; display: grid; place-items: center; }
@@ -74,21 +79,33 @@
   <div class="clau">
     <div><b>Adreça de l'app</b><span class="url">ja.cat/estaciodetren</span></div>
     <div><b>Alumnat</b><span>Entra amb el codi de la tanda, el grup i el PIN de la targeta.</span></div>
-    <div><b>Professorat</b><span>Botó «Professorat»: codi de la tanda i la vostra contrasenya.</span></div>
+    <div><b>Professorat</b><span>Botó «Professorat». La primera vegada en cada aparell, la contrasenya del panell.</span></div>
   </div>
 
   <h2><span class="n">1</span>Abans de començar (una sola vegada, uns 15 minuts)</h2>
   <ol class="passos">
-    <li>Obriu <span class="url">ja.cat/estaciodetren</span> i toqueu <b>Professorat</b>, a dalt a la dreta.</li>
+    <li>Obriu <span class="url">ja.cat/estaciodetren</span> i toqueu <b>Professorat</b>, a dalt a la dreta. La primera vegada en cada aparell, escriviu la <b>contrasenya del panell</b>. Després l'aparell ja no us la demanarà. No la doneu mai a l'alumnat: obre el panell i el solucionari.</li>
     <li>A <b>Tanda nova</b>, trieu el grup classe (Alfa, Beta, Gamma, Delta o Èpsilon: una tanda per a cadascun), el nombre de grups i les <b>dates de les quatre trobades</b>. Els noms dels grups ja són noms de trens: no hi poseu mai noms d'alumnes.</li>
-    <li>Trieu una <b>contrasenya del professorat</b> i apunteu-la. Amb el codi de la tanda i aquesta contrasenya podreu entrar al panell des de qualsevol ordinador o mòbil. Si comparteixen la SdA dos docents, tots dos la poden fer servir.</li>
+    <li>Trieu una <b>contrasenya de la tanda</b> i apunteu-la. Amb el codi de la tanda i aquesta contrasenya podreu entrar al panell des de qualsevol ordinador o mòbil. Si comparteixen la SdA dos docents, tots dos la poden fer servir.</li>
     <li>Toqueu <b>Crea la tanda</b>. L'app genera el codi de la tanda i un PIN per a cada grup.</li>
     <li>Toqueu <b>Targetes d'accés</b> i imprimiu-les. Cada grup té la seva targeta, amb l'adreça, el codi, el PIN i el grup classe, i la fa servir a les quatre trobades. Retalleu per les línies discontínues.</li>
-    <li>Imprimiu els materials en paper: un mapa A3, un full de regles i un full de càlculs per taula, la prova individual, la carpeta docent i la guia de les trobades.</li>
+    <li>Imprimiu els materials en paper (apartat 2): un mapa A3, un full de regles i un full de càlculs per taula, la prova individual, la carpeta docent i la guia de les trobades. Feu els grups de quatre barrejant cursos i nivells.</li>
     <li>Per veure què veu l'alumnat sense crear cap tanda, obriu la <a href="./?demo"><b>demostració</b></a>: hi entreu sense codi, amb tots els encàrrecs oberts, i res del que hi feu no arriba a les tandes de l'alumnat.</li>
   </ol>
 
-  <h2><span class="n">2</span>Què s'obre sol a cada trobada</h2>
+  <h2><span class="n">2</span>Materials per imprimir</h2>
+  <p>Imprimiu-los a «Mida real» (100 %). La guia de les trobades comença amb una pàgina que diu quantes còpies cal fer i per on es retalla.</p>
+  <div class="docs">
+    <a href="docs/presentacio-proxima-sortida.pdf" download><b>Presentació per al professorat</b><span>Què és, com es prepara i com s'avalua · 7 pàgines</span></a>
+    <a href="docs/materials/06-guia-de-les-trobades.pdf" download><b>Guia de les quatre trobades</b><span>Què cal imprimir, minut a minut i preguntes d'observació · 1 per docent</span></a>
+    <a href="docs/materials/01-mapa-de-la-xarxa-A3.pdf" download><b>Mapa de la xarxa</b><span>A3, plastificat · 1 per grup</span></a>
+    <a href="docs/materials/02-full-de-regles.pdf" download><b>Full de regles</b><span>A4 a doble cara, plastificat · 1 per grup</span></a>
+    <a href="docs/materials/03-full-de-calculs.pdf" download><b>Full de càlculs</b><span>A4 a doble cara · 1 per grup i tanda</span></a>
+    <a href="docs/materials/07-quadern-de-panells-de-reserva.pdf" download><b>Quadern de panells de reserva</b><span>Per si cau la connexió · 2 en total</span></a>
+  </div>
+  <p>Les targetes d'accés es fan al panell. La prova individual i la carpeta docent porten les solucions i no es publiquen aquí: les solucions de tots els encàrrecs són al <b>Solucionari</b> del panell.</p>
+
+  <h2><span class="n">3</span>Què s'obre sol a cada trobada</h2>
   <table>
     <thead><tr><th>Trobada</th><th>Què s'obre a l'app</th><th>Què feu vosaltres</th></tr></thead>
     <tbody>
@@ -100,7 +117,7 @@
   </table>
   <p>Cada bloc s'obre a primera hora del dia de la seva trobada. Dins de cada bloc, l'encàrrec següent s'obre quan el grup aconsegueix el primer nivell (Regional) de l'anterior. Si un grup no ha lliurat el gran viatge quan arriba la via tallada, l'app li dona un viatge de referència.</p>
 
-  <h2><span class="n">3</span>Durant la sessió: no cal l'ordinador</h2>
+  <h2><span class="n">4</span>Durant la sessió: no cal l'ordinador</h2>
   <div class="be"><strong>No heu d'obrir res ni generar cap codi.</strong> Els grups entren amb la seva targeta i l'app els diu què falla, sense donar mai la solució.</div>
   <p>Cada grup s'organitza sol: es reparteix els Chromebooks, el material imprès i els retoladors, gestiona el temps i decideix quan lliura cada encàrrec. No hi ha posades en comú.</p>
   <ul>
@@ -110,21 +127,22 @@
     <li>Si doneu a un grup una pista que li resol part d'un nivell, apunteu-ho a la graella. Ho marcareu al panell en acabar (aquell nivell val la meitat).</li>
   </ul>
 
-  <h2><span class="n">4</span>Després de cada sessió (5 minuts)</h2>
+  <h2><span class="n">5</span>Després de cada sessió (5 minuts)</h2>
   <ul>
     <li>Entreu al panell. Cada fila és un grup: els cercles són els nivells aconseguits a cada encàrrec i la ratlla groga, l'encàrrec on treballa ara.</li>
     <li>Toqueu el nom d'un grup per veure on és ara, els darrers errors en paraules planeres, els viatges i el PIN, i per marcar els nivells fets <b>amb ajuda</b>.</li>
     <li>La franja <b>Errors de la classe</b> mostra els errors que han tingut dos o més grups en la darrera mitja hora: és el que val la pena comentar a tota la classe la sessió següent.</li>
     <li>Mireu quins grups van més endarrerits per saber a qui heu d'atendre primer a la trobada següent.</li>
+    <li>El botó <b>Solucionari</b> mostra, per a cada encàrrec i nivell, un viatge correcte amb els bitllets, les respostes i les trampes habituals. A la via tallada hi ha la reparació més barata de cada grup. També hi ha els viatges de referència i les solucions de la prova individual. No el projecteu a la classe.</li>
   </ul>
 
-  <h2><span class="n">5</span>En acabar la situació d'aprenentatge</h2>
+  <h2><span class="n">6</span>En acabar la situació d'aprenentatge</h2>
   <ul>
     <li><b>Exporta CSV</b> baixa els nivells, els punts i la nota de grup (punts ÷ 1.000) per obrir-los amb un full de càlcul.</li>
     <li><b>Tanca la tanda</b> si voleu que ningú no hi pugui canviar res. Si no ho feu, la tanda caduca sola al cap de 120 dies.</li>
   </ul>
 
-  <h2><span class="n">6</span>Si passa alguna cosa</h2>
+  <h2><span class="n">7</span>Si passa alguna cosa</h2>
   <div class="faq">
     <details><summary>Un grup ha perdut la targeta</summary><p>Al panell, toqueu el nom del grup: hi veureu el PIN. El codi de la tanda és a dalt de tot.</p></details>
     <details><summary>Un grup no pot entrar</summary><p>Comproveu que escriuen el codi de la tanda, que trien el seu grup i que el PIN és el de la seva targeta. Si han canviat de Chromebook, només cal tornar a entrar: la feina està desada.</p></details>
@@ -132,11 +150,13 @@
     <details><summary>Ha canviat el dia d'una sessió</summary><p>Al panell, canvieu la data de la trobada. Els blocs s'obriran el dia nou.</p></details>
     <details><summary>Voleu obrir un bloc abans d'hora</summary><p>Al panell, toqueu «Obrir abans d'hora» i el bloc que vulgueu. També hi podeu activar la via tallada.</p></details>
     <details><summary>No hi ha internet</summary><p>L'app desa la feina i l'envia quan torna la connexió. Si no es pot obrir, treballeu amb el quadern de panells de reserva en paper i el full de càlculs.</p></details>
-    <details><summary>Heu oblidat la contrasenya</summary><p>Els aparells on ja hi heu entrat recorden la tanda: toqueu «Professorat» i la trobareu a «En aquest aparell», sense contrasenya. Des d'un aparell nou, la necessitareu: si la comparteix un altre docent, demaneu-li-la.</p></details>
+    <details><summary>Heu oblidat la contrasenya de la tanda</summary><p>Els aparells on ja hi heu entrat recorden la tanda: toqueu «Professorat» i la trobareu a «En aquest aparell», sense contrasenya. Des d'un aparell nou, la necessitareu: si la comparteix un altre docent, demaneu-li-la.</p></details>
+    <details><summary>Heu oblidat la contrasenya del panell</summary><p>Els aparells on ja hi heu entrat no la tornen a demanar. Si no la sabeu, demaneu-la a qui administra l'app a la vostra escola. Per deixar de tenir el panell obert en un aparell compartit, toqueu «Tanca el panell en aquest aparell», sota la llista de tandes.</p></details>
   </div>
 
-  <h2><span class="n">7</span>Dades</h2>
-  <p>L'app no demana cap dada personal: els grups porten noms de trens i entren amb un PIN. Els viatges i els punts es desen en un servidor de la Unió Europea i s'esborren quan la tanda caduca.</p>
+  <h2><span class="n">8</span>Dades i còpies de l'app</h2>
+  <p>L'app no demana cap dada personal: els grups porten noms de trens i entren amb un PIN. Els viatges i els punts es desen en un servidor de la Unió Europea. Al cap de 120 dies la tanda caduca i ja no s'hi pot entrar.</p>
+  <p>Per fer servir l'app en una altra escola, amb les vostres pròpies dades, seguiu la <a href="https://github.com/felipsarroca/jocs/blob/main/Ferrocarril/DUPLICAR.md" target="_blank" rel="noopener noreferrer">guia per duplicar l'app</a>.</p>
 </main>
 
 <footer>

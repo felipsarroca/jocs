@@ -324,7 +324,7 @@ a.boto { text-decoration: none; }
 .parada > * { position: relative; }
 .parada-hora { font-weight: 900; font-variant-numeric: tabular-nums; }
 .parada-nom { font-weight: 800; }
-.parada-preu { font-variant-numeric: tabular-nums; font-weight: 900; color: var(--ok-ink); background: var(--ok-bg); padding: 2px 9px; border-radius: 999px; font-size: .92rem; }
+.parada-preu { white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 900; color: var(--ok-ink); background: var(--ok-bg); padding: 2px 9px; border-radius: 999px; font-size: .92rem; }
 .sense-parar { font-size: .8rem; font-style: italic; font-weight: 600; color: var(--ink-mute); padding-block: 2px; padding-left: 82px; }
 .sense-parar::after { content: ""; position: absolute; left: 5px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: #fff; border: 2px solid var(--pri); }
 .etiqueta-tall { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; padding: 1px 8px; border-radius: 99px;
@@ -640,11 +640,22 @@ html.compacte .graella-agencia, html.compacte .graella-agencia.lliurat { grid-te
 html.compacte .col { overflow: visible; }
 html.compacte .carril { padding-inline: 12px; }
 html.compacte .parada-titol, html.compacte .tram-nom span { display: none; }
+html.compacte .estada { flex-wrap: wrap; }
+html.compacte .estada-nom { flex-basis: 100%; min-width: 0; }
+html.compacte .dia .icona { display: none; }
+html.compacte .dia { padding-inline: 4px; white-space: nowrap; }
 html.compacte .acces-graella { grid-template-columns: minmax(0, 1fr); gap: 16px; max-width: 520px; }
 html.compacte .acces-heroi h1 { font-size: 2rem; }
 html.compacte .docent-tandes, html.compacte .docent-cos:has(.detall) { grid-template-columns: minmax(0, 1fr); }
 html.compacte .tanda-estat { min-width: 0; }
 html.compacte .calendari { grid-template-columns: repeat(2, 1fr); }
+html.compacte .capcalera:has(.capcalera-dreta > .boto.petit) { flex-wrap: wrap; row-gap: 8px; padding-inline: 12px; }
+html.compacte .capcalera-dreta:has(> .boto.petit) { flex: 1 1 100%; flex-wrap: wrap; gap: 6px; }
+html.compacte .capcalera-dreta > .boto.petit { padding-inline: 10px; }
+html.compacte .docent-tanda { padding: 10px; }
+html.compacte .barra-tanda { gap: 12px; padding: 14px; }
+html.compacte .tanda-estat { flex-basis: 100%; }
+html.compacte .tanda-accions { margin-left: 0; flex-direction: row; flex-wrap: wrap; align-items: center; }
 html.compacte .detall { max-height: none; }
 html.compacte .reputacio-cos { min-width: 0; }
 html.compacte .reputacio span { display: none; }
@@ -700,6 +711,106 @@ html.compacte .estacions-capa { position: fixed; inset: 10px; z-index: 70; box-s
 .errors-recents { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: .84rem; font-weight: 600; }
 .errors-recents li { display: grid; grid-template-columns: 96px 1fr; gap: 8px; }
 .err-quan { color: var(--ink-mute); font-weight: 800; font-size: .78rem; padding-top: 1px; }
+
+/* ---------------------------------------------------------------- porta del panell */
+.porta { min-height: 100%; display: grid; place-items: center; padding: 24px 16px; }
+.porta-targeta { width: min(420px, 100%); display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.porta-targeta h1 { font-size: 1.5rem; }
+.porta-icona { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 16px; background: var(--pri-bg); color: var(--pri); }
+.porta-icona .icona { width: 26px; height: 26px; }
+.porta-targeta input { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fff; font-weight: 700; font-size: 1rem; }
+.porta-targeta input:focus { border-color: var(--pri); outline: none; box-shadow: 0 0 0 3px rgba(58, 99, 224, .16); }
+.porta-alumnat { display: inline-flex; align-items: center; gap: 6px; align-self: center; margin-top: 4px; font-size: .88rem; font-weight: 800; color: var(--ink-soft); text-decoration: none; }
+.porta-alumnat:hover { color: var(--pri); }
+.boto-text { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; border: 0; background: none; padding: 4px 2px; cursor: pointer; font-weight: 800; font-size: .86rem; color: var(--ink-soft); }
+.boto-text:hover { color: var(--pri); }
+.boto-text.tanca-aparell:hover { color: var(--err); }
+.accions-aparell { display: flex; flex-wrap: wrap; gap: 2px 16px; }
+.capa-canvi { place-items: center; overflow-y: auto; }
+.canvi-clau { position: relative; width: min(460px, 100%); }
+.canvi-clau .tanca { position: absolute; top: 12px; right: 12px; }
+.canvi-clau h2 { display: flex; align-items: center; gap: 8px; font-size: 1.3rem; }
+.canvi-clau input { border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; font-weight: 700; font-size: 1rem; }
+.passos-canvi { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+
+/* ---------------------------------------------------------------- solucionari */
+.capa-sol { position: fixed; inset: 0; z-index: 90; display: grid; padding: 14px; background: rgba(28, 37, 65, .5); backdrop-filter: blur(2px); }
+.solucionari { position: relative; width: min(1560px, 100%); height: 100%; min-height: 0; margin: 0 auto; display: grid; grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden;
+  background: var(--bg); border-radius: 22px; box-shadow: 0 20px 60px rgba(20, 30, 60, .35); }
+.solucionari::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; background: var(--franja); }
+.sol-cap { display: flex; align-items: center; gap: 14px; padding: 14px 18px 8px; background: #fff; }
+.sol-cap h2 { display: flex; align-items: center; gap: 8px; font-size: 1.3rem; }
+.sol-cap h2 .icona { width: 30px; height: 30px; padding: 5px; border-radius: 9px; background: var(--ok); color: #fff; stroke-width: 3; }
+.sol-avis { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 99px; background: var(--sol-bg); color: var(--sol-ink); font-size: .8rem; font-weight: 800; }
+.sol-cap .tanca { margin-left: auto; }
+.sol-pestanyes { display: flex; gap: 6px; padding: 6px 18px 10px; background: #fff; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: thin; }
+.sol-pestanya { flex: 1 1 0; min-width: 74px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 6px 9px 7px; cursor: pointer;
+  border: 1.5px solid var(--line); border-top: 4px solid var(--bloc); border-radius: 10px; background: #fff; color: var(--ink); text-align: left; }
+.sol-pestanya .icona { display: none; }
+.sol-pestanya b { font-size: .95rem; font-weight: 900; color: var(--bloc-ink); }
+.sol-pestanya span { max-width: 100%; font-size: .72rem; font-weight: 700; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sol-pestanya:hover { background: var(--bloc-bg); }
+.sol-pestanya.actiu { background: var(--bloc); border-color: var(--bloc); }
+.sol-pestanya.actiu b, .sol-pestanya.actiu span { color: #fff; }
+.sol-cos { overflow-y: auto; padding: 16px 18px 22px; scrollbar-width: thin; }
+.sol-repte { display: flex; flex-direction: column; gap: 14px; }
+.sol-client { display: flex; gap: 14px; align-items: center; }
+.sol-client .client-icona .icona { width: 24px; height: 24px; }
+.sol-client h3 { font-size: 1.35rem; }
+.sol-encarrec { color: #36405c; font-size: .95rem; }
+.sol-missio { padding: 9px 14px; border-radius: 12px; background: var(--bloc-bg); border: 1.5px solid color-mix(in srgb, var(--bloc) 28%, #fff); font-weight: 700; }
+.sol-nivells { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.sol-nivell { display: flex; flex-direction: column; gap: 10px; padding-bottom: 12px; overflow: hidden; background: #fff; border: 1.5px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.sol-nivell > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--bloc); color: #fff; }
+.sol-nivell.n2 > header { background: color-mix(in srgb, var(--bloc) 80%, #1c2541); }
+.sol-nivell.n3 > header { background: color-mix(in srgb, var(--bloc) 60%, #1c2541); }
+.sol-nivell-nom { font-weight: 900; font-size: 1rem; }
+.sol-nivell-punts { font-size: .8rem; font-weight: 800; opacity: .92; }
+.sol-peticio { padding: 0 12px; font-weight: 700; font-size: .92rem; line-height: 1.35; }
+.sol-bloc { display: flex; flex-direction: column; gap: 5px; padding: 0 12px; }
+.sol-etiqueta { display: flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 900; text-transform: uppercase; letter-spacing: .4px; color: var(--bloc-ink); }
+.sol-mateix { font-size: .86rem; font-weight: 700; color: var(--ink-soft); }
+.sol-bitllets { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.sol-bitllets li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 10px; background: #f6f8fd; border-left: 4px solid var(--bloc); font-size: .86rem; }
+.sol-dia { font-size: .68rem; font-weight: 900; text-transform: uppercase; color: var(--bloc-ink); white-space: nowrap; }
+.sol-trajecte { min-width: 0; font-weight: 700; }
+.sol-trajecte b { font-weight: 900; font-variant-numeric: tabular-nums; }
+.sol-fletxa { display: inline-grid; vertical-align: -3px; margin: 0 4px; color: var(--bloc); }
+.sol-fletxa .icona { width: 15px; height: 15px; }
+.sol-preu { font-weight: 900; font-variant-numeric: tabular-nums; }
+.sol-tren { font-size: .68rem; font-weight: 800; color: var(--ink-mute); font-family: ui-monospace, Consolas, monospace; }
+.sol-respostes { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 5px 10px; margin: 0; }
+.sol-respostes dt { font-size: .84rem; font-weight: 700; color: var(--ink-soft); line-height: 1.3; }
+.sol-respostes dd { margin: 0; justify-self: end; padding: 3px 10px; border-radius: 9px; background: var(--sol-bg); color: var(--ink); font-weight: 900; font-size: .95rem; text-align: right; font-variant-numeric: tabular-nums; box-shadow: inset 0 0 0 1.5px #ffe08a; }
+.sol-respostes dt.llarg { grid-column: 1 / -1; }
+.sol-respostes dd.llarg { grid-column: 1 / -1; justify-self: stretch; display: flex; flex-wrap: wrap; gap: 4px 12px; text-align: left; font-size: .88rem; }
+.sol-respostes dd.depen { background: var(--line-2); box-shadow: none; color: var(--ink-soft); font-weight: 700; font-size: .8rem; }
+.sol-clau { display: flex; gap: 7px; align-items: flex-start; margin: 0 12px; padding: 8px 10px; border-radius: 12px; background: var(--bloc-bg); font-size: .84rem; line-height: 1.4; }
+.sol-clau .icona { flex: none; margin-top: 2px; color: var(--bloc); }
+.sol-opcions { padding: 0 12px; font-size: .78rem; font-weight: 800; color: var(--ink-mute); }
+.sol-grups { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 16px; background: #fff; border: 1.5px solid var(--line); }
+.sol-grups h3 { display: flex; align-items: center; gap: 8px; font-size: 1.1rem; color: var(--b4); }
+.sol-casos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(560px, 100%), 1fr)); gap: 12px; }
+.sol-cas { display: flex; flex-direction: column; gap: 9px; padding: 12px; border-radius: 14px; background: #fbfcff; border: 1.5px solid var(--line); }
+.sol-cas > header { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.sol-cas h4 { font-size: 1.08rem; font-weight: 900; }
+.sol-origen { font-size: .78rem; font-weight: 800; color: var(--ink-soft); }
+.sol-xifres { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.sol-xifres li { display: flex; flex-direction: column; padding: 5px 9px; border-radius: 10px; background: #fff; border: 1.5px solid var(--line); }
+.sol-xifres li span { font-size: .72rem; font-weight: 800; color: var(--ink-soft); }
+.sol-xifres li b { font-size: .92rem; font-weight: 900; }
+.sol-xifres li.tall { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px 6px; grid-column: 1 / -1; background: var(--err-bg); border-color: #ffc9cb; color: var(--err-ink); }
+.sol-xifres li.tall span, .sol-xifres li.tall .icona { color: var(--err); }
+.sol-cas-cos { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 10px; }
+.sol-cas-cos .sol-bloc { padding: 0; }
+.sol-cataleg { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(400px, 100%), 1fr)); gap: 10px; }
+.sol-cat { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 14px; background: #fff; border: 1.5px solid var(--line); }
+.sol-cat header { display: flex; gap: 10px; align-items: baseline; font-size: .84rem; font-weight: 800; color: var(--ink-soft); }
+.sol-cat header b { font-size: 1rem; color: var(--bloc-ink); margin-right: auto; }
+html.compacte .capa-sol { padding: 0; }
+html.compacte .solucionari { border-radius: 0; }
+html.compacte .sol-nivells, html.compacte .sol-cas-cos { grid-template-columns: minmax(0, 1fr); }
+html.compacte .sol-avis { display: none; }
 
 /* ---------------------------------------------------------------- impressió de les targetes d'accés */
 /* Sis targetes per full A4 (2 × 3), enganxades: es retallen amb un sol tall per línia discontínua. */

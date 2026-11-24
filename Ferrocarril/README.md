@@ -12,6 +12,30 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 ---
 
+## Presentació per al professorat
+
+**[Baixeu la presentació (PDF, 7 pàgines)](docs/presentacio-proxima-sortida.pdf)** · També es baixa des del panell del professorat (botó «Presentació»).
+
+<a href="docs/presentacio-proxima-sortida.pdf"><img src="docs/captures/00-presentacio.png" alt="Portada de la presentació" width="330"></a>
+
+| Pàgina | Contingut |
+|---|---|
+| 1 | Què és: la pregunta de la SdA, l'app a l'aula i les xifres clau (6 hores en 4 trobades, 1r a 4t d'ESO, 9 encàrrecs, 4.000 punts). |
+| 2 | Com funciona: els nou encàrrecs, els tres nivells, les regles del viatge i la via tallada. |
+| 3 | A l'aula: les quatre trobades, què s'obre a cada una i què fa el docent, i l'app de l'alumnat. |
+| 4 | Preparació (1): les tres claus (contrasenya del panell, tanda i PIN), com entra un grup, què fer si falla i els passos abans de la primera trobada. |
+| 5 | Preparació (2): què cal imprimir, quantes còpies i com es retalla, què va a cada taula i l'explicació inicial a l'alumnat. |
+| 6 | Seguiment i avaluació: el panell, el solucionari, la nota i els criteris d'avaluació (Decret 175/2022). |
+| 7 | Privacitat, imprevistos, com fer-la servir en una altra escola i llicència. |
+
+## Feu-la servir a la vostra escola
+
+L'app és lliure. La guia **[DUPLICAR.md](DUPLICAR.md)** explica pas a pas, sense programar, com fer-ne una còpia amb la vostra pròpia base de dades: fork a GitHub, GitHub Pages, projecte de Firebase (gratuït), regles de seguretat, configuració de `js/config.js` i contrasenya del panell. Calen una hora i un compte de GitHub i un de Google.
+
+Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de les trobades i quadern de panells de reserva) són a [`docs/materials`](docs/materials).
+
+---
+
 ## Captures de pantalla
 
 ### La pantalla de treball: 1 encàrrec, 2 guixeta, 3 el vostre viatge
@@ -26,8 +50,14 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 ### Cada nivell aconseguit es celebra i diu què es pot fer després
 ![Nivell aconseguit a 1366 × 768](docs/captures/06-nivell-aconseguit-1366x768.png)
 
-### Panell del professorat: calendari de les trobades, nivells i punts de cada grup
+### Panell del professorat: calendari de les trobades, nivells, grups encallats i errors de la classe
 ![Panell docent a 1366 × 768](docs/captures/03-panell-docent-1366x768.png)
+
+### Solucionari: per a cada encàrrec i nivell, un viatge correcte, les respostes i les trampes habituals
+![Solucionari a 1366 × 768](docs/captures/07-solucionari-1366x768.png)
+
+### La porta del panell: la contrasenya es demana una sola vegada en cada aparell
+![Porta del panell a 1366 × 768](docs/captures/08-porta-panell-1366x768.png)
 
 ### Al mòbil, en una sola columna
 ![Guixeta al mòbil a 390 × 844](docs/captures/04-mobil-390x844.png)
@@ -60,23 +90,29 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 ## Accés
 
 - **Alumnat (`index.html`):** codi de la tanda, nom del grup i PIN de quatre xifres. Cap dada personal.
-- **Professorat (`docent.html`, botó «Professorat»):** s'hi entra des de qualsevol aparell amb el codi de la tanda i la contrasenya del professorat. En crear la tanda, el docent posa les dates de les quatre trobades: els blocs i la via tallada s'obren sols, i durant la sessió no cal tocar res. Després de cada sessió marca les ajudes; al final exporta un CSV. Hi ha un botó «Obrir abans d'hora» per a imprevistos.
+- **Contrasenya del panell:** la primera vegada en cada aparell, el panell demana la contrasenya del panell. No es desa enlloc: el solucionari es publica xifrat (`dades/solucionari.xifrat.json`, AES-GCM amb una clau derivada de la contrasenya amb PBKDF2) i la contrasenya és bona si l'obre. Aleshores la clau es guarda a l'aparell i ja no es torna a demanar. «Tanca el panell en aquest aparell» l'oblida, i «Canvia la contrasenya del panell» baixa el solucionari xifrat amb una contrasenya nova, que s'activa en pujar-lo a `dades/`.
+- **Professorat (`docent.html`, botó «Professorat»):** cada tanda té, a més, la seva contrasenya de la tanda. S'hi entra des de qualsevol aparell amb el codi de la tanda i aquesta contrasenya. En crear la tanda, el docent posa les dates de les quatre trobades: els blocs i la via tallada s'obren sols, i durant la sessió no cal tocar res. Després de cada sessió marca les ajudes; al final exporta un CSV. Hi ha un botó «Obrir abans d'hora» per a imprevistos.
 - **Demostració (`?demo`):** [felipsarroca.github.io/jocs/Ferrocarril/?demo](https://felipsarroca.github.io/jocs/Ferrocarril/?demo) entra sense codi com el grup Talgo, amb els nou encàrrecs oberts. Les dades es desen només al navegador, separades de les tandes reals; la barra de baix permet tornar a començar i obrir el panell del professorat de la demo.
-- **Manual (`manual.html`):** guia breu del professorat, enllaçada des del panell.
+- **Solucionari (botó «Solucionari» del panell):** a pantalla completa, amb una pestanya per encàrrec. Cada nivell mostra un viatge correcte (bitllets amb dia, hores, preu i codi del tren), les respostes i les trampes habituals; la via tallada mostra el tall i la reparació més barata de cada grup de la tanda, amb les respostes calculades. També hi ha els viatges de referència del gran viatge i les solucions de la prova individual.
+- **Manual (`manual.html`):** guia breu del professorat, enllaçada des del panell, amb els materials per imprimir.
 
 ## Arquitectura
 
 - JavaScript natiu amb mòduls ES, sense dependències ni compilació.
 - Firestore (projecte `proxima-sortida-cat`, eur3) amb accés anònim i regles a `firebase/firestore.rules`; es despleguen des de `firebase/` amb `firebase deploy --only firestore:rules,auth --project proxima-sortida-cat`. Amb `FIREBASE_CONFIG = null` a `js/config.js`, funciona en **mode local** amb `localStorage`.
-- `dades/dades.json` (horari, encàrrecs, reparacions mínimes) i `proves/vectors.json` es generen amb el verificador de la SdA (`Verificador/exporta.py`). No s'editen a mà.
+- `dades/dades.json` (horari, encàrrecs, reparacions mínimes), `proves/vectors.json` i `dades/solucionari.xifrat.json` es generen amb el verificador de la SdA (`SOLUCIONARI_CLAU=… python Verificador/exporta.py`). No s'editen a mà. El solucionari no es publica mai en clar.
+- `eines/solucionari.mjs` xifra el solucionari, en canvia la contrasenya (`canvia`) o comprova si una contrasenya l'obre (`comprova`). Fa servir el mateix `js/xifratge.js` que el navegador.
+- `docs/presentacio-proxima-sortida.pdf` es genera amb `Verificador/presentacio.py`, i `docs/materials/` amb `Verificador/materials.py`.
 - `js/avaluador.js` és una còpia exacta de l'avaluador de referència en Python. Prova: `node proves/prova-avaluador.mjs` (2.926 casos idèntics).
-- Les regles de Firestore es proven amb l'emulador local: `firebase/prova-regles.mjs` (57 casos; instruccions a la capçalera del fitxer).
+- Les regles de Firestore es proven amb l'emulador local: `firebase/prova-regles.mjs` (82 casos; instruccions a la capçalera del fitxer).
 - La interfície s'escala a l'espai útil de la finestra (referència 1440 × 740, entre el 72 % i el 125 %) i passa a una columna en pantalles estretes.
 
 | Fitxer | Funció |
 |---|---|
 | `js/alumnat.js` | App de l'alumnat: accés, carril d'encàrrecs, guixeta i viatge. |
 | `js/docent.js` | Panell docent. |
+| `js/solucionari.js` | Porta del panell, solucionari i canvi de contrasenya. |
+| `js/xifratge.js` | Xifratge del solucionari (AES-GCM i PBKDF2), al navegador i a Node. |
 | `js/agencia.js` | Tandes, grups, desbloqueig, correcció de respostes i punts. |
 | `js/avaluador.js` | Regles del viatge, nivells i valors de les preguntes. |
 | `js/magatzem.js` | Desament a Firestore o en local amb la mateixa interfície. |

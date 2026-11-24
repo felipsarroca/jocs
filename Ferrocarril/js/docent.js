@@ -1,9 +1,11 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
-/* Panell del professorat: s'hi entra amb el codi de la tanda i la contrasenya del professorat.
+/* Panell del professorat. La primera vegada en cada aparell demana la contrasenya del panell (js/solucionari.js);
+   després s'entra a cada tanda amb el seu codi i la contrasenya de la tanda.
    Crea la tanda amb el calendari de les quatre trobades (els blocs i la via tallada s'obren sols),
    segueix cada grup, marca les ajudes, imprimeix les targetes i exporta els resultats.
    Els punts es recalculen sempre amb l'avaluador a partir dels bitllets i les respostes desats. */
-import { STORAGE_KEYS, NOMS_GRUPS, NOMS_TANDES, LIMITS, VERSIO_APP, URL_APP, DEMO } from './config.js';
+import { STORAGE_KEYS, NOMS_GRUPS, NOMS_TANDES, LIMITS, VERSIO_APP, URL_APP, DEMO, PRESENTACIO } from './config.js';
+import { solucionariDesat, porta, obreSolucionari, oblidaAparell, canviaContrasenya } from './solucionari.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
 import { creaAgencia, descodifica } from './agencia.js';
@@ -12,7 +14,7 @@ import { iniciaEscala } from './escala.js';
 import { h, icona, horaDia, horaText, euros, punts, avis } from './ui.js';
 
 const S = {
-  D: null, A: null, M: null, AG: null,
+  D: null, A: null, M: null, AG: null, SOL: null,
   tandaId: null, tanda: null, grups: [], progres: {}, membres: {}, valoracio: {}, pins: {}, intents: {},
   detall: null, desubs: [], desubsGrups: []
 };
@@ -21,6 +23,9 @@ const nomEst = (s) => S.D.estacions[s]?.nom ?? s;
 
 async function inicia() {
   iniciaEscala();
+  // porta del panell: la primera vegada en aquest aparell es demana la contrasenya del panell
+  S.SOL = await solucionariDesat().catch(() => null);
+  if (!S.SOL) S.SOL = await porta($main());
   S.D = await (await fetch('dades/dades.json', { cache: 'no-cache' })).json();
   S.A = creaAvaluador(S.D);
   S.M = await obreMagatzem();
@@ -85,7 +90,7 @@ async function pantallaTandes() {
   S.desubs = []; S.desubsGrups = []; S.tandaId = null; S.tanda = null;
   localStorage.removeItem(STORAGE_KEYS.DOCENT);
   document.getElementById('capcalera-dreta').replaceChildren(
-    h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
+    botoSolucionari(), ...botonsDocuments(),
     h('a', { class: 'boto petit', href: DEMO ? './?demo' : './' }, icona('tren'), 'Alumnat'));
 
   // tandes d'aquest aparell
@@ -150,14 +155,18 @@ async function pantallaTandes() {
         h('h2', {}, icona('persona'), 'Professorat'),
         h('p', { class: 'nota' }, 'Entreu a la vostra tanda des de qualsevol aparell.'),
         h('label', { class: 'etiqueta', for: 'codi-docent' }, 'Codi de la tanda'), codi,
-        h('label', { class: 'etiqueta', for: 'clau-entra' }, 'Contrasenya del professorat'), clauE.caixa,
+        h('label', { class: 'etiqueta', for: 'clau-entra' }, 'Contrasenya de la tanda'), clauE.caixa,
         errE,
         h('button', { class: 'boto primari', onclick: entra }, 'Entra', icona('fletxa'))),
       tandes.length ? h('section', { class: 'targeta' },
         h('h2', {}, icona('calendari'), 'En aquest aparell'),
         h('ul', { class: 'llista-tandes' }, tandes.map((t) => h('li', {},
           h('button', { class: 'boto-tanda', onclick: () => obreTanda(t.id) },
-            h('strong', {}, t.nom), h('span', {}, `Codi ${t.codi} · ${t.grups.length} grups${t.estat === 'tancada' ? ' · tancada' : ''}`)))))) : null),
+            h('strong', {}, t.nom), h('span', {}, `Codi ${t.codi} · ${t.grups.length} grups${t.estat === 'tancada' ? ' · tancada' : ''}`)))))) : null,
+      h('div', { class: 'accions-aparell' },
+        h('button', { class: 'boto-text tanca-aparell', onclick: () => { oblidaAparell(); location.reload(); } },
+          icona('cadenat', 'mini'), 'Tanca el panell en aquest aparell'),
+        h('button', { class: 'boto-text', onclick: canviaContrasenya }, icona('persona', 'mini'), 'Canvia la contrasenya del panell'))),
     h('section', { class: 'targeta' },
       h('h2', {}, icona('estrella'), 'Tanda nova'),
       h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Grup classe (Alfa, Beta, Gamma, Delta o Èpsilon)'), nom, suggeriments,
@@ -165,12 +174,23 @@ async function pantallaTandes() {
       h('p', { class: 'etiqueta' }, 'Noms dels grups'), noms,
       h('p', { class: 'etiqueta' }, 'Dates de les quatre trobades'), cal,
       h('p', { class: 'nota' }, 'Els blocs s\'obren sols el dia de cada trobada. Durant la sessió no cal tocar res.'),
-      h('label', { class: 'etiqueta', for: 'clau-nova' }, 'Contrasenya del professorat (apunteu-la)'), clauN.caixa,
+      h('label', { class: 'etiqueta', for: 'clau-nova' }, 'Contrasenya de la tanda (apunteu-la)'), clauN.caixa,
       errN,
       h('button', { class: 'boto primari', onclick: crea }, 'Crea la tanda', icona('fletxa')),
       S.M.mode === 'local' ? h('p', { class: 'nota' }, 'Mode local: la tanda només existeix en aquest navegador.') : null)));
   setTimeout(() => codi.focus(), 50);
 }
+
+/* ================================================================ solucionari i documents */
+function botoSolucionari() {
+  return h('button', { class: 'boto petit primari', onclick: () => obreSolucionari({
+    SOL: S.SOL, D: S.D, A: S.A, AG: S.AG, nomEst, grups: S.tanda ? S.grups : [], progres: S.progres
+  }) }, icona('check'), 'Solucionari');
+}
+
+const botonsDocuments = () => [
+  h('a', { class: 'boto petit', href: PRESENTACIO, download: '', title: 'Document de presentació de la SdA (PDF)' }, icona('baixa'), 'Presentació'),
+  h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual')];
 
 /* ================================================================ una tanda */
 function obreTanda(tandaId) {
@@ -228,9 +248,10 @@ function estatAvui(t) {
 function pintaTanda() {
   const t = S.tanda;
   document.getElementById('capcalera-dreta').replaceChildren(
+    botoSolucionari(),
     h('button', { class: 'boto petit', onclick: imprimeixTargetes }, icona('impressora'), 'Targetes d\'accés'),
     h('button', { class: 'boto petit', onclick: exportaCSV }, icona('baixa'), 'Exporta CSV'),
-    h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
+    ...botonsDocuments(),
     DEMO ? h('a', { class: 'boto petit', href: './?demo' }, icona('tren'), 'Vista de l\'alumnat')
       : h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'));
   const bActual = S.AG.blocActual(t);

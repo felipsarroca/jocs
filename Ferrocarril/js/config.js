@@ -4,7 +4,7 @@
    La configuració web és pública: la protecció són les regles de firebase/firestore.rules.
    Amb FIREBASE_CONFIG = null l'app funciona en mode local (només en aquest navegador). */
 
-export const VERSIO_APP = '0.4.0';
+export const VERSIO_APP = '0.5.0';
 
 /** adreça curta de l'app (targetes d'accés, fulls impresos i manual) */
 export const URL_APP = 'ja.cat/estaciodetren';
@@ -43,5 +43,10 @@ export const STORAGE_KEYS = {
   UID_LOCAL: pre + 'uid',
   ACCES: pre + 'acces',
   DOCENT: pre + 'docent',
-  DOCENT_TANDES: pre + 'docent-tandes'
+  DOCENT_TANDES: pre + 'docent-tandes',
+  /** clau del solucionari: obre el panell en aquest aparell (la mateixa per a la demo i per a les tandes) */
+  CLAU_PANELL: 'proximasortida:clau-panell'
 };
+
+/** document de presentació per al professorat (es genera amb el verificador) */
+export const PRESENTACIO = 'docs/presentacio-proxima-sortida.pdf';
