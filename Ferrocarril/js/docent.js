@@ -1,8 +1,9 @@
 /* SPDX-License-Identifier: AGPL-3.0-or-later */
-/* Panell docent: crea la tanda, obre els blocs, activa la via tallada,
+/* Panell del professorat: s'hi entra amb el codi de la tanda i la contrasenya del professorat.
+   Crea la tanda amb el calendari de les quatre trobades (els blocs i la via tallada s'obren sols),
    segueix cada grup, marca les ajudes, imprimeix les targetes i exporta els resultats.
    Els punts es recalculen sempre amb l'avaluador a partir dels bitllets i les respostes desats. */
-import { STORAGE_KEYS, NOMS_GRUPS, LIMITS, VERSIO_APP } from './config.js';
+import { STORAGE_KEYS, NOMS_GRUPS, LIMITS, VERSIO_APP, URL_APP } from './config.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
 import { creaAgencia, descodifica } from './agencia.js';
@@ -25,46 +26,147 @@ async function inicia() {
   S.M = await obreMagatzem();
   S.AG = creaAgencia(S.M, S.D, S.A);
   const desada = localStorage.getItem(STORAGE_KEYS.DOCENT);
-  if (desada && await S.M.get(`tandes/${desada}`).catch(() => null)) obreTanda(desada);
+  if (desada && await potDirigir(desada)) obreTanda(desada);
   else pantallaTandes();
 }
 
-/* ================================================================ tandes */
+/** aquest aparell pot dirigir la tanda (l'ha creada o hi ha entrat amb la contrasenya) */
+async function potDirigir(tandaId) {
+  const t = await S.M.get(`tandes/${tandaId}`).catch(() => null);
+  if (!t) return false;
+  if (t.propietariUid === S.M.uid()) return true;
+  return !!(await S.M.get(`tandes/${tandaId}/docents/${S.M.uid()}`).catch(() => null));
+}
+
+/* tandes recordades en aquest aparell (les creades aquí i les obertes amb contrasenya) */
+const recordades = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.DOCENT_TANDES) || '[]'); } catch (_) { return []; } };
+const recorda = (id) => localStorage.setItem(STORAGE_KEYS.DOCENT_TANDES, JSON.stringify([id, ...recordades().filter((x) => x !== id)].slice(0, 20)));
+
+/* ---------------------------------------------------------------- dates del calendari */
+const dos = (n) => String(n).padStart(2, '0');
+const aInput = (ms) => { const d = new Date(ms); return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`; };
+const deInput = (v) => { const [y, m, d] = String(v).split('-').map(Number); return y ? new Date(y, m - 1, d).getTime() : null; };
+const DIES = ['dg.', 'dl.', 'dt.', 'dc.', 'dj.', 'dv.', 'ds.'];
+const dataCurta = (ms) => { const d = new Date(ms); return `${DIES[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}`; };
+const avui = () => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+const DIA = 86400000;
+
+/** què s'obre a cada trobada, segons reptes.json */
+function obreATrobada(n) {
+  const bl = S.D.reptes.blocs.filter((b) => b.trobada === n);
+  const parts = bl.map((b) => (b.bloc === 4 ? 'via tallada' : `bloc ${b.bloc}`));
+  return parts.length ? `S'obre: ${parts.join(' i ')}` : 'Continuen el bloc 3';
+}
+
+function campsCalendari(valors) {
+  return h('div', { class: 'calendari' }, [1, 2, 3, 4].map((n) => h('label', { class: 'dia-trobada' },
+    h('span', { class: 'dia-trobada-n' }, `Trobada ${n}`),
+    h('input', { type: 'date', value: aInput(valors[n - 1]), 'data-n': n, 'aria-label': `Data de la trobada ${n}` }),
+    h('span', { class: 'dia-trobada-obre' }, obreATrobada(n)))));
+}
+
+function llegeixCalendari(caixa) {
+  const v = [...caixa.querySelectorAll('input[type=date]')].map((x) => deInput(x.value));
+  if (v.some((x) => !x)) return { error: 'Poseu la data de les quatre trobades.' };
+  if (v.some((x, i) => i && x < v[i - 1])) return { error: 'Les trobades han d\'anar per ordre de data.' };
+  return { calendari: v };
+}
+
+function campClau(id, autocomplete) {
+  const input = h('input', { id, type: 'password', autocomplete, maxlength: 60 });
+  const boto = h('button', { type: 'button', class: 'boto-icona veure', 'aria-label': 'Mostra la contrasenya',
+    onclick: () => { input.type = input.type === 'password' ? 'text' : 'password'; } }, icona('ull'));
+  return { input, caixa: h('div', { class: 'camp-clau' }, input, boto) };
+}
+
+/* ================================================================ entrada del professorat */
 async function pantallaTandes() {
   for (const d of [...S.desubs, ...S.desubsGrups]) d();
-  S.desubs = []; S.desubsGrups = []; S.tandaId = null;
-  document.getElementById('capcalera-dreta').replaceChildren(h('span', { class: 'etiqueta-mode' }, S.M.mode === 'local' ? 'Mode local' : 'Connectat'));
-  const meves = (await S.M.list('tandes', ['propietariUid', S.M.uid()]).catch(() => []))
-    .sort((a, b) => b.creadaMs - a.creadaMs);
+  S.desubs = []; S.desubsGrups = []; S.tandaId = null; S.tanda = null;
+  localStorage.removeItem(STORAGE_KEYS.DOCENT);
+  document.getElementById('capcalera-dreta').replaceChildren(
+    h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
+    h('a', { class: 'boto petit', href: './' }, icona('tren'), 'Alumnat'));
+
+  // tandes d'aquest aparell
+  const ids = new Set(recordades());
+  for (const t of await S.M.list('tandes', ['propietariUid', S.M.uid()]).catch(() => [])) ids.add(t.id);
+  const tandes = [];
+  for (const id of ids) {
+    if (!(await potDirigir(id))) continue;
+    const t = await S.M.get(`tandes/${id}`).catch(() => null);
+    if (t && t.expiraMs > Date.now()) tandes.push({ id, ...t });
+  }
+  tandes.sort((a, b) => b.creadaMs - a.creadaMs);
+
+  // entra amb codi i contrasenya
+  const codi = h('input', { id: 'codi-docent', class: 'camp-codi petit', maxlength: 4, autocomplete: 'off', spellcheck: 'false', placeholder: 'K7Q2' });
+  const clauE = campClau('clau-entra', 'current-password');
+  const errE = h('p', { class: 'missatge-error', role: 'alert' });
+  const entra = async () => {
+    errE.textContent = '';
+    try {
+      const id = await S.AG.entraDocent(codi.value.trim().toUpperCase(), clauE.input.value);
+      recorda(id); obreTanda(id);
+    } catch (e) {
+      errE.textContent = e.message === 'CODI' ? 'Aquest codi no existeix o ja ha caducat.'
+        : e.message === 'CLAU' ? 'La contrasenya no és correcta.' : 'No hi ha connexió. Torneu-ho a provar.';
+    }
+  };
+  clauE.input.addEventListener('keydown', (e) => { if (e.key === 'Enter') entra(); });
+
+  // tanda nova
   const nGrups = h('select', { id: 'ngrups' }, Array.from({ length: LIMITS.MAX_GRUPS }, (_, i) => i + 1)
     .map((n) => h('option', { value: n, selected: n === 6 }, n)));
-  const nom = h('input', { id: 'nom-tanda', maxlength: LIMITS.MAX_NOM_TANDA, value: `Tanda ${meves.length + 1}` });
+  const nom = h('input', { id: 'nom-tanda', maxlength: LIMITS.MAX_NOM_TANDA, value: `Tanda ${tandes.length + 1}` });
   const noms = h('div', { class: 'noms-grups' });
   const pintaNoms = () => noms.replaceChildren(...Array.from({ length: Number(nGrups.value) }, (_, i) =>
     h('input', { class: 'nom-grup', maxlength: 24, value: NOMS_GRUPS[i] || `Grup ${i + 1}`, 'aria-label': `Nom del grup ${i + 1}` })));
   nGrups.addEventListener('change', pintaNoms);
   pintaNoms();
+  const a = avui();
+  const cal = campsCalendari([a, a + DIA, a + 7 * DIA, a + 8 * DIA]);
+  const clauN = campClau('clau-nova', 'new-password');
+  const errN = h('p', { class: 'missatge-error', role: 'alert' });
   const crea = async () => {
+    errN.textContent = '';
     const llista = [...noms.querySelectorAll('input')].map((x) => x.value.trim()).filter(Boolean);
-    if (!nom.value.trim() || !llista.length) return;
-    const { tandaId } = await S.AG.creaTanda({ nom: nom.value.trim(), noms: llista });
-    obreTanda(tandaId);
+    const c = llegeixCalendari(cal);
+    if (!nom.value.trim() || !llista.length) { errN.textContent = 'Poseu el nom de la tanda i dels grups.'; return; }
+    if (c.error) { errN.textContent = c.error; return; }
+    if (clauN.input.value.length < 6) { errN.textContent = 'La contrasenya ha de tenir 6 caràcters com a mínim.'; return; }
+    try {
+      const { tandaId } = await S.AG.creaTanda({ nom: nom.value.trim(), noms: llista, calendari: c.calendari, clau: clauN.input.value });
+      recorda(tandaId); obreTanda(tandaId);
+    } catch (_) { errN.textContent = 'No s\'ha pogut crear la tanda. Comproveu la connexió.'; }
   };
+
   $main().replaceChildren(h('div', { class: 'docent-tandes' },
+    h('div', { class: 'docent-columna' },
+      h('section', { class: 'targeta' },
+        h('h2', {}, icona('persona'), 'Professorat'),
+        h('p', { class: 'nota' }, 'Entreu a la vostra tanda des de qualsevol aparell.'),
+        h('label', { class: 'etiqueta', for: 'codi-docent' }, 'Codi de la tanda'), codi,
+        h('label', { class: 'etiqueta', for: 'clau-entra' }, 'Contrasenya del professorat'), clauE.caixa,
+        errE,
+        h('button', { class: 'boto primari', onclick: entra }, 'Entra', icona('fletxa'))),
+      tandes.length ? h('section', { class: 'targeta' },
+        h('h2', {}, icona('calendari'), 'En aquest aparell'),
+        h('ul', { class: 'llista-tandes' }, tandes.map((t) => h('li', {},
+          h('button', { class: 'boto-tanda', onclick: () => obreTanda(t.id) },
+            h('strong', {}, t.nom), h('span', {}, `Codi ${t.codi} · ${t.grups.length} grups${t.estat === 'tancada' ? ' · tancada' : ''}`)))))) : null),
     h('section', { class: 'targeta' },
-      h('h2', {}, 'Nova tanda'),
-      h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Nom'), nom,
+      h('h2', {}, icona('estrella'), 'Tanda nova'),
+      h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Nom (per exemple, el grup classe)'), nom,
       h('label', { class: 'etiqueta', for: 'ngrups' }, 'Nombre de grups'), nGrups,
       h('p', { class: 'etiqueta' }, 'Noms dels grups'), noms,
-      h('p', { class: 'nota' }, 'Els noms no poden ser noms d\'alumnes. L\'app genera el codi de la tanda i un PIN per grup.'),
-      h('button', { class: 'boto primari', onclick: crea }, 'Crea la tanda', icona('fletxa'))),
-    h('section', { class: 'targeta' },
-      h('h2', {}, 'Les vostres tandes'),
-      meves.length ? h('ul', { class: 'llista-tandes' }, meves.map((t) => h('li', {},
-        h('button', { class: 'boto-tanda', onclick: () => obreTanda(t.id) },
-          h('strong', {}, t.nom), h('span', {}, `Codi ${t.codi} · ${t.grups.length} grups · ${t.estat === 'tancada' ? 'tancada' : `bloc ${t.blocObert}`}`)))))
-        : h('p', { class: 'buit' }, 'Encara no n\'hi ha cap.'),
-      S.M.mode === 'local' ? h('p', { class: 'nota' }, 'Mode local: la tanda només existeix en aquest navegador. L\'alumnat ha d\'entrar des d\'aquest mateix aparell (index.html).') : null)));
+      h('p', { class: 'etiqueta' }, 'Dates de les quatre trobades'), cal,
+      h('p', { class: 'nota' }, 'Els blocs s\'obren sols el dia de cada trobada. Durant la sessió no cal tocar res.'),
+      h('label', { class: 'etiqueta', for: 'clau-nova' }, 'Contrasenya del professorat (apunteu-la)'), clauN.caixa,
+      errN,
+      h('button', { class: 'boto primari', onclick: crea }, 'Crea la tanda', icona('fletxa')),
+      S.M.mode === 'local' ? h('p', { class: 'nota' }, 'Mode local: la tanda només existeix en aquest navegador.') : null)));
+  setTimeout(() => codi.focus(), 50);
 }
 
 /* ================================================================ una tanda */
@@ -73,8 +175,11 @@ function obreTanda(tandaId) {
   S.desubs = []; S.desubsGrups = [];
   S.tandaId = tandaId; S.progres = {}; S.membres = {}; S.valoracio = {}; S.detall = null;
   localStorage.setItem(STORAGE_KEYS.DOCENT, tandaId);
+  recorda(tandaId);
   const base = `tandes/${tandaId}`;
   S.desubs.push(S.M.watch(base, (t) => { S.tanda = t; pinta(); }));
+  const rellotge = setInterval(pinta, 60000);
+  S.desubs.push(() => clearInterval(rellotge));
   S.desubs.push(S.M.watch(`${base}/grups`, (gs) => {
     S.grups = gs.sort((a, b) => a.ordre - b.ordre);
     for (const d of S.desubsGrups) d();
@@ -92,6 +197,8 @@ function obreTanda(tandaId) {
 let pintant = false;
 function pinta() {
   if (!S.tanda || pintant) return;
+  // si el docent està canviant una data, s'espera que acabi per no perdre el que escriu
+  if (document.activeElement?.closest?.('.barra-tanda')) { setTimeout(pinta, 1500); return; }
   pintant = true;
   requestAnimationFrame(() => { pintant = false; pintaTanda(); });
 }
@@ -102,31 +209,58 @@ function actualitza(camps) {
   return S.M.update(`tandes/${S.tandaId}`, camps).catch(() => avis('No s\'ha pogut desar el canvi.', 'error'));
 }
 
+/** frase d'estat del dia: què veuen avui els grups */
+function estatAvui(t) {
+  const n = S.AG.trobadaActual(t);
+  const b = S.AG.blocActual(t);
+  const via = S.AG.viaTalladaActiva(t);
+  const oberts = `${b === 1 ? 'bloc 1 obert' : `blocs 1 a ${b} oberts`}${via ? ' i via tallada activa' : ''}`;
+  if (!t.calendari) return `Ara: ${oberts}.`;
+  const proper = [1, 2, 3, 4].find((k) => t.calendari[k - 1] > Date.now());
+  const ara = n ? `Trobada ${n}` : 'Encara no ha començat';
+  return `${ara}: ${oberts}.${proper ? ` Trobada ${proper}: ${dataCurta(t.calendari[proper - 1])}.` : ''}`;
+}
+
 function pintaTanda() {
   const t = S.tanda;
   document.getElementById('capcalera-dreta').replaceChildren(
     h('button', { class: 'boto petit', onclick: imprimeixTargetes }, icona('impressora'), 'Targetes d\'accés'),
     h('button', { class: 'boto petit', onclick: exportaCSV }, icona('baixa'), 'Exporta CSV'),
-    h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'),
-    h('span', { class: 'etiqueta-mode' }, S.M.mode === 'local' ? 'Mode local' : 'Connectat'));
-  const blocs = h('div', { class: 'segmentat', role: 'group', 'aria-label': 'Bloc obert' },
+    h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
+    h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'));
+  const bActual = S.AG.blocActual(t);
+  const viaActiva = S.AG.viaTalladaActiva(t);
+  const cal = t.calendari ? campsCalendari(t.calendari) : null;
+  cal?.addEventListener('change', () => {
+    const c = llegeixCalendari(cal);
+    if (c.error) return avis(c.error, 'error');
+    actualitza({ calendari: c.calendari });
+  });
+  // obrir abans d'hora: només per a imprevistos (no cal durant les sessions)
+  const blocs = h('div', { class: 'segmentat', role: 'group', 'aria-label': 'Blocs oberts' },
     S.D.reptes.blocs.map((b) => h('button', {
-      class: b.bloc <= t.blocObert ? 'actiu' : '', 'aria-pressed': b.bloc === t.blocObert ? 'true' : 'false',
-      title: `${b.titol} (${b.reptes.join(', ')})`,
-      onclick: () => actualitza({ blocObert: b.bloc, estat: 'en_curs' })
+      class: b.bloc <= bActual ? 'actiu' : '', title: `${b.titol} (${b.reptes.join(', ')})`,
+      onclick: () => actualitza({ blocObert: Math.max(b.bloc, t.blocObert), estat: 'en_curs' })
     }, `${b.bloc} · ${b.titol}`)));
+  const abans = h('details', { class: 'abans-hora' },
+    h('summary', {}, 'Obrir abans d\'hora'),
+    h('div', { class: 'abans-cos' },
+      h('p', { class: 'nota' }, 'Només per a imprevistos: els blocs s\'obren sols el dia de cada trobada.'),
+      blocs,
+      h('label', { class: `interruptor ${viaActiva ? 'on' : ''}` },
+        h('input', { type: 'checkbox', checked: viaActiva, disabled: viaActiva && !t.avisViaTallada,
+          onchange: (e) => actualitza({ avisViaTallada: e.target.checked }) }),
+        icona('avis'), 'Via tallada ara')));
   const barra = h('section', { class: 'barra-tanda targeta' },
     h('div', { class: 'tanda-id' }, h('h1', {}, t.nom),
-      h('p', {}, 'Codi de la tanda ', h('strong', { class: 'codi-gran' }, t.codi))),
-    h('div', { class: 'tanda-controls' },
-      h('div', {}, h('p', { class: 'etiqueta' }, 'Blocs oberts'), blocs),
-      h('label', { class: `interruptor ${t.avisViaTallada ? 'on' : ''}` },
-        h('input', { type: 'checkbox', checked: t.avisViaTallada, onchange: (e) => actualitza({ avisViaTallada: e.target.checked }) }),
-        icona('avis'), 'Avís de via tallada')),
-    h('div', { class: 'tanda-accions' },
+      h('p', {}, 'Codi ', h('strong', { class: 'codi-gran' }, t.codi))),
+    h('div', { class: 'tanda-estat' },
+      h('p', { class: 'estat-avui' }, icona('calendari'), estatAvui(t)),
+      cal),
+    h('div', { class: 'tanda-accions' }, abans,
       t.estat === 'tancada'
-        ? h('button', { class: 'boto', onclick: () => actualitza({ estat: 'en_curs' }) }, 'Reobre la tanda')
-        : h('button', { class: 'boto perill', onclick: () => actualitza({ estat: 'tancada' }) }, 'Tanca la tanda')));
+        ? h('button', { class: 'boto petit', onclick: () => actualitza({ estat: 'en_curs' }) }, 'Reobre la tanda')
+        : h('button', { class: 'boto petit perill', onclick: () => actualitza({ estat: 'tancada' }) }, 'Tanca la tanda')));
   const cos = h('div', { class: 'docent-cos' }, graellaGrups(), S.detall ? detallGrup(S.detall) : null);
   $main().replaceChildren(h('div', { class: 'docent-tanda' }, barra, cos,
     h('p', { class: 'versio' }, `Dades: ${S.D.versio} · App ${VERSIO_APP}`)));
@@ -237,7 +371,7 @@ async function treuAparells(gid) {
 async function imprimeixTargetes() {
   const cs = await S.M.list(`tandes/${S.tandaId}/claus`);
   S.pins = Object.fromEntries(cs.map((c) => [c.id, c.pin]));
-  const url = new URL('./', location.href).href.replace(/\/$/, '');
+  const url = URL_APP;
   const caixa = document.getElementById('targetes');
   caixa.replaceChildren(...S.grups.map((g) => h('div', { class: 'targeta-acces' },
     h('div', { class: 'targeta-cap' }, h('img', { src: 'favicon.svg', alt: '' }), h('strong', {}, 'Pròxima sortida')),

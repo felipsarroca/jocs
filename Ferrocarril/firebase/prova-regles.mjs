@@ -5,7 +5,7 @@
 //   1. En una carpeta temporal: npm i @firebase/rules-unit-testing@3 firebase@10
 //   2. Copiar-hi aquest fitxer, firestore.rules i un firebase.json amb {"firestore":{"rules":"firestore.rules"}}
 //   3. firebase emulators:exec --only firestore --project demo-ps "node prova-regles.mjs firestore.rules"
-// Resultat esperat (24-11-2026): 57 correctes, 0 errors.
+// Resultat esperat (24-11-2026): 82 correctes, 0 errors.
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
 import { doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
@@ -109,6 +109,43 @@ await cas('l\'aparell desconnectat ja no llegeix el grup', false, () => getDoc(d
 await cas('el docent tanca la tanda', true, () => updateDoc(doc(docent, `tandes/${T}`), { estat: 'tancada' }));
 await cas('tanda tancada: el grup no desa', false, () => setDoc(doc(a1, `tandes/${T}/grups/g1/reptes/R2`), { ...R1, codi: 'R2' }));
 await cas('tanda tancada: el grup encara la llegeix', true, () => getDoc(doc(a1, `tandes/${T}/grups/g1/reptes/R1`)));
+
+console.log('Contrasenya del professorat');
+const HASH = 'a'.repeat(64);
+await cas('el docent desa el hash de la contrasenya', true, () => setDoc(doc(docent, `tandes/${T}/clauDocent/clau`), { hash: HASH }));
+await cas('un grup no llegeix el hash', false, () => getDoc(doc(a1, `tandes/${T}/clauDocent/clau`)));
+await cas('un altre docent no llegeix el hash', false, () => getDoc(doc(altre, `tandes/${T}/clauDocent/clau`)));
+await cas('contrasenya equivocada: no entra com a docent', false, () => setDoc(doc(altre, `tandes/${T}/docents/altreDocent`), { hash: 'b'.repeat(64), entratMs: ara }));
+await cas('no pot entrar amb l\'uid d\'un altre', false, () => setDoc(doc(altre, `tandes/${T}/docents/alumne1`), { hash: HASH, entratMs: ara }));
+await cas('contrasenya correcta: entra com a docent', true, () => setDoc(doc(altre, `tandes/${T}/docents/altreDocent`), { hash: HASH, entratMs: ara }));
+await cas('…llegeix els PIN', true, () => getDocs(collection(altre, `tandes/${T}/claus`)));
+await cas('…reobre la tanda', true, () => updateDoc(doc(altre, `tandes/${T}`), { estat: 'en_curs' }));
+await cas('…però no en canvia el propietari', false, () => updateDoc(doc(altre, `tandes/${T}`), { propietariUid: 'altreDocent' }));
+await cas('un grup no es pot fer docent amb el seu PIN', false, () => setDoc(doc(a1, `tandes/${T}/docents/alumne1`), { hash: '1234', entratMs: ara }));
+
+console.log('Calendari: els blocs s\'obren sols');
+const DIA = 86400000;
+const T2 = 'tandaCalendari';
+await cas('crea una tanda amb calendari (trobades 1 i 2 passades, 3 i 4 futures)', true, () => setDoc(doc(docent, `tandes/${T2}`),
+  { ...tanda, codi: 'CD34', blocObert: 1, estat: 'en_curs', calendari: [ara - 2 * DIA, ara - DIA, ara + 6 * DIA, ara + 7 * DIA] }));
+await cas('el calendari ha de tenir 4 dates', false, () => setDoc(doc(docent, 'tandes/tandaMala'),
+  { ...tanda, codi: 'EF56', calendari: [ara] }));
+await cas('PIN de g1', true, () => setDoc(doc(docent, `tandes/${T2}/claus/g1`), { pin: '1111' }));
+await cas('grup g1', true, () => setDoc(doc(docent, `tandes/${T2}/grups/g1`), grup('Talgo', 0)));
+await cas('alumne1 entra', true, () => setDoc(doc(a1, `tandes/${T2}/grups/g1/membres/alumne1`), { pin: '1111', entratMs: ara }));
+await cas('R5 (bloc 2, trobada 2 passada) sense que el docent l\'obri', true, () => setDoc(doc(a1, `tandes/${T2}/grups/g1/reptes/R5`), { ...R1, codi: 'R5' }));
+await cas('R7 (bloc 3, també a la trobada 2)', true, () => setDoc(doc(a1, `tandes/${T2}/grups/g1/reptes/R7`), { ...R1, codi: 'R7' }));
+await cas('R9 abans de la trobada 4: no', false, () => setDoc(doc(a1, `tandes/${T2}/grups/g1/reptes/R9`), { ...R1, codi: 'R9' }));
+await cas('el docent avança les dates (la trobada 4 ja ha arribat)', true, () => updateDoc(doc(docent, `tandes/${T2}`),
+  { calendari: [ara - 4 * DIA, ara - 3 * DIA, ara - 2 * DIA, ara - DIA] }));
+await cas('R9 el dia de la trobada 4, sense activar l\'avís', true, () => setDoc(doc(a1, `tandes/${T2}/grups/g1/reptes/R9`), { ...R1, codi: 'R9' }));
+const T3 = 'tandaFutura';
+await cas('tanda que encara no ha començat', true, () => setDoc(doc(docent, `tandes/${T3}`),
+  { ...tanda, codi: 'GH78', blocObert: 1, calendari: [ara + DIA, ara + 2 * DIA, ara + 8 * DIA, ara + 9 * DIA] }));
+await cas('PIN de g1 (tanda futura)', true, () => setDoc(doc(docent, `tandes/${T3}/claus/g1`), { pin: '2222' }));
+await cas('alumne1 entra (tanda futura)', true, () => setDoc(doc(a1, `tandes/${T3}/grups/g1/membres/alumne1`), { pin: '2222', entratMs: ara }));
+await cas('R1 sempre és obert', true, () => setDoc(doc(a1, `tandes/${T3}/grups/g1/reptes/R1`), R1));
+await cas('R5 encara no', false, () => setDoc(doc(a1, `tandes/${T3}/grups/g1/reptes/R5`), { ...R1, codi: 'R5' }));
 
 console.log(`\nRESULTAT: ${ok} correctes, ${ko} errors`);
 await env.cleanup();

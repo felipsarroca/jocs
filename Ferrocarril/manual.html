@@ -1,0 +1,145 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later AND CC-BY-NC-SA-4.0 -->
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pròxima sortida · Manual del professorat</title>
+  <meta name="description" content="Manual del professorat de Pròxima sortida: com es prepara la tanda, què passa a cada trobada i què fer si hi ha algun imprevist.">
+  <meta name="theme-color" content="#13213c">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <style>
+    :root { --navy: #13213c; --navy-2: #1f3560; --amber: #ffb627; --amber-fosc: #c98400; --paper: #f3f1ea; --ink: #1b2333; --soft: #5b6475; --line: #dedad0;
+      --b1: #2f76d2; --b2: #1c9a68; --b3: #e2752b; --b4: #c63d3d; --ok: #1d7f55; --ok-bg: #e6f4ec; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.5; }
+    header { background: var(--navy); color: #fff; border-bottom: 3px solid var(--amber); }
+    .cap { max-width: 860px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 14px; }
+    .cap img { width: 42px; height: 42px; }
+    .cap h1 { margin: 0; font-size: 1.3rem; }
+    .cap p { margin: 0; color: #c7d1e6; font-size: .9rem; }
+    .cap a { margin-left: auto; color: #fff; border: 1px solid #3a4f78; border-radius: 10px; padding: 7px 12px; text-decoration: none; font-weight: 600; font-size: .9rem; }
+    .cap a:hover { border-color: var(--amber); }
+    main { max-width: 860px; margin: 0 auto; padding: 22px 20px 30px; }
+    h2 { font-size: 1.2rem; margin: 30px 0 10px; display: flex; align-items: center; gap: 10px; }
+    h2 .n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: var(--amber); font-size: .95rem; flex: none; }
+    p, li { text-align: justify; }
+    .resum { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--amber); border-radius: 12px; padding: 14px 18px; font-size: 1.05rem; }
+    .clau { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .clau div { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .clau b { display: block; color: var(--navy-2); margin-bottom: 2px; }
+    .clau span { font-size: .9rem; color: var(--soft); }
+    .clau .url { color: var(--amber); font-size: 1rem; }
+    ol.passos { list-style: none; padding: 0; margin: 0; counter-reset: p; display: flex; flex-direction: column; gap: 8px; }
+    ol.passos li { counter-increment: p; position: relative; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px 10px 52px; }
+    ol.passos li::before { content: counter(p); position: absolute; left: 12px; top: 10px; width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: var(--navy); font-weight: 800; display: grid; place-items: center; }
+    .url { font-family: ui-monospace, Consolas, monospace; font-weight: 700; background: var(--navy); color: var(--amber); padding: 1px 7px; border-radius: 6px; white-space: nowrap; }
+    table { width: 100%; border-collapse: separate; border-spacing: 0; background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid #ece9e1; font-size: .95rem; }
+    th { background: #faf9f6; font-size: .8rem; text-transform: uppercase; letter-spacing: .5px; color: var(--soft); }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { font-weight: 800; white-space: nowrap; }
+    .linia { display: inline-block; width: 26px; height: 6px; border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+    .be { background: var(--ok-bg); border: 1px solid #b9dcc8; border-radius: 12px; padding: 12px 16px; }
+    .be strong { color: var(--ok); }
+    .faq { display: flex; flex-direction: column; gap: 8px; }
+    details { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
+    summary { cursor: pointer; font-weight: 700; }
+    details p { margin: 8px 0 2px; }
+    footer { border-top: 1px solid var(--line); padding: 10px 20px; font-size: .78rem; color: var(--soft); }
+    footer .dins { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
+    footer img { width: 70px; }
+    footer a { color: var(--navy-2); font-weight: 600; text-decoration: none; }
+    @media (max-width: 640px) { .clau { grid-template-columns: 1fr; } .cap a { display: none; } td:first-child { white-space: normal; } }
+    @media print {
+      header, footer { display: none; } body { background: #fff; font-size: 10.5pt; } main { padding: 0; max-width: none; }
+      details { break-inside: avoid; } details:not([open]) > *:not(summary) { display: block; } h2 { break-after: avoid; }
+      @page { size: A4; margin: 14mm; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="cap">
+    <img src="favicon.svg" alt="">
+    <div><h1>Manual del professorat</h1><p>Pròxima sortida · agència de viatges en tren</p></div>
+    <a href="docent.html">Entra al panell</a>
+  </div>
+</header>
+
+<main>
+  <p class="resum">En quatre trobades, cada grup de quatre alumnes porta una oficina d'una agència de viatges en tren. L'app proposa nou encàrrecs, comprova els viatges i els càlculs i compta els punts. <strong>Vosaltres sou a l'aula amb els alumnes: els blocs s'obren sols el dia de cada trobada.</strong></p>
+  <div class="clau">
+    <div><b>Adreça de l'app</b><span class="url">ja.cat/estaciodetren</span></div>
+    <div><b>Alumnat</b><span>Entra amb el codi de la tanda, el grup i el PIN de la targeta.</span></div>
+    <div><b>Professorat</b><span>Botó «Professorat»: codi de la tanda i la vostra contrasenya.</span></div>
+  </div>
+
+  <h2><span class="n">1</span>Abans de començar (una sola vegada, uns 15 minuts)</h2>
+  <ol class="passos">
+    <li>Obriu <span class="url">ja.cat/estaciodetren</span> i toqueu <b>Professorat</b>, a dalt a la dreta.</li>
+    <li>A <b>Tanda nova</b>, escriviu el nom (per exemple, «3r B»), el nombre de grups i les <b>dates de les quatre trobades</b>. Els noms dels grups ja són noms de trens: no hi poseu mai noms d'alumnes.</li>
+    <li>Trieu una <b>contrasenya del professorat</b> i apunteu-la. Amb el codi de la tanda i aquesta contrasenya podreu entrar al panell des de qualsevol ordinador o mòbil. Si comparteixen la SdA dos docents, tots dos la poden fer servir.</li>
+    <li>Toqueu <b>Crea la tanda</b>. L'app genera el codi de la tanda i un PIN per a cada grup.</li>
+    <li>Toqueu <b>Targetes d'accés</b> i imprimiu-les. Cada grup té la seva targeta, amb l'adreça, el codi i el PIN, i la fa servir a les quatre trobades.</li>
+    <li>Imprimiu els materials en paper: un mapa A3, un full de regles i un full de càlculs per taula, la prova individual, la carpeta docent i la guia de les trobades.</li>
+    <li>Si teniu cinc minuts, feu una prova: entreu com un grup amb una de les targetes i compreu un bitllet.</li>
+  </ol>
+
+  <h2><span class="n">2</span>Què s'obre sol a cada trobada</h2>
+  <table>
+    <thead><tr><th>Trobada</th><th>Què s'obre a l'app</th><th>Què feu vosaltres</th></tr></thead>
+    <tbody>
+      <tr><td>1 · 60 min</td><td><span class="linia" style="background:var(--b1)"></span>Bloc 1: llegir la guixeta (encàrrecs 1 a 4)</td><td>Repartiu les targetes i resoleu junts el primer encàrrec amb la cara 2 del full de regles.</td></tr>
+      <tr><td>2 · 120 min</td><td><span class="linia" style="background:var(--b2)"></span>Bloc 2: visites, nits i diners (5 i 6)<br><span class="linia" style="background:var(--b3)"></span>Bloc 3: el gran viatge (7 i 8)</td><td>Passeu per les taules. Els grups que acaben el bloc 2 continuen sols amb el gran viatge.</td></tr>
+      <tr><td>3 · 60 min</td><td>Continuen el gran viatge.</td><td>Animeu els grups a lliurar l'encàrrec 7 abans d'acabar.</td></tr>
+      <tr><td>4 · 120 min</td><td><span class="linia" style="background:var(--b4)"></span>Via tallada: cada grup rep un avís diferent (encàrrec 9)</td><td>Ajudeu a reparar els viatges. Al final, prova individual en paper.</td></tr>
+    </tbody>
+  </table>
+  <p>Cada bloc s'obre a primera hora del dia de la seva trobada. Dins de cada bloc, l'encàrrec següent s'obre quan el grup aconsegueix el primer nivell (Regional) de l'anterior. Si un grup no ha lliurat el gran viatge quan arriba la via tallada, l'app li dona un viatge de referència.</p>
+
+  <h2><span class="n">3</span>Durant la sessió: no cal l'ordinador</h2>
+  <div class="be"><strong>No heu d'obrir res ni generar cap codi.</strong> Els grups entren amb la seva targeta i l'app els diu què falla, sense donar mai la solució.</div>
+  <ul>
+    <li>Passeu per les taules i feu les preguntes d'observació de la guia de les trobades.</li>
+    <li>Apunteu a la graella d'observació en paper el que veieu de cada alumne.</li>
+    <li>Si doneu a un grup una pista que li resol part d'un nivell, apunteu-ho a la graella. Ho marcareu al panell en acabar (aquell nivell val la meitat).</li>
+  </ul>
+
+  <h2><span class="n">4</span>Després de cada sessió (5 minuts)</h2>
+  <ul>
+    <li>Entreu al panell. Cada fila és un grup: els cercles són els nivells aconseguits a cada encàrrec i la ratlla groga, l'encàrrec on treballa ara.</li>
+    <li>Toqueu el nom d'un grup per veure'n els viatges i el PIN, i per marcar els nivells fets <b>amb ajuda</b>.</li>
+    <li>Mireu quins grups van més endarrerits per saber a qui heu d'atendre primer a la trobada següent.</li>
+  </ul>
+
+  <h2><span class="n">5</span>En acabar la situació d'aprenentatge</h2>
+  <ul>
+    <li><b>Exporta CSV</b> baixa els nivells, els punts i la nota de grup (punts ÷ 1.000) per obrir-los amb un full de càlcul.</li>
+    <li><b>Tanca la tanda</b> si voleu que ningú no hi pugui canviar res. Si no ho feu, la tanda caduca sola al cap de 120 dies.</li>
+  </ul>
+
+  <h2><span class="n">6</span>Si passa alguna cosa</h2>
+  <div class="faq">
+    <details><summary>Un grup ha perdut la targeta</summary><p>Al panell, toqueu el nom del grup: hi veureu el PIN. El codi de la tanda és a dalt de tot.</p></details>
+    <details><summary>Un grup no pot entrar</summary><p>Comproveu que escriuen el codi de la tanda, que trien el seu grup i que el PIN és el de la seva targeta. Si han canviat de Chromebook, només cal tornar a entrar: la feina està desada.</p></details>
+    <details><summary>Un grup ha lliurat un encàrrec per error</summary><p>Al panell, toqueu el grup i, a l'encàrrec, toqueu «Reobre».</p></details>
+    <details><summary>Ha canviat el dia d'una sessió</summary><p>Al panell, canvieu la data de la trobada. Els blocs s'obriran el dia nou.</p></details>
+    <details><summary>Voleu obrir un bloc abans d'hora</summary><p>Al panell, toqueu «Obrir abans d'hora» i el bloc que vulgueu. També hi podeu activar la via tallada.</p></details>
+    <details><summary>No hi ha internet</summary><p>L'app desa la feina i l'envia quan torna la connexió. Si no es pot obrir, treballeu amb el quadern de panells de reserva en paper i el full de càlculs.</p></details>
+    <details><summary>Heu oblidat la contrasenya</summary><p>Els aparells on ja hi heu entrat recorden la tanda: toqueu «Professorat» i la trobareu a «En aquest aparell», sense contrasenya. Des d'un aparell nou, la necessitareu: si la comparteix un altre docent, demaneu-li-la.</p></details>
+  </div>
+
+  <h2><span class="n">7</span>Dades</h2>
+  <p>L'app no demana cap dada personal: els grups porten noms de trens i entren amb un PIN. Els viatges i els punts es desen en un servidor de la Unió Europea i s'esborren quan la tanda caduca.</p>
+</main>
+
+<footer>
+  <div class="dins">
+    <img src="assets/CC_BY-NC-SA.png" alt="Creative Commons BY-NC-SA">
+    <div>Aplicació creada per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA<br>
+      Codi: <a href="LICENSE" target="_blank" rel="noopener noreferrer">AGPLv3</a> · Continguts: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=ferrocarril.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a></div>
+  </div>
+</footer>
+</body>
+</html>

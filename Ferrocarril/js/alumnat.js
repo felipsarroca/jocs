@@ -41,7 +41,8 @@ async function inicia() {
 /* ================================================================ accés */
 function pantallaAcces(pas = 'codi', tanda = null, missatge = '') {
   document.getElementById('carril').hidden = true;
-  document.getElementById('capcalera-dreta').replaceChildren();
+  document.getElementById('capcalera-dreta').replaceChildren(
+    h('a', { class: 'boto petit', href: 'docent.html' }, icona('persona'), 'Professorat'));
   document.getElementById('nom-agencia').textContent = TEXTOS.lema;
   const passos = ['codi', 'grup', 'pin'];
   const k = passos.indexOf(pas);
@@ -92,10 +93,7 @@ function pantallaAcces(pas = 'codi', tanda = null, missatge = '') {
     setTimeout(() => inp.focus(), 50);
   }
   if (missatge) caixa.append(h('p', { class: 'missatge-error', role: 'alert' }, missatge));
-  if (S.M.mode === 'local') {
-    caixa.append(h('p', { class: 'nota-local' }, TEXTOS.acces.local, ' ',
-      h('a', { href: 'docent.html' }, 'Panell docent')));
-  }
+  if (S.M.mode === 'local') caixa.append(h('p', { class: 'nota-local' }, TEXTOS.acces.local));
   $main().replaceChildren(h('div', { class: 'pantalla-acces' }, caixa));
 }
 
@@ -116,6 +114,9 @@ function obreAgencia() {
   S.desubs.push(S.M.watch(base, (t) => { S.tanda = t; pinta(); }));
   S.desubs.push(S.M.watch(`${base}/grups/${grupId}`, (g) => { S.grup = g; pinta(); }));
   S.desubs.push(S.M.watch(`${base}/valoracio/${grupId}`, (v) => { S.valoracio = v; pinta(); }));
+  // els blocs s'obren sols segons el calendari: es torna a mirar cada minut
+  const rellotge = setInterval(pinta, 60000);
+  S.desubs.push(() => clearInterval(rellotge));
   S.desubs.push(S.M.watch(`${base}/grups/${grupId}/reptes`, (docs) => {
     S.progres = Object.fromEntries(docs.map((d) => [d.id, d]));
     S.progresCarregat = true;
@@ -165,7 +166,7 @@ function pintaCarril() {
   nav.hidden = false;
   const estats = S.AG.estatReptes(S.tanda, S.progres);
   nav.replaceChildren(...S.D.reptes.blocs.map((b) => {
-    const tancat = b.bloc > (S.tanda.blocObert ?? 1);
+    const tancat = b.bloc > S.AG.blocActual(S.tanda);
     return h('div', { class: `tram ${tancat ? 'tancat' : ''}`, style: `--bloc: var(--b${b.bloc}); flex: ${b.reptes.length} 1 0`, title: `Bloc ${b.bloc} · ${b.titol}` },
       b.reptes.map((c) => {
         const r = S.AG.R[c];

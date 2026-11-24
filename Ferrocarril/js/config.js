@@ -4,7 +4,10 @@
    La configuració web és pública: la protecció són les regles de firebase/firestore.rules.
    Amb FIREBASE_CONFIG = null l'app funciona en mode local (només en aquest navegador). */
 
-export const VERSIO_APP = '0.1.0';
+export const VERSIO_APP = '0.2.0';
+
+/** adreça curta de l'app (targetes d'accés, fulls impresos i manual) */
+export const URL_APP = 'ja.cat/estaciodetren';
 
 export const FIREBASE_CONFIG = {
   apiKey: 'AIzaSyASsxZwl2u4JjR92dPC0iPBQ8-XseP_iC8',
@@ -31,5 +34,6 @@ export const STORAGE_KEYS = {
   BD_LOCAL: 'proximasortida:bd',
   UID_LOCAL: 'proximasortida:uid',
   ACCES: 'proximasortida:acces',
-  DOCENT: 'proximasortida:docent'
+  DOCENT: 'proximasortida:docent',
+  DOCENT_TANDES: 'proximasortida:docent-tandes'
 };

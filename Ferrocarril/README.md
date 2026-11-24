@@ -8,7 +8,7 @@
 
 L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de cada bitllet, però les esperes, les estones de visita, els totals i les diferències els calcula el grup i els escriu. L'app comprova si són correctes.
 
-> Enllaç: **[ja.cat/estaciodetren](https://ja.cat/estaciodetren)** · Panell docent: [docent.html](https://felipsarroca.github.io/jocs/Ferrocarril/docent.html)
+> Enllaç: **[ja.cat/estaciodetren](https://ja.cat/estaciodetren)** · Professorat: botó «Professorat» de l'app ([docent.html](https://felipsarroca.github.io/jocs/Ferrocarril/docent.html)) · [Manual del professorat](https://felipsarroca.github.io/jocs/Ferrocarril/manual.html)
 
 ---
 
@@ -20,7 +20,7 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 ### Accés: codi de la tanda, grup i PIN
 ![Accés a 1366 × 768](docs/captures/02-acces-1366x768.png)
 
-### Panell docent: blocs, avís de via tallada, nivells i punts de cada grup
+### Panell del professorat: calendari de les trobades, nivells i punts de cada grup
 ![Panell docent a 1366 × 768](docs/captures/03-panell-docent-1366x768.png)
 
 ### Al mòbil, en una sola columna
@@ -39,16 +39,17 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 ## Com funciona a l'aula
 
-- **Nou encàrrecs iguals per a tothom**, en quatre blocs que obre el docent: llegir la guixeta (R1–R4), visites, nits i diners (R5–R6), el gran viatge (R7–R8) i la via tallada (R9).
+- **Nou encàrrecs iguals per a tothom**, en quatre blocs que s'obren sols el dia de cada trobada: llegir la guixeta (R1–R4), visites, nits i diners (R5–R6), el gran viatge (R7–R8) i la via tallada (R9).
 - **Tres nivells per encàrrec:** Regional (la fita), Exprés i Alta velocitat. L'encàrrec següent s'obre quan el grup aconsegueix el Regional; els grups ràpids proven els nivells alts abans de lliurar.
 - **Punts de reputació:** 100/50/50 a R1–R6, 400/200/200 a R7 i R8 i 600/300/300 a R9. Un nivell fet amb ajuda del docent val la meitat. Nota de grup = punts / 1000.
 - **«Comprova»** diu el primer problema en llenguatge planer, sense donar mai la solució.
-- **Via tallada:** quan el docent activa l'avís, cada grup rep un tall diferent calculat a partir del seu gran viatge, amb una reparació mínima precalculada.
+- **Via tallada:** el dia de la trobada 4, cada grup rep un tall diferent calculat a partir del seu gran viatge, amb una reparació mínima precalculada.
 
 ## Accés
 
 - **Alumnat (`index.html`):** codi de la tanda, nom del grup i PIN de quatre xifres. Cap dada personal.
-- **Docent (`docent.html`):** crea la tanda, obre els blocs, activa la via tallada, imprimeix les targetes d'accés, marca ajudes, reobre encàrrecs i exporta un CSV.
+- **Professorat (`docent.html`, botó «Professorat»):** s'hi entra des de qualsevol aparell amb el codi de la tanda i la contrasenya del professorat. En crear la tanda, el docent posa les dates de les quatre trobades: els blocs i la via tallada s'obren sols, i durant la sessió no cal tocar res. Després de cada sessió marca les ajudes; al final exporta un CSV. Hi ha un botó «Obrir abans d'hora» per a imprevistos.
+- **Manual (`manual.html`):** guia breu del professorat, enllaçada des del panell.
 
 ## Arquitectura
 

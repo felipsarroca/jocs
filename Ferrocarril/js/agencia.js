@@ -20,6 +20,13 @@ function codiAleatori() {
   return Array.from(arr, (x) => ABC_CODI[x % ABC_CODI.length]).join('');
 }
 
+/** hash de la contrasenya del professorat (amb el codi de la tanda com a sal); mai no es desa la contrasenya */
+export async function hashClau(codi, clau) {
+  const dades = new TextEncoder().encode(`proximasortida|${codi.toUpperCase()}|${clau}`);
+  const h = await crypto.subtle.digest('SHA-256', dades);
+  return Array.from(new Uint8Array(h), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 function pinAleatori() {
   const arr = new Uint32Array(1);
   crypto.getRandomValues(arr);
@@ -32,9 +39,33 @@ export function creaAgencia(M, D, A) {
   const BLOC = {};
   for (const b of D.reptes.blocs) for (const c of b.reptes) BLOC[c] = b.bloc;
   const ORDRE = REPTES.map((r) => r.codi);
+  // trobada en què s'obre cada bloc (reptes.json): bloc 1 → 1, 2 → 2, 3 → 2, 4 → 4
+  const TROBADA = Object.fromEntries(D.reptes.blocs.map((b) => [b.bloc, b.trobada]));
+
+  /* ---------------------------------------------------------- calendari */
+  const arribada = (tanda, n, ara) => !!tanda?.calendari && tanda.calendari[n - 1] <= ara;
+
+  /** bloc més alt obert ara: el que ha obert el docent o el que toca pel calendari */
+  function blocActual(tanda, ara = Date.now()) {
+    let b = tanda?.blocObert ?? 1;
+    for (const bl of D.reptes.blocs) if (arribada(tanda, TROBADA[bl.bloc], ara)) b = Math.max(b, bl.bloc);
+    return b;
+  }
+
+  /** l'avís de via tallada arriba sol el dia de la trobada del bloc 4 (o abans, si el docent l'activa) */
+  function viaTalladaActiva(tanda, ara = Date.now()) {
+    return !!tanda?.avisViaTallada || arribada(tanda, TROBADA[4], ara);
+  }
+
+  /** trobada en curs segons el calendari (0 si encara no ha començat) */
+  function trobadaActual(tanda, ara = Date.now()) {
+    let n = 0;
+    for (let k = 1; k <= 4; k++) if (arribada(tanda, k, ara)) n = k;
+    return n;
+  }
 
   /* ---------------------------------------------------------- tandes i grups */
-  async function creaTanda({ nom, noms }) {
+  async function creaTanda({ nom, noms, calendari, clau }) {
     const uid = M.uid();
     const ara = Date.now();
     const expiraMs = ara + LIMITS.DIES_CADUCITAT * 86400000;
@@ -48,9 +79,10 @@ export function creaAgencia(M, D, A) {
     if (!codi) throw new Error('SENSE_CODI');
     const grups = noms.map((n, i) => ({ id: `g${i + 1}`, nom: n }));
     await M.set(`tandes/${tandaId}`, {
-      propietariUid: uid, nom, codi, grups, blocObert: 1, avisViaTallada: false,
+      propietariUid: uid, nom, codi, grups, blocObert: 1, avisViaTallada: false, calendari,
       estat: 'preparacio', versioDades: D.versio, creadaMs: ara, expiraMs
     });
+    await M.set(`tandes/${tandaId}/clauDocent/clau`, { hash: await hashClau(codi, clau) });
     const pins = {};
     for (const [i, g] of grups.entries()) {
       pins[g.id] = pinAleatori();
@@ -85,6 +117,29 @@ export function creaAgencia(M, D, A) {
     } catch (e) {
       throw new Error(/permission/i.test(String(e?.code || e?.message)) ? 'PIN' : 'XARXA');
     }
+  }
+
+  /** el docent entra a una tanda des de qualsevol aparell amb el codi i la contrasenya */
+  async function entraDocent(codi, clau) {
+    const t = await tandaDelCodi(codi).catch(() => null);
+    if (!t) throw new Error('CODI');
+    const uid = M.uid();
+    if (t.propietariUid === uid) return t.tandaId;
+    const hash = await hashClau(t.codi, clau);
+    const cami = `tandes/${t.tandaId}/docents/${uid}`;
+    if (M.mode === 'local') {
+      const c = await M.get(`tandes/${t.tandaId}/clauDocent/clau`);
+      if (!c || c.hash !== hash) throw new Error('CLAU');
+      await M.set(cami, { hash, entratMs: Date.now() });
+      return t.tandaId;
+    }
+    if (await M.get(cami).catch(() => null)) return t.tandaId;
+    try {
+      await M.set(cami, { hash, entratMs: Date.now() });
+    } catch (e) {
+      throw new Error(/permission/i.test(String(e?.code || e?.message)) ? 'CLAU' : 'XARXA');
+    }
+    return t.tandaId;
   }
 
   async function esMembre(tandaId, grupId) {
@@ -214,18 +269,19 @@ export function creaAgencia(M, D, A) {
     for (const [i, c] of ORDRE.entries()) {
       const doc = progres[c];
       if (doc?.estat === 'lliurat') { out[c] = 'lliurat'; continue; }
-      const blocOk = BLOC[c] <= (tanda?.blocObert ?? 1);
+      const blocOk = BLOC[c] <= blocActual(tanda);
       const ant = ORDRE[i - 1];
       let anteriorOk = i === 0 || progres[ant]?.estat === 'lliurat'
         || (c !== 'R8' && puntsRepte(ant, progres).nivell >= 1);
-      if (c === 'R9') anteriorOk = !!tanda?.avisViaTallada;
+      if (c === 'R9') anteriorOk = viaTalladaActiva(tanda);
       out[c] = blocOk && anteriorOk ? 'obert' : 'bloquejat';
     }
     return out;
   }
 
   return {
-    R, BLOC, ORDRE, creaTanda, tandaDelCodi, entra, esMembre,
+    R, BLOC, ORDRE, TROBADA, creaTanda, tandaDelCodi, entra, entraDocent, esMembre,
+    blocActual, viaTalladaActiva, trobadaActual,
     respostaCorrecta, referencies, viatgeOriginal, calculaTall, corregeix, preguntesDe,
     puntsRepte, puntsGrup, estatReptes
   };

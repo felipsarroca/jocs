@@ -1,8 +1,10 @@
 rules_version = '2';
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Regles de Firestore de «Pròxima sortida». Descripció completa: document 10 de la SdA (Bases de dades).
-// Tothom entra amb un usuari anònim. El docent que crea una tanda la dirigeix.
+// Tothom entra amb un usuari anònim. El docent que crea una tanda la dirigeix i, des d'un altre aparell,
+// hi pot tornar a entrar amb el codi de la tanda i la contrasenya del professorat (es desa en hash).
 // Un aparell entra a un grup amb el PIN, i a partir d'aquí només pot tocar el treball del seu grup.
+// Els blocs s'obren sols segons el calendari de la tanda (data de cada trobada), sense que el docent hi intervingui.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -19,7 +21,9 @@ service cloud.firestore {
     }
 
     function esDocent(t) {
-      return autenticat() && exists(tandaPath(t)) && tanda(t).propietariUid == request.auth.uid;
+      return autenticat() && exists(tandaPath(t))
+        && (tanda(t).propietariUid == request.auth.uid
+            || exists(/databases/$(database)/documents/tandes/$(t)/docents/$(request.auth.uid)));
     }
 
     // la tanda no ha caducat ni s'ha tancat
@@ -42,7 +46,8 @@ service cloud.firestore {
 
     function campsTanda(d) {
       return d.keys().hasOnly(['propietariUid', 'nom', 'codi', 'grups', 'blocObert', 'avisViaTallada',
-                               'estat', 'versioDades', 'creadaMs', 'expiraMs'])
+                               'calendari', 'estat', 'versioDades', 'creadaMs', 'expiraMs'])
+        && (!('calendari' in d) || (d.calendari is list && d.calendari.size() == 4))
         && textCurt(d.nom, 60)
         && formatCodi(d.codi)
         && d.grups is list && d.grups.size() <= 12
@@ -55,11 +60,19 @@ service cloud.firestore {
         && d.expiraMs <= request.time.toMillis() + 400 * 86400000;
     }
 
-    // bloc de cada repte (reptes.json): R1–R4 bloc 1, R5–R6 bloc 2, R7–R8 bloc 3, R9 bloc 4
+    // dia de la trobada n (1–4) arribat, segons el calendari de la tanda
+    function trobadaArribada(d, n) {
+      return 'calendari' in d && d.calendari[n - 1] <= request.time.toMillis();
+    }
+
+    // bloc de cada repte (reptes.json): R1–R4 bloc 1, R5–R6 bloc 2, R7–R8 bloc 3, R9 bloc 4.
+    // Trobada en què s'obre cada bloc: bloc 1 → 1, bloc 2 → 2, bloc 3 → 2, bloc 4 → 4.
+    // Un bloc és obert si el docent l'ha obert a mà o si ja ha arribat el dia de la seva trobada.
     function blocObert(t, codi) {
-      return {'R1': 1, 'R2': 1, 'R3': 1, 'R4': 1, 'R5': 2, 'R6': 2, 'R7': 3, 'R8': 3, 'R9': 4}[codi]
-        <= tanda(t).blocObert
-        && (codi != 'R9' || tanda(t).avisViaTallada == true);
+      let d = tanda(t);
+      let b = {'R1': 1, 'R2': 1, 'R3': 1, 'R4': 1, 'R5': 2, 'R6': 2, 'R7': 3, 'R8': 3, 'R9': 4}[codi];
+      return (b <= d.blocObert || trobadaArribada(d, [0, 1, 2, 2, 4][b]))
+        && (codi != 'R9' || d.avisViaTallada == true || trobadaArribada(d, 4));
     }
 
     function campsRepte(d) {
@@ -98,6 +111,23 @@ service cloud.firestore {
       // PIN de cada grup: només el docent. Les regles el consulten quan un aparell entra.
       match /claus/{g} {
         allow read, write: if esDocent(t);
+      }
+
+      // Hash de la contrasenya del professorat de la tanda: només el docent. No es pot llegir per entrar.
+      match /clauDocent/{id} {
+        allow read, write: if esDocent(t) && id == 'clau';
+      }
+
+      // Aparells de docent que han entrat amb la contrasenya
+      match /docents/{uid} {
+        allow get: if autenticat() && (request.auth.uid == uid || esDocent(t));
+        allow list: if esDocent(t);
+        allow create: if autenticat() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['hash', 'entratMs'])
+          && request.resource.data.hash is string
+          && request.resource.data.hash == get(/databases/$(database)/documents/tandes/$(t)/clauDocent/clau).data.hash;
+        allow update: if false;
+        allow delete: if esDocent(t);
       }
 
       // Notes i ajudes del docent: el grup les pot llegir, no modificar.
