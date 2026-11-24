@@ -3,17 +3,17 @@
    Crea la tanda amb el calendari de les quatre trobades (els blocs i la via tallada s'obren sols),
    segueix cada grup, marca les ajudes, imprimeix les targetes i exporta els resultats.
    Els punts es recalculen sempre amb l'avaluador a partir dels bitllets i les respostes desats. */
-import { STORAGE_KEYS, NOMS_GRUPS, LIMITS, VERSIO_APP, URL_APP, DEMO } from './config.js';
+import { STORAGE_KEYS, NOMS_GRUPS, NOMS_TANDES, LIMITS, VERSIO_APP, URL_APP, DEMO } from './config.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
 import { creaAgencia, descodifica } from './agencia.js';
-import { TEXTOS } from './textos.js';
+import { TEXTOS, textError } from './textos.js';
 import { iniciaEscala } from './escala.js';
-import { h, icona, horaDia, euros, punts, avis } from './ui.js';
+import { h, icona, horaDia, horaText, euros, punts, avis } from './ui.js';
 
 const S = {
   D: null, A: null, M: null, AG: null,
-  tandaId: null, tanda: null, grups: [], progres: {}, membres: {}, valoracio: {}, pins: {},
+  tandaId: null, tanda: null, grups: [], progres: {}, membres: {}, valoracio: {}, pins: {}, intents: {},
   detall: null, desubs: [], desubsGrups: []
 };
 const $main = () => document.getElementById('main');
@@ -118,7 +118,10 @@ async function pantallaTandes() {
   // tanda nova
   const nGrups = h('select', { id: 'ngrups' }, Array.from({ length: LIMITS.MAX_GRUPS }, (_, i) => i + 1)
     .map((n) => h('option', { value: n, selected: n === 6 }, n)));
-  const nom = h('input', { id: 'nom-tanda', maxlength: LIMITS.MAX_NOM_TANDA, value: `Tanda ${tandes.length + 1}` });
+  const usats = new Set(tandes.map((t) => t.nom));
+  const nom = h('input', { id: 'nom-tanda', maxlength: LIMITS.MAX_NOM_TANDA, list: 'noms-tandes',
+    value: NOMS_TANDES.find((n) => !usats.has(n)) || `Tanda ${tandes.length + 1}` });
+  const suggeriments = h('datalist', { id: 'noms-tandes' }, NOMS_TANDES.map((n) => h('option', { value: n })));
   const noms = h('div', { class: 'noms-grups' });
   const pintaNoms = () => noms.replaceChildren(...Array.from({ length: Number(nGrups.value) }, (_, i) =>
     h('input', { class: 'nom-grup', maxlength: 24, value: NOMS_GRUPS[i] || `Grup ${i + 1}`, 'aria-label': `Nom del grup ${i + 1}` })));
@@ -157,7 +160,7 @@ async function pantallaTandes() {
             h('strong', {}, t.nom), h('span', {}, `Codi ${t.codi} · ${t.grups.length} grups${t.estat === 'tancada' ? ' · tancada' : ''}`)))))) : null),
     h('section', { class: 'targeta' },
       h('h2', {}, icona('estrella'), 'Tanda nova'),
-      h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Nom (per exemple, el grup classe)'), nom,
+      h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Grup classe (Alfa, Beta, Gamma, Delta o Èpsilon)'), nom, suggeriments,
       h('label', { class: 'etiqueta', for: 'ngrups' }, 'Nombre de grups'), nGrups,
       h('p', { class: 'etiqueta' }, 'Noms dels grups'), noms,
       h('p', { class: 'etiqueta' }, 'Dates de les quatre trobades'), cal,
@@ -173,7 +176,7 @@ async function pantallaTandes() {
 function obreTanda(tandaId) {
   for (const d of [...S.desubs, ...S.desubsGrups]) d();
   S.desubs = []; S.desubsGrups = [];
-  S.tandaId = tandaId; S.progres = {}; S.membres = {}; S.valoracio = {}; S.detall = null;
+  S.tandaId = tandaId; S.progres = {}; S.membres = {}; S.valoracio = {}; S.intents = {}; S.detall = null;
   localStorage.setItem(STORAGE_KEYS.DOCENT, tandaId);
   recorda(tandaId);
   const base = `tandes/${tandaId}`;
@@ -187,6 +190,7 @@ function obreTanda(tandaId) {
     for (const g of S.grups) {
       S.desubsGrups.push(S.M.watch(`${base}/grups/${g.id}/reptes`, (docs) => { S.progres[g.id] = Object.fromEntries(docs.map((d) => [d.id, d])); pinta(); }));
       S.desubsGrups.push(S.M.watch(`${base}/grups/${g.id}/membres`, (ms) => { S.membres[g.id] = ms; pinta(); }));
+      S.desubsGrups.push(S.M.watch(`${base}/grups/${g.id}/intents`, (xs) => { S.intents[g.id] = xs.sort((a, b) => a.ms - b.ms); pinta(); }));
       S.desubsGrups.push(S.M.watch(`${base}/valoracio/${g.id}`, (v) => { S.valoracio[g.id] = v || { ajuda: [], notes: '' }; pinta(); }));
     }
     pinta();
@@ -278,9 +282,11 @@ function graellaGrups() {
     const { total, perRepte, coherent, nota } = S.AG.puntsGrup(prog, ajudesDe(g.id));
     const estats = S.AG.estatReptes(S.tanda, prog);
     const actiu = Date.now() - (g.darreraActivitatMs || 0) < 3 * 60000;
-    tbody.append(h('tr', { class: S.detall === g.id ? 'seleccionat' : '' },
+    const { motiu } = seguimentGrup(g);
+    tbody.append(h('tr', { class: `${S.detall === g.id ? 'seleccionat' : ''} ${motiu ? 'encallat' : ''}` },
       h('th', {}, h('button', { class: 'boto-grup-docent', onclick: () => { S.detall = S.detall === g.id ? null : g.id; pinta(); } },
-        h('span', { class: `punt-actiu ${actiu ? 'on' : ''}`, title: actiu ? 'Treballant ara' : 'Sense activitat recent' }), g.nom)),
+        h('span', { class: `punt-actiu ${actiu ? 'on' : ''}`, title: actiu ? 'Treballant ara' : 'Sense activitat recent' }), g.nom),
+        motiu ? h('span', { class: 'marca-encallat', title: motiu }, icona('avis', 'mini'), 'Encallat') : null),
       reptes.map((r) => {
         const p = perRepte[r.codi];
         const est = estats[r.codi];
@@ -294,12 +300,13 @@ function graellaGrups() {
       h('td', { class: 'num' }, (S.membres[g.id] || []).length)));
   }
   taula.append(tbody);
-  return h('section', { class: 'targeta graella-docent' }, taula,
+  return h('section', { class: 'targeta graella-docent' }, franjaErrors(), taula,
     h('p', { class: 'llegenda' },
       h('span', {}, h('span', { class: 'punts-nivell' }, h('i', { class: 'ple' }), h('i', { class: 'ple' }), h('i')), 'Nivells: Regional, Exprés, Alta velocitat'),
       h('span', {}, icona('check', 'mini'), 'Lliurat'),
       h('span', {}, h('span', { class: 'marca-ajuda' }, 'A'), 'Amb ajuda (val la meitat)'),
       h('span', {}, h('span', { class: 'punt-actiu on' }), 'Treballant ara'),
+      h('span', {}, h('span', { class: 'marca-encallat' }, icona('avis', 'mini'), 'Encallat'), `${ENCALLAT.INTENTS} intents seguits amb errors o ${ENCALLAT.MINUTS} min sense cap nivell`),
       h('span', {}, 'Nota = punts / 1000')));
 }
 
@@ -312,7 +319,8 @@ function detallGrup(gid) {
   const caixa = h('section', { class: 'targeta detall' },
     h('div', { class: 'detall-cap' }, h('h2', {}, `Grup ${g.nom}`),
       h('span', { class: 'pin' }, 'PIN ', h('strong', {}, S.pins[gid] || '····')),
-      h('button', { class: 'boto-icona', 'aria-label': 'Tanca', onclick: () => { S.detall = null; pinta(); } }, icona('creu'))));
+      h('button', { class: 'boto-icona', 'aria-label': 'Tanca', onclick: () => { S.detall = null; pinta(); } }, icona('creu'))),
+    detallAra(g));
   for (const r of S.D.reptes.reptes) {
     const doc = prog[r.codi];
     if (!doc) continue;
@@ -333,7 +341,7 @@ function detallGrup(gid) {
       ? r.nivells.map((n) => doc.nivells?.[n.nivell]).filter(Boolean)
       : (doc.millor ? [doc.millor] : []);
     for (const v of viatges) bloc.append(resumViatge(descodifica(v.bitllets), v.intents));
-    if (!viatges.length && doc.esborrany?.bitllets?.length) bloc.append(h('p', { class: 'nota' }, 'En curs:'), resumViatge(descodifica(doc.esborrany.bitllets), doc.esborrany.intents));
+    if (!viatges.length && doc.esborrany?.bitllets?.length && r.codi !== g.repteActual) bloc.append(h('p', { class: 'nota' }, 'En curs:'), resumViatge(descodifica(doc.esborrany.bitllets), doc.esborrany.intents));
     if (r.codi === 'R9' && doc.tall) {
       bloc.append(h('p', { class: 'nota' }, `Tall: ${nomEst(doc.tall.tram[0])} – ${nomEst(doc.tall.tram[1])}, dia ${doc.tall.dia}. Reparació mínima: ${doc.tall.minim} €. Origen: ${doc.tall.origen}.`));
     }
@@ -343,6 +351,113 @@ function detallGrup(gid) {
   caixa.append(h('div', { class: 'detall-aparells' },
     h('p', {}, `${ms.length} ${ms.length === 1 ? 'aparell connectat' : 'aparells connectats'}`),
     ms.length ? h('button', { class: 'boto petit', onclick: () => treuAparells(gid) }, 'Treu els aparells') : null));
+  return caixa;
+}
+
+/* ================================================================ seguiment: errors i grups encallats */
+// Cada comprovació de l'alumnat queda desada a grups/{g}/intents amb els errors (codis de l'avaluador)
+// i les respostes incorrectes («resposta:valor»). El panell en treu tres coses:
+//  · grup encallat: 3 intents seguits amb errors, o 12 minuts treballant sense aconseguir cap nivell;
+//  · darrers errors de cada grup, en paraules planeres;
+//  · errors de la classe: el mateix tipus d'error a dos grups o més en els darrers 30 minuts.
+const ENCALLAT = { INTENTS: 3, MINUTS: 12, RECENT_MIN: 15 };
+const FINESTRA_CLASSE_MIN = 30;
+const CATEGORIA = {
+  canvi: 'Canvi de menys de 10 minuts', visita: 'Visita de menys de 2 hores', min_visites: 'Falten ciutats visitades',
+  continuitat: 'Bitllets que no enllacen', mateix_tren: 'Dos bitllets del mateix tren', tren: 'Bitllet mal comprat', parada: 'Bitllet mal comprat',
+  termini: 'Tornada massa tard', arribada_dia: 'Tornada un altre dia', torna_abans: 'Tornen a Barcelona abans d\'hora',
+  pressupost: 'Viatge massa car', pressupost_reparacio: 'Reparació massa cara', tallat: 'Tren pel tram tallat',
+  primer_fix: 'Canvien el primer bitllet', max_bitllets: 'Massa canvis de tren', min_bitllets: 'Cal canviar de tren',
+  origen: 'No és el viatge que demana el client', desti: 'No és el viatge que demana el client', primer_dia: 'No és el viatge que demana el client',
+  primer_surt: 'No és el viatge que demana el client', primer_fins: 'No és el viatge que demana el client',
+  primer_cap_a: 'No és el viatge que demana el client', objectiu: 'Correcte, però no és el que demana el client',
+  alguna_de: 'Correcte, però no és el que demana el client'
+};
+const PREGUNTA = {
+  sortida: 'hora de sortida', arribada: 'hora d\'arribada', total: 'preu', estada: 'temps en una ciutat', estades: 'temps en una ciutat',
+  espera: 'temps d\'espera', saldo: 'saldo', diferencia_euros: 'diferència de preu', diferencia_hora: 'diferència d\'hora', percentatge: 'percentatge'
+};
+const iniciAvui = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const minutsDes = (ms) => Math.max(0, Math.floor((Date.now() - ms) / 60000));
+const fallit = (x) => x.resultat !== 'correcte';
+
+function categoria(err) {
+  if (err.startsWith('resposta:')) return `Càlcul: ${PREGUNTA[err.slice(9).split(':')[0]] || 'resposta'}`;
+  return CATEGORIA[err.split(':')[0]] || null;
+}
+
+/** un error desat («codi:a:b» o «resposta:valor») en paraules planeres */
+function errorPla(err, intent) {
+  if (err.startsWith('resposta:')) {
+    const valor = err.slice(9);
+    const r = S.D.reptes.reptes.find((x) => x.codi === intent.repte);
+    const qs = r ? [...(r.preguntes || []), ...r.nivells.flatMap((n) => n.preguntes || [])] : [];
+    const q = qs.find((x) => x.valor === valor);
+    return `Resposta incorrecta: «${q?.text || PREGUNTA[valor.split(':')[0]] || valor}»`;
+  }
+  const [codi, ...args] = err.split(':');
+  const [a, b] = args.map((x) => (x !== '' && !Number.isNaN(Number(x)) ? Number(x) : x));
+  return textError([codi, a, b], { nom: nomEst, bitllets: descodifica(intent.bitllets || []), horaText });
+}
+
+/** estat d'avui d'un grup: intents, errors seguits i, si cal, per què està encallat */
+function seguimentGrup(g) {
+  const ints = (S.intents[g.id] || []).filter((x) => x.ms >= iniciAvui());
+  if (!ints.length) return { ints, motiu: null };
+  const darrer = ints[ints.length - 1];
+  let seguits = 0;
+  for (let k = ints.length - 1; k >= 0 && fallit(ints[k]); k--) seguits++;
+  const ok = [...ints].reverse().find((x) => !fallit(x));
+  const minuts = minutsDes(ok ? ok.ms : ints[0].ms);
+  const actiu = minutsDes(g.darreraActivitatMs || 0) < 5;
+  let motiu = null;
+  if (seguits >= ENCALLAT.INTENTS && minutsDes(darrer.ms) < ENCALLAT.RECENT_MIN) motiu = `${seguits} intents seguits amb errors a ${darrer.repte}`;
+  else if (actiu && seguits && minuts >= ENCALLAT.MINUTS) motiu = `${minuts} minuts sense aconseguir cap nivell`;
+  return { ints, darrer, seguits, motiu };
+}
+
+/** franja «Errors de la classe»: tipus d'error repetits a diversos grups en els darrers 30 minuts */
+function franjaErrors() {
+  const des = Date.now() - FINESTRA_CLASSE_MIN * 60000;
+  const perCat = new Map();
+  for (const g of S.grups) {
+    const cats = new Set();
+    for (const x of S.intents[g.id] || []) {
+      if (x.ms < des || !fallit(x)) continue;
+      for (const e of x.errors || []) { const c = categoria(e); if (c) cats.add(c); }
+    }
+    for (const c of cats) perCat.set(c, [...(perCat.get(c) || []), g.nom]);
+  }
+  const llista = [...perCat.entries()].filter(([, gs]) => gs.length >= 2).sort((a, b) => b[1].length - a[1].length).slice(0, 5);
+  if (!llista.length) return null;
+  return h('div', { class: 'franja-errors', role: 'status' },
+    h('span', { class: 'franja-titol' }, icona('avis', 'mini'), 'Errors de la classe'),
+    llista.map(([c, gs]) => h('span', { class: `xip-error ${gs.length >= 3 ? 'fort' : ''}`, title: gs.join(', ') }, c, h('b', {}, `${gs.length} grups`))),
+    h('span', { class: 'franja-nota' }, 'Darrers 30 minuts'));
+}
+
+/** al detall del grup: on treballen ara, el viatge en curs i els darrers errors */
+function detallAra(g) {
+  const sg = seguimentGrup(g);
+  const caixa = h('div', { class: `detall-ara ${sg.motiu ? 'encallat' : ''}` });
+  const codi = g.repteActual;
+  const r = S.D.reptes.reptes.find((x) => x.codi === codi);
+  const doc = S.progres[g.id]?.[codi];
+  if (r) {
+    const nivell = r.modalitat === 'escala' && doc?.esborrany?.nivell ? ` · ${TEXTOS.nivells[doc.esborrany.nivell - 1]}` : '';
+    caixa.append(h('p', { class: 'ara-titol' }, h('span', { class: 'codi-repte', style: `--c: var(--b${S.AG.BLOC[codi]})` }, codi),
+      `Ara: ${r.titol}${nivell}`, minutsDes(g.darreraActivitatMs || 0) < 60 ? h('span', { class: 'ara-temps' }, `fa ${minutsDes(g.darreraActivitatMs)} min`) : null));
+  }
+  if (sg.motiu) caixa.append(h('p', { class: 'ara-encallat' }, icona('avis', 'mini'), `Encallat: ${sg.motiu}.`));
+  if (doc?.esborrany?.bitllets?.length && doc.estat !== 'lliurat') caixa.append(h('p', { class: 'nota' }, 'Viatge en curs:'), resumViatge(descodifica(doc.esborrany.bitllets), doc.esborrany.intents));
+  const errors = (S.intents[g.id] || []).filter((x) => fallit(x) && x.errors?.length).slice(-4).reverse();
+  if (errors.length) {
+    caixa.append(h('p', { class: 'nota' }, 'Darrers errors:'), h('ul', { class: 'errors-recents' }, errors.map((x) => h('li', {},
+      h('span', { class: 'err-quan' }, `${x.repte} · fa ${minutsDes(x.ms)} min`),
+      h('span', {}, [...new Set(x.errors.slice(0, 2).map((e) => errorPla(e, x)))].join(' '))))));
+  } else if (sg.ints.length) {
+    caixa.append(h('p', { class: 'nota' }, 'Avui no hi ha errors desats.'));
+  }
   return caixa;
 }
 
@@ -379,8 +494,9 @@ async function imprimeixTargetes() {
   S.pins = Object.fromEntries(cs.map((c) => [c.id, c.pin]));
   const url = URL_APP;
   const caixa = document.getElementById('targetes');
-  caixa.replaceChildren(...S.grups.map((g) => h('div', { class: 'targeta-acces' },
-    h('div', { class: 'targeta-cap' }, h('img', { src: 'favicon.svg', alt: '' }), h('strong', {}, 'Pròxima sortida')),
+  caixa.replaceChildren(h('p', { class: 'targetes-tall' }, icona('tisores'), 'Retalleu per les línies discontínues: una targeta per grup.'),
+    ...S.grups.map((g) => h('div', { class: 'targeta-acces' },
+    h('div', { class: 'targeta-cap' }, h('img', { src: 'favicon.svg', alt: '' }), h('strong', {}, 'Pròxima sortida'), h('span', { class: 'targeta-tanda' }, S.tanda.nom)),
     h('p', { class: 'targeta-grup' }, `Grup ${g.nom}`),
     h('dl', {}, h('dt', {}, 'Adreça'), h('dd', {}, url),
       h('dt', {}, 'Codi de la tanda'), h('dd', { class: 'gran' }, S.tanda.codi),

@@ -4,7 +4,7 @@
    La configuració web és pública: la protecció són les regles de firebase/firestore.rules.
    Amb FIREBASE_CONFIG = null l'app funciona en mode local (només en aquest navegador). */
 
-export const VERSIO_APP = '0.3.0';
+export const VERSIO_APP = '0.4.0';
 
 /** adreça curta de l'app (targetes d'accés, fulls impresos i manual) */
 export const URL_APP = 'ja.cat/estaciodetren';
@@ -27,6 +27,9 @@ export const LIMITS = {
   MAX_BITLLETS: 20,
   SEGONS_DESAT: 2
 };
+
+/** noms de les tandes: una per grup classe (es pot posar qualsevol altre nom) */
+export const NOMS_TANDES = ['Alfa', 'Beta', 'Gamma', 'Delta', 'Èpsilon'];
 
 export const NOMS_GRUPS = ['Talgo', 'Alvia', 'Avant', 'Intercity', 'Rodalies', 'Euromed', 'Trenhotel', 'Altaria', 'Alaris', 'Intercidades', 'Lusitânia', 'Alfa Pendular'];
 

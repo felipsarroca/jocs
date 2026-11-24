@@ -50,9 +50,11 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 ## Com funciona a l'aula
 
 - **Nou encàrrecs iguals per a tothom**, en quatre blocs que s'obren sols el dia de cada trobada: llegir la guixeta (R1–R4), visites, nits i diners (R5–R6), el gran viatge (R7–R8) i la via tallada (R9).
-- **Tres nivells per encàrrec:** Regional (la fita), Exprés i Alta velocitat. L'encàrrec següent s'obre quan el grup aconsegueix el Regional; els grups ràpids proven els nivells alts abans de lliurar.
+- **Tres nivells per encàrrec:** Regional (la fita), Exprés i Alta velocitat. L'encàrrec següent s'obre quan el grup aconsegueix el Regional. L'app no diu mai quan s'ha de lliurar: el grup gestiona el temps i decideix què lliura i quan.
+- **Cinc grups classe (Alfa, Beta, Gamma, Delta, Èpsilon):** una tanda per a cadascun, amb els mateixos noms de grups de treball (Talgo, Alvia…). La targeta d'accés i la capçalera de l'alumnat mostren el grup classe.
 - **Punts de reputació:** 100/50/50 a R1–R6, 400/200/200 a R7 i R8 i 600/300/300 a R9. Un nivell fet amb ajuda del docent val la meitat. Nota de grup = punts / 1000.
 - **«Comprova»** diu el primer problema en llenguatge planer, sense donar mai la solució.
+- **Seguiment al panell:** marca «Encallat» (3 intents seguits amb errors o 12 min sense cap nivell), mostra els darrers errors de cada grup en paraules planeres i el viatge en curs, i una franja «Errors de la classe» amb els errors repetits en dos o més grups (darrers 30 min).
 - **Via tallada:** el dia de la trobada 4, cada grup rep un tall diferent calculat a partir del seu gran viatge, amb una reparació mínima precalculada.
 
 ## Accés

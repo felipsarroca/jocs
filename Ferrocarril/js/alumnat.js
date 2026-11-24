@@ -194,7 +194,7 @@ function pintaCapcalera() {
   const { total } = S.AG.puntsGrup(S.progres, ajudes());
   const nom = document.getElementById('nom-agencia');
   nom.classList.add('oficina');
-  nom.replaceChildren(icona('tren', 'mini'), `Oficina ${S.grup.nom}`);
+  nom.replaceChildren(icona('tren', 'mini'), `Oficina ${S.grup.nom}`, S.tanda?.nom ? h('span', { class: 'nom-tanda' }, ` · ${S.tanda.nom}`) : null);
   const salta = S.puntsVistos != null && total > S.puntsVistos;
   S.puntsVistos = total;
   document.getElementById('capcalera-dreta').replaceChildren(
@@ -227,7 +227,7 @@ function mostraGuia() {
     h('div', { class: 'guia-nivells' },
       h('span', {}, 'Cada encàrrec té tres nivells:'),
       TEXTOS.nivells.flatMap((n, i) => [i ? icona('fletxa', 'mini') : null, h('span', { class: 'xip' }, icona('estrella', 'mini'), n)]),
-      h('span', { class: 'guia-nota' }, 'El Regional obre l\'encàrrec següent. Els altres nivells donen més punts.')),
+      h('span', { class: 'guia-nota' }, 'El Regional obre l\'encàrrec següent. Els altres nivells donen més punts. Vosaltres decidiu quan lliureu.')),
     h('div', { class: 'fila-botons' }, h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, 'Som-hi!', icona('fletxa')))));
 }
 
@@ -410,7 +410,8 @@ function columnaRepte(r, doc, estat) {
     h('div', { class: 'client' },
       h('div', { class: 'client-icona', 'aria-hidden': 'true' }, inicials(r.client)),
       h('div', {}, h('p', { class: 'client-nom' }, r.client), h('h3', { class: 'repte-titol' }, r.titol))),
-    h('p', { class: 'encarrec' }, r.encarrec));
+    // a la via tallada, l'avís ja explica què ha passat
+    ...(r.codi === 'R9' && doc.tall && estat !== 'lliurat' ? [] : [h('p', { class: 'encarrec' }, r.encarrec)]));
 
   if (r.codi === 'R9' && doc.tall) col.append(avisTall(doc.tall));
 
@@ -424,7 +425,7 @@ function columnaRepte(r, doc, estat) {
     if (estat !== 'lliurat') {
       if (assolit === 3) {
         col.append(h('div', { class: 'missio fet' },
-          h('p', { class: 'missio-text' }, 'Heu aconseguit els tres nivells! Lliureu l\'encàrrec.')));
+          h('p', { class: 'missio-text' }, 'Heu aconseguit els tres nivells!')));
       } else {
         const n = nivellActual(r);
         col.append(h('div', { class: 'missio' },
@@ -445,9 +446,7 @@ function columnaRepte(r, doc, estat) {
   } else {
     // encàrrecs de millora: un sol viatge i tres objectius
     if (estat !== 'lliurat') {
-      col.append(h('div', { class: 'missio' },
-        h('div', { class: 'missio-cap' }, h('span', { class: 'missio-etiqueta' }, icona('mapa', 'mini'), 'Un sol viatge')),
-        h('p', { class: 'missio-text' }, r.enunciat)));
+      col.append(h('div', { class: 'missio' }, h('p', { class: 'missio-text' }, r.enunciat)));
     }
     col.append(h('ol', { class: 'objectius', 'aria-label': 'Nivells' }, r.nivells.map((n) => {
       const fet = n.nivell <= assolit;
@@ -457,7 +456,10 @@ function columnaRepte(r, doc, estat) {
         h('span', { class: 'objectiu-punts' }, `${ptsNivell(n)} punts`));
     })));
   }
-  if (r.regles.length) {
+  // les regles només surten quan canvien: a R8 i R9 són les mateixes que a R7 (i són al full de regles)
+  const anterior = S.D.reptes.reptes[S.AG.ORDRE.indexOf(r.codi) - 1];
+  const repetides = anterior && anterior.regles.join() === r.regles.join();
+  if (r.regles.length && !repetides) {
     col.append(h('div', { class: 'regles' }, r.regles.map((id) => {
       const reg = S.D.reptes.regles.find((x) => x.id === id);
       return h('span', { class: 'regla', title: reg.text }, icona(reg.icona), reg.curt || reg.text);
@@ -797,7 +799,8 @@ async function comprova(r) {
   const refs = S.AG.referencies(S.progres);
   const pq = preguntesActuals(r);
   const respostes = normalitza(pq, r);
-  let errors = [], registre = null, extra = {}, festa = null;
+  let errors = [], registre = null, extra = {}, festa = null, incorrectes = [];
+  const malament = (c) => Object.keys(c.correctes).filter((k) => !c.correctes[k]);
   if (r.modalitat === 'escala') {
     const n = nivellActual(r);
     const [errs, der] = S.A.avaluaNivell(n, bitllets);
@@ -816,6 +819,7 @@ async function comprova(r) {
         S.vista = { estacio: 'B', dia: 1, tren: null };
         festa = { titol: `Nivell ${nom} aconseguit!`, pts: n.punts, seguent: seguent ? TEXTOS.nivells[seguent.nivell - 1] : null };
       } else {
+        incorrectes = malament(c);
         S.resultat = { ok: false, missatge: 'El viatge és correcte. Reviseu les respostes marcades.', correctes: c.correctes };
       }
     } else {
@@ -843,13 +847,14 @@ async function comprova(r) {
         }
         S.resultat = { ok: true, missatge: `El viatge arriba al nivell ${nom}.`, pendents: seg ? pendents : [], seguent: seg ? `Per arribar al nivell ${TEXTOS.nivells[seg.nivell - 1]}:` : '', correctes: c.correctes };
       } else {
+        incorrectes = malament(c);
         S.resultat = { ok: false, missatge: `El viatge arriba al nivell ${nom}. Reviseu les respostes marcades.`, correctes: c.correctes };
       }
     }
   }
   S.M.add(`tandes/${S.acces.tandaId}/grups/${S.acces.grupId}/intents`, {
     repte: r.codi, nivell: nivellIntent,
-    bitllets: bitllets.map(codificaBitllet), respostes, errors: errors.map((e) => e.join(':')),
+    bitllets: bitllets.map(codificaBitllet), respostes, errors: [...errors.map((e) => e.join(':')), ...incorrectes.map((k) => `resposta:${k}`)],
     resultat: registre ? 'correcte' : 'errors', uid: S.M.uid(), ms: Date.now()
   }).catch(() => {});
   await desaEsborrany(extra);
@@ -863,20 +868,18 @@ function celebraNivell(r, f, extra) {
   const seg = S.AG.ORDRE[S.AG.ORDRE.indexOf(r.codi) + 1];
   const segObert = seg && S.AG.estatReptes(S.tanda, progres)[seg] === 'obert';
   const vesSeguent = () => { tancaModal(); S.actiu = seg; obreRepte(seg); pinta(); };
-  const lliuraAra = () => { tancaModal(); S.confirma = true; pintaPrincipal(); };
   const botons = [];
   let text;
   if (f.millora) {
-    text = f.seguent ? 'Encara el podeu millorar.' : 'Viatge perfecte! Ja el podeu lliurar.';
-    botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, f.seguent ? 'Continueu millorant' : 'D\'acord'));
-    botons.push(h('button', { class: 'boto lliura gran', onclick: lliuraAra }, icona('copa'), TEXTOS.botons.lliura));
+    text = f.seguent ? `Encara podeu arribar al nivell ${f.seguent}.` : 'Viatge perfecte!';
+    botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, 'D\'acord'));
   } else if (f.seguent) {
     text = `Ara podeu provar el nivell ${f.seguent}${segObert ? ' o passar a l\'encàrrec següent' : ''}.`;
     botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, `Proveu el nivell ${f.seguent}`));
     if (segObert) botons.push(h('button', { class: 'boto gran', onclick: vesSeguent }, 'Encàrrec següent', icona('fletxa')));
   } else {
-    text = 'Heu fet els tres nivells. Ja podeu lliurar l\'encàrrec.';
-    botons.push(h('button', { class: 'boto lliura gran', onclick: lliuraAra, autofocus: true }, icona('copa'), TEXTOS.botons.lliura));
+    text = 'Heu fet els tres nivells.';
+    botons.push(h('button', { class: 'boto primari gran', onclick: tancaModal, autofocus: true }, 'D\'acord'));
     if (segObert) botons.push(h('button', { class: 'boto gran', onclick: vesSeguent }, 'Encàrrec següent', icona('fletxa')));
   }
   const ctx = { nom: nomEst, bitllets: S.esb.bitllets, horaText };
