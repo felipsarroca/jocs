@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- SPDX-License-Identifier: CC-BY-NC-SA-4.0 -->
+  <title>Pròxima sortida</title>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#14233f"/>
+  <rect x="11" y="15" width="42" height="9" rx="3" fill="#ffb627"/>
+  <rect x="11" y="30" width="28" height="7" rx="3" fill="#ffb627" opacity=".75"/>
+  <path d="M42 44 l10 6 l-10 6 z" fill="#ffffff"/>
+  <rect x="11" y="47.5" width="31" height="5" rx="2.5" fill="#ffffff"/>
+</svg>

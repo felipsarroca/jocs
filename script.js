@@ -72,6 +72,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         category: "Jocs d'estratègia",
                         description: "Puzle ferroviari: forma el tren objectiu amb el mínim de maniobres i puja al rànquing públic.",
                         icon: 'Maniobres/assets/favicon.svg'
+                    },
+                    {
+                        name: "Pròxima sortida",
+                        path: 'https://ja.cat/estaciodetren',
+                        category: "Jocs d'estratègia",
+                        description: "Agència de viatges en tren: llegiu la guixeta i resoleu els encàrrecs dels clients amb horaris, canvis i pressupost.",
+                        icon: 'Ferrocarril/favicon.svg'
                     }    ];
 
     const mainContainer = document.getElementById('apps-container');

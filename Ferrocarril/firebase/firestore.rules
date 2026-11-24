@@ -1,0 +1,159 @@
+rules_version = '2';
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Regles de Firestore de «Pròxima sortida». Descripció completa: document 10 de la SdA (Bases de dades).
+// Tothom entra amb un usuari anònim. El docent que crea una tanda la dirigeix.
+// Un aparell entra a un grup amb el PIN, i a partir d'aquí només pot tocar el treball del seu grup.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function autenticat() {
+      return request.auth != null;
+    }
+
+    function tandaPath(t) {
+      return /databases/$(database)/documents/tandes/$(t);
+    }
+
+    function tanda(t) {
+      return get(tandaPath(t)).data;
+    }
+
+    function esDocent(t) {
+      return autenticat() && exists(tandaPath(t)) && tanda(t).propietariUid == request.auth.uid;
+    }
+
+    // la tanda no ha caducat ni s'ha tancat
+    function vigent(t) {
+      return tanda(t).expiraMs > request.time.toMillis() && tanda(t).estat != 'tancada';
+    }
+
+    function esMembre(t, g) {
+      return autenticat()
+        && exists(/databases/$(database)/documents/tandes/$(t)/grups/$(g)/membres/$(request.auth.uid));
+    }
+
+    function formatCodi(codi) {
+      return codi.matches('^[A-Z0-9]{4}$');
+    }
+
+    function textCurt(v, max) {
+      return v is string && v.size() >= 1 && v.size() <= max;
+    }
+
+    function campsTanda(d) {
+      return d.keys().hasOnly(['propietariUid', 'nom', 'codi', 'grups', 'blocObert', 'avisViaTallada',
+                               'estat', 'versioDades', 'creadaMs', 'expiraMs'])
+        && textCurt(d.nom, 60)
+        && formatCodi(d.codi)
+        && d.grups is list && d.grups.size() <= 12
+        && d.blocObert is int && d.blocObert >= 1 && d.blocObert <= 4
+        && d.avisViaTallada is bool
+        && d.estat in ['preparacio', 'en_curs', 'tancada']
+        && d.versioDades is string
+        && d.creadaMs is int
+        && d.expiraMs is int
+        && d.expiraMs <= request.time.toMillis() + 400 * 86400000;
+    }
+
+    // bloc de cada repte (reptes.json): R1–R4 bloc 1, R5–R6 bloc 2, R7–R8 bloc 3, R9 bloc 4
+    function blocObert(t, codi) {
+      return {'R1': 1, 'R2': 1, 'R3': 1, 'R4': 1, 'R5': 2, 'R6': 2, 'R7': 3, 'R8': 3, 'R9': 4}[codi]
+        <= tanda(t).blocObert
+        && (codi != 'R9' || tanda(t).avisViaTallada == true);
+    }
+
+    function campsRepte(d) {
+      return d.keys().hasOnly(['codi', 'estat', 'esborrany', 'nivells', 'millor', 'nivellAssolit', 'punts',
+                               'tall', 'lliuratMs', 'actualitzatMs'])
+        && d.estat in ['obert', 'lliurat']
+        && (!('punts' in d) || (d.punts is number && d.punts >= 0 && d.punts <= 1200))
+        && (!('nivellAssolit' in d) || (d.nivellAssolit is int && d.nivellAssolit >= 0 && d.nivellAssolit <= 3));
+    }
+
+    // Codi d'accés de la tanda -> tandaId. Es pot llegir un codi concret, però no la llista.
+    match /codis/{codi} {
+      allow get: if autenticat() && formatCodi(codi);
+      allow list: if false;
+      allow create: if formatCodi(codi)
+        && request.resource.data.keys().hasOnly(['tandaId', 'expiraMs'])
+        && request.resource.data.expiraMs is int
+        && esDocent(request.resource.data.tandaId);
+      allow update: if false;
+      allow delete: if autenticat()
+        && (resource.data.expiraMs < request.time.toMillis() || esDocent(resource.data.tandaId));
+    }
+
+    match /tandes/{t} {
+      allow get: if autenticat();
+      allow list: if autenticat() && resource.data.propietariUid == request.auth.uid;
+      allow create: if autenticat()
+        && request.resource.data.propietariUid == request.auth.uid
+        && campsTanda(request.resource.data);
+      allow update: if esDocent(t)
+        && request.resource.data.propietariUid == resource.data.propietariUid
+        && request.resource.data.codi == resource.data.codi
+        && campsTanda(request.resource.data);
+      allow delete: if esDocent(t);
+
+      // PIN de cada grup: només el docent. Les regles el consulten quan un aparell entra.
+      match /claus/{g} {
+        allow read, write: if esDocent(t);
+      }
+
+      // Notes i ajudes del docent: el grup les pot llegir, no modificar.
+      match /valoracio/{g} {
+        allow read: if esDocent(t) || esMembre(t, g);
+        allow write: if esDocent(t);
+      }
+
+      match /grups/{g} {
+        allow get: if esDocent(t) || esMembre(t, g);
+        allow list: if esDocent(t);
+        allow create, delete: if esDocent(t);
+        allow update: if esDocent(t)
+          || (esMembre(t, g) && vigent(t)
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['repteActual', 'punts', 'nivells', 'darreraActivitatMs'])
+              && request.resource.data.punts is number
+              && request.resource.data.punts >= 0 && request.resource.data.punts <= 4000);
+
+        // Aparells que han entrat al grup amb el PIN correcte
+        match /membres/{uid} {
+          allow get: if esDocent(t) || (autenticat() && request.auth.uid == uid);
+          allow list: if esDocent(t) || esMembre(t, g);
+          allow create: if autenticat() && request.auth.uid == uid && vigent(t)
+            && request.resource.data.keys().hasOnly(['pin', 'entratMs'])
+            && request.resource.data.pin is string
+            && request.resource.data.pin == get(/databases/$(database)/documents/tandes/$(t)/claus/$(g)).data.pin;
+          allow update: if false;
+          allow delete: if esDocent(t) || (autenticat() && request.auth.uid == uid);
+        }
+
+        // Un document per repte (R1…R9). Lliurat, ja no es pot tocar, tret que el docent el reobri.
+        match /reptes/{codi} {
+          allow read: if esDocent(t) || esMembre(t, g);
+          allow create: if esDocent(t)
+            || (esMembre(t, g) && vigent(t) && blocObert(t, codi)
+                && request.resource.data.codi == codi && campsRepte(request.resource.data));
+          allow update: if esDocent(t)
+            || (esMembre(t, g) && vigent(t) && blocObert(t, codi)
+                && resource.data.estat == 'obert'
+                && request.resource.data.codi == codi && campsRepte(request.resource.data));
+          allow delete: if esDocent(t);
+        }
+
+        // Registre de comprovacions: el grup només hi pot afegir
+        match /intents/{id} {
+          allow read: if esDocent(t) || esMembre(t, g);
+          allow create: if esMembre(t, g) && vigent(t)
+            && request.resource.data.keys().hasOnly(['repte', 'nivell', 'bitllets', 'respostes', 'errors',
+                                                     'resultat', 'uid', 'ms'])
+            && request.resource.data.uid == request.auth.uid
+            && request.resource.data.bitllets is list && request.resource.data.bitllets.size() <= 20;
+          allow update: if false;
+          allow delete: if esDocent(t);
+        }
+      }
+    }
+  }
+}

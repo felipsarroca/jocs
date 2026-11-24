@@ -1,0 +1,43 @@
+name: Pròxima sortida · Agència de viatges en tren
+description: Comunica un error o proposa una millora per a l'aplicació «Pròxima sortida».
+title: "[Pròxima sortida] "
+labels: ["Pròxima sortida"]
+body:
+  - type: dropdown
+    id: tipus
+    attributes:
+      label: Tipus
+      options:
+        - Error
+        - Suggeriment
+        - Dubte
+    validations:
+      required: true
+  - type: textarea
+    id: descripcio
+    attributes:
+      label: Descripció
+      description: Explica què passa o què t'agradaria millorar.
+      placeholder: Escriu-hi el detall...
+    validations:
+      required: true
+  - type: input
+    id: pantalla
+    attributes:
+      label: Pantalla o repte
+      description: Indica on passa, si ho saps.
+      placeholder: Accés, repte 5, guixeta, panell docent...
+  - type: textarea
+    id: passos
+    attributes:
+      label: Passos per reproduir-ho
+      description: Omple-ho només si es tracta d'un error.
+      placeholder: |
+        1. Obro...
+        2. Clico...
+        3. Veig...
+  - type: input
+    id: dispositiu
+    attributes:
+      label: Dispositiu i navegador
+      placeholder: Ordinador amb Chrome, portàtil 1366x768, mòbil...

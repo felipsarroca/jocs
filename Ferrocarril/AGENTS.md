@@ -1,0 +1,15 @@
+# Pròxima sortida
+
+- App de la SdA de ferrocarril (edició 4). El disseny és a `V:\La meva unitat\Matèries\Situacions d'Aprenentatge\Ferrocarril\1. Disseny de la SdA`: llegeix els documents 02 (encàrrecs i solucions), 04 (app) i 10 (bases de dades) abans de canviar res.
+- Decisions confirmades per Felip (24-11-2026), no les reobris: agència «Pròxima sortida» (cada grup és una oficina, cada repte és un client, la via tallada és la crisi); nou encàrrecs iguals per a tothom en quatre blocs; tres nivells per encàrrec (Regional, Exprés, Alta velocitat); 4.000 punts, nota de grup = punts / 1000, un nivell amb ajuda val la meitat; cap grup no revisa la feina d'un altre; l'app no fa càlculs per l'alumnat ni té cercador d'itineraris.
+- `dades/dades.json` i `proves/vectors.json` no s'editen a mà: es generen amb `Verificador/exporta.py`. Els textos i les condicions dels encàrrecs són a `Verificador/reptes.json`. Ordre: `python comprova.py` → `python exporta.py` → `node proves/prova-avaluador.mjs`.
+- `js/avaluador.js` és una còpia exacta de `Verificador/avaluador.py`. Qualsevol canvi s'ha de fer a tots dos i la prova ha de donar 2926/2926.
+- Firestore no admet llistes dins de llistes: els bitllets es desen com a text `dia|tren|de|a`. Amb `FIREBASE_CONFIG = null` (a `js/config.js`) l'app funciona en mode local amb `localStorage` (útil per provar sense tocar la base de dades real).
+- Missatges a l'alumnat en llenguatge planer A2, sense codis d'estació ni de tren i sense donar mai el resultat d'un càlcul (`js/textos.js`).
+- Verifica cada canvi d'interfície a 1366 × 768, a 1920 × 1080 i en mòbil (390 × 844), sense desplaçament horitzontal. Escalat com `edu-apps/Equacions` (`js/escala.js`).
+- Disseny (Felip, 24-11-2026: «clara, atractiva i pràctica»): els encàrrecs són parades d'una línia de tren amb un color per bloc (`--b1` a `--b4`, també a les columnes del panell docent); la guixeta és un panell de sortides fosc; els bitllets tenen forma de bitllet. Conserva-ho.
+- L'app viu a `jocs/Ferrocarril` (abans era a `edu-apps/ProximaSortida`, que ja no existeix).
+- Regles de Firestore: `firebase/prova-regles.mjs` les prova amb l'emulador local (instruccions a la capçalera; 57 casos). Torna-la a passar després de qualsevol canvi a `firestore.rules` o a les escriptures de l'app.
+- Noms decidits (24-11-2026): la SdA es diu com l'app; pregunta-títol «Què hi guanyes i què hi perds quan tries un tren?»; els grups porten noms de trens (`NOMS_GRUPS` a `js/config.js`).
+- Publicada (24-11-2026): https://ja.cat/estaciodetren (ja.cat/estacio és d'una altra persona) → GitHub Pages de `jocs/Ferrocarril`; targeta al menú de jocs (`jocs/script.js`, «Jocs d'estratègia»). Firebase `proxima-sortida-cat` del compte personal de Felip (Firestore eur3, accés anònim activat amb `firebase deploy --only auth`).
+- L'alumnat no pinta res fins que arriba el progrés desat (`S.progresCarregat` a `js/alumnat.js`): si no, en tornar a entrar l'esborrany buit podia sobreescriure el bo. No ho treguis.

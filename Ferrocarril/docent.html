@@ -1,0 +1,48 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: AGPL-3.0-or-later AND CC-BY-NC-SA-4.0 -->
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pròxima sortida · Panell docent</title>
+  <meta name="description" content="Panell docent de Pròxima sortida: crea la tanda, obre els blocs, activa la via tallada i segueix el treball de cada grup.">
+  <meta name="theme-color" content="#14233f">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="css/estil.css">
+</head>
+<body class="docent">
+  <div id="app">
+    <header class="capcalera">
+      <div class="marca">
+        <img src="favicon.svg" alt="" class="marca-icona">
+        <div>
+          <strong>Pròxima sortida</strong>
+          <span class="marca-sub">Panell docent</span>
+        </div>
+      </div>
+      <div class="capcalera-dreta" id="capcalera-dreta"></div>
+    </header>
+    <main id="main" class="principal" tabindex="-1"></main>
+
+    <footer class="felip-app-footer" role="contentinfo">
+      <a class="felip-license-image-link"
+         href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Llicència Creative Commons BY-NC-SA 4.0">
+        <img class="felip-license-image"
+             src="assets/CC_BY-NC-SA.png"
+             alt="Creative Commons BY-NC-SA">
+      </a>
+      <div class="felip-footer-text">
+        <p>Aplicació creada per <a href="https://ja.cat/felipsarroca" target="_blank" rel="noopener noreferrer">Felip Sarroca</a> amb assistència de la IA</p>
+        <p>Codi: <a href="LICENSE" target="_blank" rel="noopener noreferrer">AGPLv3</a> · Continguts: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ca" target="_blank" rel="noopener noreferrer">CC BY-NC-SA 4.0</a> · <a href="https://github.com/felipsarroca/jocs/issues/new?template=ferrocarril.yml" target="_blank" rel="noopener noreferrer">Suggeriments i errors</a></p>
+      </div>
+    </footer>
+  </div>
+  <div id="targetes" class="targetes-impressio" aria-hidden="true"></div>
+  <div id="avisos" class="avisos" role="status" aria-live="polite"></div>
+  <script type="module" src="js/docent.js"></script>
+</body>
+</html>
