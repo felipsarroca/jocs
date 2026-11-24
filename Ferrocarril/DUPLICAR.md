@@ -184,9 +184,9 @@ A Firebase, a **Firestore Database › Data**, hi veureu la col·lecció `tandes
 
 ## Materials per imprimir
 
-Els materials en paper es baixen des del **Manual** del panell (apartat «Materials per imprimir») o des de la carpeta [`Ferrocarril/docs/materials`](docs/materials): mapa A3, full de regles, full de càlculs, guia de les quatre trobades i quadern de panells de reserva. La [presentació per al professorat](docs/presentacio-proxima-sortida.pdf) explica què cal imprimir, quantes còpies i què va a cada taula.
+Al panell, el botó **Imprimibles** reuneix tots els materials en paper, amb les targetes d'accés, la prova individual i la carpeta docent. Els materials sense solucions també es baixen des del **Manual** o des de la carpeta [`Ferrocarril/docs/materials`](docs/materials): mapa A3, full de regles, full de càlculs, guia de les quatre trobades i quadern de panells de reserva. La [presentació per al professorat](docs/presentacio-proxima-sortida.pdf) explica què cal imprimir, quantes còpies i què va a cada taula.
 
-La prova individual i la carpeta docent no són públiques perquè porten les solucions. Demaneu-les a l'autor. Les solucions de tots els encàrrecs també són al **Solucionari** del panell.
+La prova individual i la carpeta docent porten les solucions. Per això es publiquen xifrades i només es baixen des del panell, amb la contrasenya. Les solucions de tots els encàrrecs també són al **Solucionari** del panell.
 
 Els fulls impresos porten al peu l'adreça `ja.cat/estaciodetren`, que és la de l'app original. Digueu a l'alumnat que faci servir l'adreça de la seva targeta d'accés.
 

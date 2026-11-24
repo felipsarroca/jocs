@@ -23,9 +23,10 @@ async function derivaClau(contrasenya, sal, iteracions) {
     base, { name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
 }
 
-/** xifra un text amb la contrasenya; retorna l'objecte que es desa en JSON */
-export async function xifra(text, contrasenya, empremta = null) {
-  const sal = globalThis.crypto.getRandomValues(new Uint8Array(16));
+/** xifra un text amb la contrasenya; retorna l'objecte que es desa en JSON.
+    Amb la mateixa contrasenya i la mateixa sal, la clau no canvia i els aparells no la tornen a demanar. */
+export async function xifra(text, contrasenya, empremta = null, salAnterior = null) {
+  const sal = salAnterior ? deBase64(salAnterior) : globalThis.crypto.getRandomValues(new Uint8Array(16));
   const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
   const clau = await derivaClau(contrasenya, sal, ITERACIONS);
   const dades = new Uint8Array(await subtle().encrypt({ name: 'AES-GCM', iv }, clau, enc.encode(text)));
@@ -42,6 +43,23 @@ export async function desxifra(obj, clau) {
   const dades = await subtle().decrypt({ name: 'AES-GCM', iv: deBase64(obj.iv) }, clau, deBase64(obj.dades));
   return dec.decode(dades);
 }
+
+/* Imprimibles protegits (prova individual i carpeta docent): cada PDF es xifra amb una clau pròpia
+   (AES-GCM) que viu dins del solucionari. Fitxer = vector d'inicialització (12 bytes) + dades xifrades.
+   Així, canviar la contrasenya del panell només toca el solucionari. */
+const clauBytes = (b64, usos) => subtle().importKey('raw', deBase64(b64), { name: 'AES-GCM' }, false, usos);
+export async function xifraBytes(bytes, clauB64) {
+  const iv = globalThis.crypto.getRandomValues(new Uint8Array(12));
+  const dades = new Uint8Array(await subtle().encrypt({ name: 'AES-GCM', iv }, await clauBytes(clauB64, ['encrypt']), bytes));
+  const out = new Uint8Array(12 + dades.length);
+  out.set(iv); out.set(dades, 12);
+  return out;
+}
+export async function desxifraBytes(bytes, clauB64) {
+  const b = new Uint8Array(bytes);
+  return new Uint8Array(await subtle().decrypt({ name: 'AES-GCM', iv: b.subarray(0, 12) }, await clauBytes(clauB64, ['decrypt']), b.subarray(12)));
+}
+export const clauNova = () => aBase64(globalThis.crypto.getRandomValues(new Uint8Array(32)));
 
 /** la clau es guarda a l'aparell per no haver de tornar a escriure la contrasenya */
 export const exportaClau = async (clau) => aBase64(new Uint8Array(await subtle().exportKey('raw', clau)));

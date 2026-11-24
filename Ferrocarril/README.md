@@ -14,7 +14,7 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 ## Presentació per al professorat
 
-**[Baixeu la presentació (PDF, 7 pàgines)](docs/presentacio-proxima-sortida.pdf)** · També es baixa des del panell del professorat (botó «Presentació»).
+**[Baixeu la presentació (PDF, 7 pàgines)](docs/presentacio-proxima-sortida.pdf)** · També es baixa des del panell del professorat (botó «Imprimibles»).
 
 <a href="docs/presentacio-proxima-sortida.pdf"><img src="docs/captures/00-presentacio.png" alt="Portada de la presentació" width="330"></a>
 
@@ -32,7 +32,7 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 L'app és lliure. La guia **[DUPLICAR.md](DUPLICAR.md)** explica pas a pas, sense programar, com fer-ne una còpia amb la vostra pròpia base de dades: fork a GitHub, GitHub Pages, projecte de Firebase (gratuït), regles de seguretat, configuració de `js/config.js` i contrasenya del panell. Calen una hora i un compte de GitHub i un de Google.
 
-Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de les trobades i quadern de panells de reserva) són a [`docs/materials`](docs/materials).
+Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de les trobades i quadern de panells de reserva) són a [`docs/materials`](docs/materials). Al panell, el botó **Imprimibles** els reuneix tots, amb les targetes d'accés i amb la prova individual i la carpeta docent, que porten les solucions i només es baixen des del panell.
 
 ---
 
@@ -55,6 +55,9 @@ Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de l
 
 ### Solucionari: per a cada encàrrec i nivell, un viatge correcte, les respostes i les trampes habituals
 ![Solucionari a 1366 × 768](docs/captures/07-solucionari-1366x768.png)
+
+### Imprimibles: tots els materials en paper, amb la mida, les còpies i on es retalla
+![Imprimibles a 1366 × 768](docs/captures/09-imprimibles-1366x768.png)
 
 ### La porta del panell: la contrasenya es demana una sola vegada en cada aparell
 ![Porta del panell a 1366 × 768](docs/captures/08-porta-panell-1366x768.png)
@@ -94,6 +97,7 @@ Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de l
 - **Professorat (`docent.html`, botó «Professorat»):** cada tanda té, a més, la seva contrasenya de la tanda. S'hi entra des de qualsevol aparell amb el codi de la tanda i aquesta contrasenya. En crear la tanda, el docent posa les dates de les quatre trobades: els blocs i la via tallada s'obren sols, i durant la sessió no cal tocar res. Després de cada sessió marca les ajudes; al final exporta un CSV. Hi ha un botó «Obrir abans d'hora» per a imprevistos.
 - **Demostració (`?demo`):** [felipsarroca.github.io/jocs/Ferrocarril/?demo](https://felipsarroca.github.io/jocs/Ferrocarril/?demo) entra sense codi com el grup Talgo, amb els nou encàrrecs oberts. Les dades es desen només al navegador, separades de les tandes reals; la barra de baix permet tornar a començar i obrir el panell del professorat de la demo.
 - **Solucionari (botó «Solucionari» del panell):** a pantalla completa, amb una pestanya per encàrrec. Cada nivell mostra un viatge correcte (bitllets amb dia, hores, preu i codi del tren), les respostes i les trampes habituals; la via tallada mostra el tall i la reparació més barata de cada grup de la tanda, amb les respostes calculades. També hi ha els viatges de referència del gran viatge i les solucions de la prova individual.
+- **Imprimibles (botó del panell):** tots els materials en paper agrupats per a qui són, amb la mida, les còpies i on es retalla. La prova individual i la carpeta docent es publiquen xifrades (`dades/impresos/*.bin`) amb una clau que és dins del solucionari: només es baixen amb el panell obert, i canviar la contrasenya no les toca.
 - **Manual (`manual.html`):** guia breu del professorat, enllaçada des del panell, amb els materials per imprimir.
 
 ## Arquitectura
@@ -112,6 +116,7 @@ Els materials per imprimir (mapa A3, full de regles, full de càlculs, guia de l
 | `js/alumnat.js` | App de l'alumnat: accés, carril d'encàrrecs, guixeta i viatge. |
 | `js/docent.js` | Panell docent. |
 | `js/solucionari.js` | Porta del panell, solucionari i canvi de contrasenya. |
+| `js/imprimibles.js` | Pantalla «Imprimibles» del panell. |
 | `js/xifratge.js` | Xifratge del solucionari (AES-GCM i PBKDF2), al navegador i a Node. |
 | `js/agencia.js` | Tandes, grups, desbloqueig, correcció de respostes i punts. |
 | `js/avaluador.js` | Regles del viatge, nivells i valors de les preguntes. |

@@ -4,7 +4,8 @@
    Crea la tanda amb el calendari de les quatre trobades (els blocs i la via tallada s'obren sols),
    segueix cada grup, marca les ajudes, imprimeix les targetes i exporta els resultats.
    Els punts es recalculen sempre amb l'avaluador a partir dels bitllets i les respostes desats. */
-import { STORAGE_KEYS, NOMS_GRUPS, NOMS_TANDES, LIMITS, VERSIO_APP, URL_APP, DEMO, PRESENTACIO } from './config.js';
+import { STORAGE_KEYS, NOMS_GRUPS, NOMS_TANDES, LIMITS, VERSIO_APP, URL_APP, DEMO } from './config.js';
+import { obreImprimibles } from './imprimibles.js';
 import { solucionariDesat, porta, obreSolucionari, oblidaAparell, canviaContrasenya } from './solucionari.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
@@ -189,7 +190,8 @@ function botoSolucionari() {
 }
 
 const botonsDocuments = () => [
-  h('a', { class: 'boto petit', href: PRESENTACIO, download: '', title: 'Document de presentació de la SdA (PDF)' }, icona('baixa'), 'Presentació'),
+  h('button', { class: 'boto petit', onclick: () => obreImprimibles({ SOL: S.SOL, targetes: S.tanda ? imprimeixTargetes : null }),
+    title: 'Tots els materials en paper i la presentació' }, icona('impressora'), 'Imprimibles'),
   h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual')];
 
 /* ================================================================ una tanda */
