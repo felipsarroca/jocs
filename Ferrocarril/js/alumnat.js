@@ -2,7 +2,7 @@
 /* App de l'alumnat: accés, encàrrecs (repte), guixeta i resposta.
    L'app no fa cap càlcul per l'alumnat: mostra horaris i preus dels bitllets, però no
    suma preus ni calcula esperes. L'avaluador només diu què falla. */
-import { STORAGE_KEYS, LIMITS } from './config.js';
+import { STORAGE_KEYS, LIMITS, DEMO, NOMS_GRUPS } from './config.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
 import { creaAgencia, codificaBitllet, descodifica } from './agencia.js';
@@ -35,7 +35,45 @@ async function inicia() {
   S.AG = creaAgencia(S.M, S.D, S.A);
   try { S.acces = JSON.parse(localStorage.getItem(STORAGE_KEYS.ACCES) || 'null'); } catch (_) { S.acces = null; }
   if (S.acces && await S.AG.esMembre(S.acces.tandaId, S.acces.grupId)) obreAgencia();
+  else if (DEMO) entraDemo();
   else pantallaAcces();
+}
+
+/* ================================================================ demostració */
+/** Crea una tanda de prova local (totes les trobades ja han passat) i hi entra com el primer grup. */
+async function entraDemo() {
+  const DIA = 86400000;
+  const avui = new Date(); avui.setHours(0, 0, 0, 0);
+  const t0 = avui.getTime() - 4 * DIA;
+  const { tandaId, pins } = await S.AG.creaTanda({
+    nom: 'Demostració', noms: NOMS_GRUPS.slice(0, 6),
+    calendari: [t0, t0 + DIA, t0 + 2 * DIA, t0 + 3 * DIA], clau: Math.random().toString(36)
+  });
+  await S.M.update(`tandes/${tandaId}`, { demo: true, estat: 'en_curs' });
+  await S.AG.entra(tandaId, 'g1', pins.g1);
+  S.acces = { tandaId, grupId: 'g1' };
+  localStorage.setItem(STORAGE_KEYS.ACCES, JSON.stringify(S.acces));
+  localStorage.setItem(STORAGE_KEYS.DOCENT, tandaId);
+  obreAgencia();
+}
+
+function reiniciaDemo() {
+  for (const k of Object.values(STORAGE_KEYS)) localStorage.removeItem(k);
+  location.reload();
+}
+
+function barraDemo() {
+  let b = document.getElementById('barra-demo');
+  if (!DEMO) return;
+  if (!b) {
+    b = h('div', { id: 'barra-demo', class: 'barra-demo', role: 'note' },
+      h('strong', {}, 'Demostració'),
+      h('span', {}, 'Tots els encàrrecs oberts · només en aquest navegador'),
+      h('button', { class: 'boto petit', onclick: reiniciaDemo }, 'Torna a començar'),
+      h('a', { class: 'boto petit', href: 'docent.html?demo' }, icona('persona'), 'Panell del professorat'),
+      h('a', { class: 'boto petit', href: './' }, 'Surt de la demo'));
+    document.querySelector('.capcalera')?.after(b);
+  }
 }
 
 /* ================================================================ accés */
@@ -149,6 +187,7 @@ function pinta() {
 }
 
 function pintaCapcalera() {
+  barraDemo();
   const { total } = S.AG.puntsGrup(S.progres, ajudes());
   document.getElementById('nom-agencia').textContent = `Oficina ${S.grup.nom}`;
   document.getElementById('capcalera-dreta').replaceChildren(
@@ -158,7 +197,7 @@ function pintaCapcalera() {
         h('p', {}, h('strong', {}, punts(total)), h('span', {}, ' / 4.000 punts')),
         h('div', { class: 'reputacio-barra', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 4000, 'aria-valuenow': total, 'aria-label': 'Punts de reputació' },
           h('i', { style: `width:${Math.min(100, total / 40)}%` })))),
-    h('button', { class: 'boto petit', onclick: surt, title: 'Surt d\'aquest aparell' }, icona('sortida'), TEXTOS.botons.surt));
+    ...(DEMO ? [] : [h('button', { class: 'boto petit', onclick: surt, title: 'Surt d\'aquest aparell' }, icona('sortida'), TEXTOS.botons.surt)]));
 }
 
 function pintaCarril() {

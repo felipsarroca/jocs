@@ -49,6 +49,7 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 
 - **Alumnat (`index.html`):** codi de la tanda, nom del grup i PIN de quatre xifres. Cap dada personal.
 - **Professorat (`docent.html`, botó «Professorat»):** s'hi entra des de qualsevol aparell amb el codi de la tanda i la contrasenya del professorat. En crear la tanda, el docent posa les dates de les quatre trobades: els blocs i la via tallada s'obren sols, i durant la sessió no cal tocar res. Després de cada sessió marca les ajudes; al final exporta un CSV. Hi ha un botó «Obrir abans d'hora» per a imprevistos.
+- **Demostració (`?demo`):** [felipsarroca.github.io/jocs/Ferrocarril/?demo](https://felipsarroca.github.io/jocs/Ferrocarril/?demo) entra sense codi com el grup Talgo, amb els nou encàrrecs oberts. Les dades es desen només al navegador, separades de les tandes reals; la barra de baix permet tornar a començar i obrir el panell del professorat de la demo.
 - **Manual (`manual.html`):** guia breu del professorat, enllaçada des del panell.
 
 ## Arquitectura

@@ -3,7 +3,7 @@
    Els camins segueixen l'estructura del document 10 de la SdA:
    tandes/{t}, tandes/{t}/grups/{g}, tandes/{t}/grups/{g}/reptes/{codi}...
    Un camí amb un nombre parell de trossos és un document; amb un nombre senar, una col·lecció. */
-import { FIREBASE_CONFIG, FB_VER, STORAGE_KEYS } from './config.js';
+import { FIREBASE_CONFIG, FB_VER, STORAGE_KEYS, DEMO } from './config.js';
 
 const esDocument = (cami) => cami.split('/').length % 2 === 0;
 
@@ -121,7 +121,7 @@ let promesa = null;
 export function obreMagatzem() {
   if (!promesa) {
     promesa = (async () => {
-      if (!FIREBASE_CONFIG) return magatzemLocal();
+      if (!FIREBASE_CONFIG || DEMO) return magatzemLocal();
       return magatzemFirestore();
     })();
   }

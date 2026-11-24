@@ -274,7 +274,7 @@ export function creaAgencia(M, D, A) {
       let anteriorOk = i === 0 || progres[ant]?.estat === 'lliurat'
         || (c !== 'R8' && puntsRepte(ant, progres).nivell >= 1);
       if (c === 'R9') anteriorOk = viaTalladaActiva(tanda);
-      out[c] = blocOk && anteriorOk ? 'obert' : 'bloquejat';
+      out[c] = tanda?.demo || (blocOk && anteriorOk) ? 'obert' : 'bloquejat';
     }
     return out;
   }

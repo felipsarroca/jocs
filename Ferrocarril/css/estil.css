@@ -91,6 +91,10 @@ p { margin: 0; }
   transition: background .15s, border-color .15s, transform .05s, box-shadow .15s;
 }
 a.boto { text-decoration: none; }
+.barra-demo { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 6px 18px; background: #fff4d6; border-bottom: 1px solid #f1d495; font-size: .85rem; color: #6b4a00; }
+.barra-demo strong { background: var(--amber, #ffb627); color: #13213c; padding: 2px 9px; border-radius: 999px; font-size: .78rem; text-transform: uppercase; letter-spacing: .4px; }
+.barra-demo span { margin-right: auto; }
+.barra-demo .boto.petit { background: #fff; padding: 4px 10px; font-size: .8rem; }
 .boto:hover { border-color: var(--navy-3); }
 .boto:active { transform: translateY(1px); }
 .boto:disabled { opacity: .45; cursor: not-allowed; }

@@ -3,7 +3,7 @@
    Crea la tanda amb el calendari de les quatre trobades (els blocs i la via tallada s'obren sols),
    segueix cada grup, marca les ajudes, imprimeix les targetes i exporta els resultats.
    Els punts es recalculen sempre amb l'avaluador a partir dels bitllets i les respostes desats. */
-import { STORAGE_KEYS, NOMS_GRUPS, LIMITS, VERSIO_APP, URL_APP } from './config.js';
+import { STORAGE_KEYS, NOMS_GRUPS, LIMITS, VERSIO_APP, URL_APP, DEMO } from './config.js';
 import { obreMagatzem } from './magatzem.js';
 import { creaAvaluador } from './avaluador.js';
 import { creaAgencia, descodifica } from './agencia.js';
@@ -86,7 +86,7 @@ async function pantallaTandes() {
   localStorage.removeItem(STORAGE_KEYS.DOCENT);
   document.getElementById('capcalera-dreta').replaceChildren(
     h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
-    h('a', { class: 'boto petit', href: './' }, icona('tren'), 'Alumnat'));
+    h('a', { class: 'boto petit', href: DEMO ? './?demo' : './' }, icona('tren'), 'Alumnat'));
 
   // tandes d'aquest aparell
   const ids = new Set(recordades());
@@ -227,7 +227,8 @@ function pintaTanda() {
     h('button', { class: 'boto petit', onclick: imprimeixTargetes }, icona('impressora'), 'Targetes d\'accés'),
     h('button', { class: 'boto petit', onclick: exportaCSV }, icona('baixa'), 'Exporta CSV'),
     h('a', { class: 'boto petit', href: 'manual.html', target: '_blank' }, icona('ajuda'), 'Manual'),
-    h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'));
+    DEMO ? h('a', { class: 'boto petit', href: './?demo' }, icona('tren'), 'Vista de l\'alumnat')
+      : h('button', { class: 'boto petit', onclick: pantallaTandes }, 'Tandes'));
   const bActual = S.AG.blocActual(t);
   const viaActiva = S.AG.viaTalladaActiva(t);
   const cal = t.calendari ? campsCalendari(t.calendari) : null;

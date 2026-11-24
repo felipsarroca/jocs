@@ -30,10 +30,15 @@ export const LIMITS = {
 
 export const NOMS_GRUPS = ['Talgo', 'Alvia', 'Avant', 'Intercity', 'Rodalies', 'Euromed', 'Trenhotel', 'Altaria', 'Alaris', 'Intercidades', 'Lusitânia', 'Alfa Pendular'];
 
+/** Mode demostració (?demo): sense codi, tots els encàrrecs oberts, dades només en aquest navegador
+    i separades de les tandes reals. Serveix per ensenyar l'app i valorar-ne canvis. */
+export const DEMO = new URLSearchParams(location.search).has('demo');
+const pre = DEMO ? 'proximasortida-demo:' : 'proximasortida:';
+
 export const STORAGE_KEYS = {
-  BD_LOCAL: 'proximasortida:bd',
-  UID_LOCAL: 'proximasortida:uid',
-  ACCES: 'proximasortida:acces',
-  DOCENT: 'proximasortida:docent',
-  DOCENT_TANDES: 'proximasortida:docent-tandes'
+  BD_LOCAL: pre + 'bd',
+  UID_LOCAL: pre + 'uid',
+  ACCES: pre + 'acces',
+  DOCENT: pre + 'docent',
+  DOCENT_TANDES: pre + 'docent-tandes'
 };
