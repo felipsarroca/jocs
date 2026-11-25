@@ -72,9 +72,10 @@ export function obreImprimibles(ctx) {
         h('h2', { id: 'imp-titol' }, icona('impressora'), 'Imprimibles'),
         h('span', { class: 'imp-avis' }, 'A «Mida real» (100 %) · es llegeixen bé en blanc i negre'),
         h('button', { class: 'boto-icona tanca', 'aria-label': 'Tanca', onclick: tanca }, icona('creu'))),
-      h('div', { class: 'imp-cos' }, GRUPS.map((g) => h('div', { class: `imp-grup${g.protegit ? ' protegit' : ''}` },
-        h('h3', {}, icona(g.icona), g.titol),
-        h('ul', {}, g.peces.map(peca)))))));
+      h('div', { class: 'imp-cos' }, [[0, 2], [1, 3]].map((idx) => h('div', { class: 'imp-columna' }, idx.map((i) => GRUPS[i]).map((g) =>
+        h('div', { class: `imp-grup${g.protegit ? ' protegit' : ''}` },
+          h('h3', {}, icona(g.icona), g.titol),
+          h('ul', {}, g.peces.map(peca)))))))));
   document.body.append(capa);
   document.addEventListener('keydown', tecla);
 }

@@ -170,14 +170,15 @@ async function pantallaTandes() {
         h('button', { class: 'boto-text', onclick: canviaContrasenya }, icona('persona', 'mini'), 'Canvia la contrasenya del panell'))),
     h('section', { class: 'targeta' },
       h('h2', {}, icona('estrella'), 'Tanda nova'),
-      h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Grup classe (Alfa, Beta, Gamma, Delta o Èpsilon)'), nom, suggeriments,
-      h('label', { class: 'etiqueta', for: 'ngrups' }, 'Nombre de grups'), nGrups,
-      h('p', { class: 'etiqueta' }, 'Noms dels grups'), noms,
-      h('p', { class: 'etiqueta' }, 'Dates de les quatre trobades'), cal,
-      h('p', { class: 'nota' }, 'Els blocs s\'obren sols el dia de cada trobada. Durant la sessió no cal tocar res.'),
-      h('label', { class: 'etiqueta', for: 'clau-nova' }, 'Contrasenya de la tanda (apunteu-la)'), clauN.caixa,
+      h('div', { class: 'fila-camps' },
+        h('div', { class: 'camp' }, h('label', { class: 'etiqueta', for: 'nom-tanda' }, 'Grup classe (Alfa, Beta, Gamma, Delta o Èpsilon)'), nom, suggeriments),
+        h('div', { class: 'camp' }, h('label', { class: 'etiqueta', for: 'ngrups' }, 'Grups'), nGrups)),
+      h('div', { class: 'camp' }, h('p', { class: 'etiqueta' }, 'Noms dels grups'), noms),
+      h('div', { class: 'camp' }, h('p', { class: 'etiqueta' }, 'Dates de les quatre trobades: els blocs s\'obren sols i durant la sessió no cal tocar res'), cal),
+      h('div', { class: 'fila-camps final' },
+        h('div', { class: 'camp' }, h('label', { class: 'etiqueta', for: 'clau-nova' }, 'Contrasenya de la tanda (apunteu-la)'), clauN.caixa),
+        h('button', { class: 'boto primari', onclick: crea }, 'Crea la tanda', icona('fletxa'))),
       errN,
-      h('button', { class: 'boto primari', onclick: crea }, 'Crea la tanda', icona('fletxa')),
       S.M.mode === 'local' ? h('p', { class: 'nota' }, 'Mode local: la tanda només existeix en aquest navegador.') : null)));
   setTimeout(() => codi.focus(), 50);
 }

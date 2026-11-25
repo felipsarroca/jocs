@@ -130,7 +130,7 @@ function bitllets(viatge) {
     h('span', { class: 'sol-tren', title: 'Codi del tren (només per al docent)' }, b.tren))));
 }
 
-function respostes(llista, nota = 'Depèn del viatge del repte 7 de cada grup') {
+function respostes(llista, nota = 'Depèn de cada grup') {
   if (!llista?.length) return null;
   return h('dl', { class: 'sol-respostes' }, llista.flatMap((q) => {
     const llarg = (q.valor ?? '').length > 22 ? 'llarg' : '';
@@ -271,11 +271,13 @@ export function obreSolucionari(ctx, inicial = 'R1') {
   const tecla = (e) => { if (e.key === 'Escape') tanca(); };
   const capa = h('div', { class: 'capa-sol', id: 'capa-sol', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'sol-titol' },
     h('div', { class: 'solucionari' },
-      h('header', { class: 'sol-cap' },
-        h('h2', { id: 'sol-titol' }, icona('check'), 'Solucionari'),
-        h('span', { class: 'sol-avis' }, icona('cadenat', 'mini'), 'Només per al professorat: no el projecteu a la classe'),
+      h('header', { class: 'sol-cap amb-pestanyes' },
+        h('div', { class: 'sol-titol' },
+          h('h2', { id: 'sol-titol' }, icona('check'), 'Solucionari'),
+          h('span', { class: 'sol-avis' }, icona('cadenat', 'mini'), 'No el projecteu a classe')),
+        barra,
         h('button', { class: 'boto-icona tanca', 'aria-label': 'Tanca el solucionari', onclick: tanca }, icona('creu'))),
-      barra, cos));
+      cos));
   document.addEventListener('keydown', tecla);
   document.body.append(capa);
   pinta();
