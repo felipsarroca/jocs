@@ -4,7 +4,7 @@
    La configuració web és pública: la protecció són les regles de firebase/firestore.rules.
    Amb FIREBASE_CONFIG = null l'app funciona en mode local (només en aquest navegador). */
 
-export const VERSIO_APP = '0.6.2';
+export const VERSIO_APP = '0.6.3';
 
 /** adreça curta de l'app (targetes d'accés, fulls impresos i manual) */
 export const URL_APP = 'ja.cat/estaciodetren';
