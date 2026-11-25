@@ -10,6 +10,7 @@ const M = 'docs/materials/';
 const GRUPS = [
   { titol: 'Per preparar la SdA', icona: 'ajuda', peces: [
     { nom: 'Presentació per al professorat', detall: 'Què és, com es prepara i com s\'avalua', mida: 'A4 · 7 pàgines', copies: 'Per llegir', href: PRESENTACIO, fitxer: 'Presentació per al professorat.pdf' },
+    { nom: 'Programació de la SdA', detall: 'Objectius, competències, criteris, sabers i avaluació', mida: 'A4 · 7 pàgines', copies: 'Per llegir', href: encodeURI('sda/programacio/Programació de la SdA - Pròxima sortida.pdf'), fitxer: 'Programació de la SdA - Pròxima sortida.pdf' },
     { nom: 'Guia de les quatre trobades', detall: 'Què cal imprimir, minut a minut i preguntes d\'observació', mida: 'A4 · una cara', copies: '1 per docent', href: M + '06-guia-de-les-trobades.pdf', fitxer: '06 - Guia de les quatre trobades.pdf' }] },
   { titol: 'Per a cada grup', icona: 'persona', peces: [
     { nom: 'Targetes d\'accés', detall: 'Codi de la tanda, grup i PIN', mida: 'A4 · sis per full', copies: '1 full per tanda', tall: 'Per les línies discontínues', targetes: true },
@@ -18,7 +19,9 @@ const GRUPS = [
     { nom: 'Full de càlculs', detall: 'Per fer els càlculs a mà', mida: 'A4 doble cara', copies: '6 + 2 de reserva, per tanda', href: M + '03-full-de-calculs.pdf', fitxer: '03 - Full de càlculs.pdf' }] },
   { titol: 'Només per al docent', icona: 'cadenat', protegit: true, peces: [
     { nom: 'Prova individual', detall: 'Versions A i B, i recuperació (sense solucions)', mida: 'A4 · dues proves A5 per full', copies: 'A: 6 fulls · B: 6 fulls · recuperació: 1', tall: 'Per la línia de les tisores', id: 'prova', fitxer: '04 - Prova individual A, B i recuperació.pdf' },
-    { nom: 'Carpeta docent', detall: 'Solucions, rúbrica i graella d\'observació', mida: 'A4 · una cara', copies: '1 (la graella, una per tanda)', id: 'carpeta-docent', fitxer: '05 - Carpeta docent.pdf' }] },
+    { nom: 'Carpeta docent', detall: 'Solucions, rúbrica i graella d\'observació', mida: 'A4 · una cara', copies: '1 (la graella, una per tanda)', id: 'carpeta-docent', fitxer: '05 - Carpeta docent.pdf' },
+    { nom: 'Reptes i solucionari', detall: 'Els nou encàrrecs amb els nivells i les solucions', mida: 'A4 · 6 pàgines', copies: 'Per consultar', id: 'solucionari-docent', fitxer: 'Disseny 02 - Reptes i solucionari docent.pdf' },
+    { nom: 'Reparacions de la via tallada', detall: 'Una reparació per a cada viatge i cada tall', mida: 'A4 · 10 pàgines', copies: 'Per consultar', id: 'reparacions', fitxer: 'Disseny 09 - Reparacions de la via tallada.pdf' }] },
   { titol: 'Per si cau la connexió', icona: 'avis', peces: [
     { nom: 'Quadern de panells de reserva', detall: 'Les sortides de totes les estacions en paper', mida: 'A4 doble cara · grapat', copies: '2 en total', href: M + '07-quadern-de-panells-de-reserva.pdf', fitxer: '07 - Quadern de panells de reserva.pdf' }] }
 ];
@@ -72,7 +75,7 @@ export function obreImprimibles(ctx) {
         h('h2', { id: 'imp-titol' }, icona('impressora'), 'Imprimibles'),
         h('span', { class: 'imp-avis' }, 'A «Mida real» (100 %) · es llegeixen bé en blanc i negre'),
         h('button', { class: 'boto-icona tanca', 'aria-label': 'Tanca', onclick: tanca }, icona('creu'))),
-      h('div', { class: 'imp-cos' }, [[0, 2], [1, 3]].map((idx) => h('div', { class: 'imp-columna' }, idx.map((i) => GRUPS[i]).map((g) =>
+      h('div', { class: 'imp-cos' }, [[0, 3], [1], [2]].map((idx) => h('div', { class: 'imp-columna' }, idx.map((i) => GRUPS[i]).map((g) =>
         h('div', { class: `imp-grup${g.protegit ? ' protegit' : ''}` },
           h('h3', {}, icona(g.icona), g.titol),
           h('ul', {}, g.peces.map(peca)))))))));

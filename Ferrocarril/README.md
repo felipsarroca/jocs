@@ -28,6 +28,14 @@ L'app **no fa els càlculs per l'alumnat**: la guixeta dona l'hora i el preu de 
 | 6 | Seguiment i avaluació: el panell, el solucionari, la nota i els criteris d'avaluació (Decret 175/2022). |
 | 7 | Privacitat, imprevistos, com fer-la servir en una altra escola i llicència. |
 
+## Documentació de la situació d'aprenentatge
+
+La carpeta **[`sda`](sda)** conté tot el que cal per programar i portar a l'aula la situació:
+- la **[programació oficial](sda/programacio/Programació%20de%20la%20SdA%20-%20Pròxima%20sortida.pdf)** segons el Decret 175/2022, també en [DOCX editable](sda/programacio/Programació%20de%20la%20SdA%20-%20Pròxima%20sortida.docx): objectius, competències específiques i criteris d'avaluació, sabers, seqüència, DUA i avaluació, amb la competència específica 1 de Matemàtiques com a competència destacada;
+- els **[documents de disseny](sda/README.md#documents-de-disseny)**: xarxa i regles, conducció de les trobades, materials, avaluació, producció, revisió crítica, panells i bases de dades.
+
+Els documents que porten solucions (reptes i solucionari, reparacions de la via tallada, prova individual i carpeta docent) es baixen des del panell, amb la contrasenya.
+
 ## Feu-la servir a la vostra escola
 
 L'app és lliure. La guia **[DUPLICAR.md](DUPLICAR.md)** explica pas a pas, sense programar, com fer-ne una còpia amb la vostra pròpia base de dades: fork a GitHub, GitHub Pages, projecte de Firebase (gratuït), regles de seguretat, configuració de `js/config.js` i contrasenya del panell. Calen una hora i un compte de GitHub i un de Google.
