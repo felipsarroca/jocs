@@ -57,7 +57,7 @@ El verificador llegeix les taules dels documents 01 i 02 i `reptes.json`, i comp
 - Els viatges barats queden gairebé sempre a l'eix interior: de les 30.150 rutes de 80 € o menys, només 95 passen per la costa. És una propietat de la xarxa, no un error.
 - Amb una sola base, dos grups poden fer el mateix viatge. Les respostes obertes, el mapa de cada taula i l'explicació oral permeten distingir qui l'ha construït.
 - La reparació més habitual de la via tallada pot ser agafar el mateix tram un altre dia. Per això R9 demana les diferències de preu, d'hora i de percentatge amb el viatge original, i els nivells alts premien la reparació més barata.
-- Les bases de Madrid i Lisboa i els seus testimonis es conserven a «0. Antigues propostes\Disseny edició 3 (tres bases)» per si es vol fer una SdA amb reptes diferenciats.
+- Les bases de Madrid i Lisboa i els seus testimonis es conserven a «9. Arxiu\Disseny edició 3 (tres bases)» per si es vol fer una SdA amb reptes diferenciats.
 
 ## Què s'ha de mirar a la primera tanda
 

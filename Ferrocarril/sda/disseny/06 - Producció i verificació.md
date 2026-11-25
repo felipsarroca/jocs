@@ -11,6 +11,7 @@ La carpeta `Verificador` conté els programes en Python que comproven les dades 
 - `python exporta.py` escriu les dades de l'app (`dades/dades.json`) i els casos de prova (`proves/vectors.json`) a `Github/jocs/Ferrocarril`.
 - `node proves/prova-avaluador.mjs`, a la carpeta de l'app, comprova que l'avaluador de l'app dona el mateix resultat que el del verificador en tots els casos de prova.
 - `python materials.py` (un minut) escriu els set PDF de la carpeta «2. Materials»: mapa, full de regles, full de càlculs, prova individual, carpeta docent, guia de les trobades i quadern de panells de reserva. Els horaris, els preus, els punts i les solucions de la prova surten de les dades; els textos de la guia i del solucionari, dels documents 02, 03 i 05. Amb `python materials.py mapa` es refà una sola peça.
+- `python documentacio.py` escriu la programació (PDF i DOCX) a «0. Programació» a partir del seu Markdown i publica a l'app (`sda/`) la programació i els documents de disseny sense solucions. Amb `SOLUCIONARI_CLAU`, xifra els documents 02 i 09 perquè es baixin des del panell.
 
 Qualsevol canvi a l'horari, als preus o als encàrrecs es fa al document 01 o a `reptes.json`, i s'hi passen les cinc ordres, per aquest ordre, abans d'imprimir res o de publicar l'app.
 
